@@ -7,9 +7,10 @@ import { getCategoryIcon } from '../constants';
 interface Props {
   state: FinanceState;
   onUpdateTransaction?: (updated: Transaction) => void;
+  currencySymbol: string;
 }
 
-const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction }) => {
+const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, currencySymbol }) => {
   const expenses = state.transactions.filter(t => t.type === 'saida');
 
   const irsGroups = [
@@ -29,7 +30,7 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction }) 
       onUpdateTransaction({
         ...tx,
         isNoNif: !tx.isNoNif,
-        invoiceNumber: undefined 
+        invoiceNumber: undefined
       });
     }
   };
@@ -65,7 +66,7 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction }) 
           <div key={group.name} className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
               <div className="flex items-center gap-3"><div className="p-3 bg-white shadow-sm rounded-xl text-slate-600">{getCategoryIcon(group.categories[0])}</div><h4 className="text-xl font-black text-slate-800">{group.name}</h4></div>
-              <div className="text-right"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</p><p className="text-xl font-black text-emerald-600">{groupTotal.toLocaleString('pt-PT')}€</p></div>
+              <div className="text-right"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</p><p className="text-xl font-black text-emerald-600">{groupTotal.toLocaleString('pt-PT')}{currencySymbol}</p></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -76,7 +77,7 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction }) 
                       <td className="px-8 py-4 text-xs font-medium text-slate-500">{tx.date}</td>
                       <td className="px-8 py-4"><p className="text-sm font-bold text-slate-800">{tx.description}</p>{tx.establishment && <p className="text-[10px] text-emerald-600 font-black uppercase tracking-tighter">@ {tx.establishment}</p>}</td>
                       <td className="px-8 py-4"><div className="flex items-center gap-3">{tx.invoiceNumber ? <div className="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-3 py-1.5 rounded-full uppercase tracking-tighter">{tx.invoiceNumber}</div> : tx.isNoNif ? <div className="text-slate-400 font-bold text-[10px] bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-tighter">SEM NIF</div> : <div className="text-rose-500 font-bold text-[10px] bg-rose-50 px-3 py-1.5 rounded-full uppercase tracking-tighter">PENDENTE</div>}</div></td>
-                      <td className="px-8 py-4 text-sm font-black text-slate-800 text-right">{tx.amount.toLocaleString('pt-PT')}€</td>
+                      <td className="px-8 py-4 text-sm font-black text-slate-800 text-right">{tx.amount.toLocaleString('pt-PT')}{currencySymbol}</td>
                     </tr>
                   ))}
                 </tbody>

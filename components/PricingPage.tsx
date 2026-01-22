@@ -5,9 +5,10 @@ import { Check, ArrowRight, Sparkles, Shield, Zap, Heart, History, TrendingUp, T
 interface Props {
   onSelectPlan: (plan: 'monthly' | 'yearly') => void;
   onBack: () => void;
+  currencySymbol: string;
 }
 
-const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
+const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack, currencySymbol }) => {
   const [isYearly, setIsYearly] = useState(true);
 
   const plans = [
@@ -32,7 +33,7 @@ const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center py-20 px-6 overflow-x-hidden">
-      <button 
+      <button
         onClick={onBack}
         className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-all font-bold text-sm uppercase tracking-widest"
       >
@@ -50,7 +51,7 @@ const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
         {/* Toggle */}
         <div className="flex items-center justify-center gap-4 pt-6">
           <span className={`text-sm font-bold uppercase tracking-widest ${!isYearly ? 'text-slate-900' : 'text-slate-400'}`}>Mensal</span>
-          <button 
+          <button
             onClick={() => setIsYearly(!isYearly)}
             className="w-16 h-8 bg-white border-2 border-slate-200 rounded-full relative transition-all"
           >
@@ -70,7 +71,7 @@ const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
                 Recomendado
               </div>
             )}
-            
+
             <div className="flex items-center gap-4 mb-8">
               <div className="p-4 bg-emerald-50 rounded-3xl">
                 {plan.icon}
@@ -84,14 +85,14 @@ const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
             <div className="mb-10">
               <div className="flex items-baseline gap-2">
                 <span className="text-5xl font-black text-slate-900">
-                  {isYearly ? plan.yearlyPrice : plan.monthlyPrice}€
+                  {isYearly ? plan.yearlyPrice : plan.monthlyPrice}{currencySymbol}
                 </span>
                 <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">
                   / {isYearly ? 'Ano' : 'Mês'}
                 </span>
               </div>
               {isYearly && (
-                <p className="text-emerald-600 text-xs font-bold mt-2">Equivale a apenas {(plan.yearlyPrice / 12).toFixed(2)}€ por mês!</p>
+                <p className="text-emerald-600 text-xs font-bold mt-2">Equivale a apenas {(plan.yearlyPrice / 12).toFixed(2)}{currencySymbol} por mês!</p>
               )}
             </div>
 
@@ -106,7 +107,7 @@ const PricingPage: React.FC<Props> = ({ onSelectPlan, onBack }) => {
               ))}
             </ul>
 
-            <button 
+            <button
               onClick={() => onSelectPlan(isYearly ? 'yearly' : 'monthly')}
               className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black text-sm uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95"
             >

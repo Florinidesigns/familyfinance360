@@ -20,8 +20,8 @@ import { useFinanceState } from './hooks/useFinanceState';
 import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpense, LongTermDebt, FutureGoal, Investment, Category, InvestmentType, IncomeSource, Frequency } from './types';
 import { getFinancialAdvice } from './services/geminiService';
 import { apiService } from './services/apiService';
-import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers } from 'lucide-react';
-import { getCategoryIcon, CATEGORIES, INCOME_SOURCES } from './constants';
+import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders } from 'lucide-react';
+import { getCategoryIcon, CATEGORIES, INCOME_SOURCES, CURRENCY_SYMBOLS } from './constants';
 
 const DEFAULT_STATE: FinanceState = {
   transactions: [],
@@ -30,7 +30,8 @@ const DEFAULT_STATE: FinanceState = {
   recurringIncomes: [],
   recurringExpenses: [],
   investments: [],
-  familyInfo: { familyName: '', members: [] }
+  familyInfo: { familyName: '', members: [] },
+  appSettings: { currency: 'EUR', language: 'Português', theme: 'light' }
 };
 
 const MONTHS = [
@@ -496,6 +497,8 @@ const App: React.FC = () => {
     return 'text-rose-600';
   };
 
+  const currencySymbol = CURRENCY_SYMBOLS[state.appSettings?.currency || 'EUR'];
+
   if (isInitialLoading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50">
@@ -506,8 +509,8 @@ const App: React.FC = () => {
   }
 
   if (view === 'landing') return <LandingPage onStart={() => setView('pricing')} onLogin={() => setView('login')} />;
-  if (view === 'pricing') return <PricingPage onSelectPlan={(plan) => { setSelectedPlan(plan); setView('checkout'); }} onBack={() => setView('landing')} />;
-  if (view === 'checkout') return <CheckoutPage plan={selectedPlan} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} />;
+  if (view === 'pricing') return <PricingPage onSelectPlan={(plan) => { setSelectedPlan(plan); setView('checkout'); }} onBack={() => setView('landing')} currencySymbol={currencySymbol} />;
+  if (view === 'checkout') return <CheckoutPage plan={selectedPlan!} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} currencySymbol={currencySymbol} />;
   if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} />;
 
   const renderContent = () => {
@@ -520,13 +523,13 @@ const App: React.FC = () => {
                 <p className="text-emerald-600 font-bold uppercase tracking-[0.3em] text-[10px] mt-1">Família {state.familyInfo.familyName}</p>
               )}
             </div>
-            <SummaryCards state={state} onNavigate={setActiveTab} />
-            <DashboardCharts transactions={state.transactions} />
+            <SummaryCards state={state} onNavigate={setActiveTab} currencySymbol={currencySymbol} />
+            <DashboardCharts transactions={state.transactions} currencySymbol={currencySymbol} />
             <SectionCard title="Atividade Recente" headerAction={<button onClick={() => setActiveTab('present')} className="text-emerald-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">Ver todas <ArrowRight size={14} /></button>}>
               <div className="space-y-4">
                 {state.transactions.length > 0 ? (
                   state.transactions.slice(0, 5).map(tx => (
-                    <ItemRow key={tx.id} icon={getCategoryIcon(tx.category)} title={tx.description} subtitle={tx.category} value={`${tx.type === 'entrada' ? '+' : '-'}${tx.amount.toLocaleString('pt-PT')}€`} onEdit={() => setEditingTransaction(tx)} variant={tx.type === 'entrada' ? 'emerald' : 'slate'} />
+                    <ItemRow key={tx.id} icon={getCategoryIcon(tx.category)} title={tx.description} subtitle={tx.category} value={`${tx.type === 'entrada' ? '+' : '-'}${tx.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => setEditingTransaction(tx)} variant={tx.type === 'entrada' ? 'emerald' : 'slate'} />
                   ))
                 ) : (
                   <div className="py-10 text-center text-slate-400">
@@ -545,15 +548,15 @@ const App: React.FC = () => {
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowUpRight size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Entradas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Entradas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowDownLeft size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Saídas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Saídas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
-            <TransactionForm onAdd={addTransaction} />
+            <TransactionForm onAdd={addTransaction} currencySymbol={currencySymbol} />
             <SectionCard title="Histórico Detalhado">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -564,7 +567,7 @@ const App: React.FC = () => {
                         <td className="px-8 py-6 text-sm text-slate-500">{tx.date}</td>
                         <td className="px-8 py-6 text-sm font-bold text-slate-800 flex items-center gap-2">{tx.description}<button onClick={() => setEditingTransaction(tx)} className="opacity-0 group-hover/row:opacity-100 p-1.5 bg-blue-600 text-white rounded-lg"><Pencil size={12} /></button></td>
                         <td className="px-8 py-6 text-sm"><span className="flex items-center gap-2 text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-bold text-[10px] uppercase">{getCategoryIcon(tx.category)} {tx.category}</span></td>
-                        <td className={`px-8 py-6 text-base font-black text-right ${getTransactionColor(tx)}`}>{tx.type === 'entrada' ? '+' : '-'}{tx.amount.toLocaleString('pt-PT')}€</td>
+                        <td className={`px-8 py-6 text-base font-black text-right ${getTransactionColor(tx)}`}>{tx.type === 'entrada' ? '+' : '-'}{tx.amount.toLocaleString('pt-PT')}{currencySymbol}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -599,11 +602,11 @@ const App: React.FC = () => {
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Coins size={14} className="text-emerald-600" /> Rendimentos Mensais</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <input className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder="Descrição" value={newIncomeName} onChange={e => setNewIncomeName(e.target.value)} />
-                        <input type="number" className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder="Valor €" value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
+                        <input type="number" className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={`Valor ${currencySymbol}`} value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
                         <select className="bg-white border rounded-xl px-4 py-2 text-[10px] font-black uppercase" value={newIncomeSource} onChange={e => setNewIncomeSource(e.target.value as any)}>{INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}</select>
                       </div>
                       <Button variant="ghost-emerald" fullWidth onClick={addIncomeToTempMember} icon={<Plus size={14} />}>Adicionar Rendimento</Button>
-                      <div className="flex flex-wrap gap-2">{tempMemberIncomes.map((inc, i) => (<div key={i} className="bg-white px-3 py-1.5 rounded-lg border flex items-center gap-2 shadow-sm"><span className="text-[10px] font-black text-slate-700">{inc.name}: {Number(inc.amount).toLocaleString()}€</span><button onClick={() => setTempMemberIncomes(tempMemberIncomes.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-rose-600"><X size={12} /></button></div>))}</div>
+                      <div className="flex flex-wrap gap-2">{tempMemberIncomes.map((inc, i) => (<div key={i} className="bg-white px-3 py-1.5 rounded-lg border flex items-center gap-2 shadow-sm"><span className="text-[10px] font-black text-slate-700">{inc.name}: {Number(inc.amount).toLocaleString()}{currencySymbol}</span><button onClick={() => setTempMemberIncomes(tempMemberIncomes.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-rose-600"><X size={12} /></button></div>))}</div>
                     </div>
                     <Button fullWidth onClick={addMemberAction} icon={editingMemberId ? <Check size={18} /> : <ArrowRight size={18} />}>
                       {editingMemberId ? 'Atualizar Membro' : 'Registar no Agregado'}
@@ -614,7 +617,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
                     {state.familyInfo?.members.map(m => (
-                      <ItemRow key={m.id} title={m.name} subtitle={`${m.role} • ${m.age} anos`} value={m.salary ? `${m.salary.toLocaleString('pt-PT')}€` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
+                      <ItemRow key={m.id} title={m.name} subtitle={`${m.role} • ${m.age} anos`} value={m.salary ? `${m.salary.toLocaleString('pt-PT')}${currencySymbol}` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
                     ))}
                   </div>
                 </div>
@@ -631,8 +634,8 @@ const App: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-7 items-end gap-3">
                   <Input label="Descrição" placeholder="Descrição" value={tempDebtName} onChange={e => setTempDebtName(e.target.value)} />
                   <Select label="Tipo" value={tempDebtType} onChange={e => setTempDebtType(e.target.value)}><option>Carro</option><option>Empréstimo</option><option>Hipoteca</option><option>Outros</option></Select>
-                  <Input label="Cap. Contratado" type="number" placeholder="Capital €" value={tempDebtContracted} onChange={e => setTempDebtContracted(e.target.value)} />
-                  <Input label="Valor €" type="number" variant="orange" placeholder="Mensalidade €" value={tempDebtMonthly} onChange={e => setTempDebtMonthly(e.target.value)} />
+                  <Input label="Cap. Contratado" type="number" placeholder={`Capital ${currencySymbol}`} value={tempDebtContracted} onChange={e => setTempDebtContracted(e.target.value)} />
+                  <Input label={`Valor ${currencySymbol}`} type="number" variant="orange" placeholder={`Mensalidade ${currencySymbol}`} value={tempDebtMonthly} onChange={e => setTempDebtMonthly(e.target.value)} />
                   <Input label="Dia Liq." type="number" min="1" max="31" placeholder="Dia Liq." value={tempDebtDay} onChange={e => setTempDebtDay(e.target.value)} />
                   {tempDebtCalcType === 'installments' ? <Input label="Nr. Prest." type="number" placeholder="Prestações" value={tempDebtInstallments} onChange={e => setTempDebtInstallments(e.target.value)} /> : <Input label="Data Fim" type="date" value={tempDebtEndDate} onChange={e => setTempDebtEndDate(e.target.value)} />}
                   <div className="flex flex-col gap-2">
@@ -645,7 +648,7 @@ const App: React.FC = () => {
                 {state.debts.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.debts.map(debt => (
-                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${debt.type} • Dia ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString('pt-PT')}€`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
+                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${debt.type} • Dia ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
                     ))}
                   </div>
                 )}
@@ -658,7 +661,7 @@ const App: React.FC = () => {
                   <Input label="Dia Liq." type="number" value={tempRecDay} onChange={e => setTempRecDay(e.target.value)} />
                   <Select label="Mês" className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecMonth} onChange={e => setTempRecMonth(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{MONTHS.map(m => <option key={m.val} value={m.val}>{m.name}</option>)}</Select>
                   <Select label="Ano" className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecYear} onChange={e => setTempRecYear(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}</Select>
-                  <Input label="Valor €" type="number" value={tempRecAmount} onChange={e => setTempRecAmount(e.target.value)} />
+                  <Input label={`Valor ${currencySymbol}`} type="number" value={tempRecAmount} onChange={e => setTempRecAmount(e.target.value)} />
                   <div className="flex flex-col gap-2 self-end">
                     <Button variant="orange" onClick={addRecurringAction} icon={editingRecExpenseId ? <Check size={16} /> : <Plus size={16} />}>{editingRecExpenseId ? 'Atualizar' : 'Adicionar'}</Button>
                     {editingRecExpenseId && <Button variant="ghost-slate" onClick={() => { setEditingRecExpenseId(null); setTempRecName(''); setTempRecAmount(''); }}>Cancelar</Button>}
@@ -669,7 +672,7 @@ const App: React.FC = () => {
                 {state.recurringExpenses.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.recurringExpenses.map(exp => (
-                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${exp.frequency} • Dia ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString('pt-PT')}€`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
+                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${exp.frequency} • Dia ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
                     ))}
                   </div>
                 )}
@@ -678,8 +681,8 @@ const App: React.FC = () => {
               <SectionCard title="Sonhos e Objetivos" icon={<Sparkles className="text-blue-600" size={20} />}>
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
                   <Input placeholder="Objetivo" value={tempGoalName} onChange={e => setTempGoalName(e.target.value)} />
-                  <Input type="number" placeholder="Alvo €" value={tempGoalAmount} onChange={e => setTempGoalAmount(e.target.value)} />
-                  <Input type="number" variant="blue" placeholder="Já tem €" value={tempGoalCurrent} onChange={e => setTempGoalCurrent(e.target.value)} />
+                  <Input type="number" placeholder={`Alvo ${currencySymbol}`} value={tempGoalAmount} onChange={e => setTempGoalAmount(e.target.value)} />
+                  <Input type="number" variant="blue" placeholder={`Já tem ${currencySymbol}`} value={tempGoalCurrent} onChange={e => setTempGoalCurrent(e.target.value)} />
                   <Select value={tempGoalCategory} onChange={e => setTempGoalCategory(e.target.value as Category)}>{CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</Select>
                   <div className="flex flex-col gap-2">
                     <Button variant="blue" onClick={addGoalAction} icon={editingGoalId ? <Check size={16} /> : <Plus size={16} />}>{editingGoalId ? 'Atualizar' : 'Adicionar'}</Button>
@@ -691,7 +694,7 @@ const App: React.FC = () => {
                 {state.goals.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.goals.map(goal => (
-                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${goal.category}`} value={`${goal.targetAmount.toLocaleString('pt-PT')}€`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
+                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${goal.category}`} value={`${goal.targetAmount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
                     ))}
                   </div>
                 )}
@@ -700,11 +703,11 @@ const App: React.FC = () => {
               <SectionCard variant="slate" title="Investimentos Familiares" icon={<PieChart className="text-emerald-500" size={20} />}>
                 <div className={`grid grid-cols-1 ${tempInvType === 'PPR' ? 'lg:grid-cols-6' : 'lg:grid-cols-4'} gap-4 items-end mb-8`}>
                   <Input variant="slate-emerald" placeholder="Identificação" value={tempInvName} onChange={e => setTempInvName(e.target.value)} />
-                  <Input variant="slate-emerald" type="number" placeholder="Total €" value={tempInvAmount} onChange={e => setTempInvAmount(e.target.value)} />
+                  <Input variant="slate-emerald" type="number" placeholder={`Total ${currencySymbol}`} value={tempInvAmount} onChange={e => setTempInvAmount(e.target.value)} />
                   <Select variant="slate-emerald" value={tempInvType} onChange={e => setTempInvType(e.target.value as InvestmentType)}><option value="Acções">Acções</option><option value="Certificados de Aforro">Aforro</option><option value="Cryptomoeda">Crypto</option><option value="PPR">PPR</option></Select>
                   {tempInvType === 'PPR' && (
                     <>
-                      <Input variant="slate-emerald" type="number" placeholder="Reforço €" value={tempInvReinforcement} onChange={e => setTempInvReinforcement(e.target.value)} />
+                      <Input variant="slate-emerald" type="number" placeholder={`Reforço ${currencySymbol}`} value={tempInvReinforcement} onChange={e => setTempInvReinforcement(e.target.value)} />
                       <Input variant="slate-emerald" type="number" min="1" max="31" placeholder="Dia" value={tempInvDay} onChange={e => setTempInvDay(e.target.value)} />
                     </>
                   )}
@@ -716,8 +719,43 @@ const App: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {state.investments.map(inv => (
-                    <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}€ (Dia ${inv.dayOfMonth})` : inv.type} value={`${inv.amount.toLocaleString('pt-PT')}€`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
+                    <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}${currencySymbol} (Dia ${inv.dayOfMonth})` : inv.type} value={`${inv.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
                   ))}
+                </div>
+              </SectionCard>
+            </div>
+
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 px-4"><Settings className="text-slate-600" size={28} /><h4 className="text-2xl font-black text-slate-800">3. Configurações da Aplicação</h4></div>
+              <SectionCard title="Preferências do Sistema" icon={<Sliders size={20} />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Select
+                    label="Moeda Principal"
+                    value={state.appSettings?.currency || 'EUR'}
+                    onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, currency: e.target.value } })}
+                  >
+                    <option value="EUR">Euro (€)</option>
+                    <option value="USD">Dólar ($)</option>
+                    <option value="GBP">Libra (£)</option>
+                    <option value="BRL">Real (R$)</option>
+                  </Select>
+                  <Select
+                    label="Idioma"
+                    value={state.appSettings?.language || 'Português'}
+                    onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, language: e.target.value } })}
+                  >
+                    <option>Português</option>
+                    <option>English</option>
+                    <option>Español</option>
+                  </Select>
+                  <Select
+                    label="Tema Visual"
+                    value={state.appSettings?.theme || 'light'}
+                    onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, theme: e.target.value as any } })}
+                  >
+                    <option value="light">Modo Claro</option>
+                    <option value="dark">Modo Escuro</option>
+                  </Select>
                 </div>
               </SectionCard>
             </div>
@@ -738,11 +776,11 @@ const App: React.FC = () => {
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><CreditCard size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total em Dívida Efetiva</p><p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total em Dívida Efetiva</p><p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><Layers size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Carga Mensal Fixa</p><p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Carga Mensal Fixa</p><p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
@@ -751,7 +789,7 @@ const App: React.FC = () => {
                 <SectionCard
                   key={debt.id}
                   title={debt.name}
-                  subtitle={`${debt.type} • Capital: ${(debt.contractedValue || 0).toLocaleString('pt-PT')}€`}
+                  subtitle={`${debt.type} • Capital: ${(debt.contractedValue || 0).toLocaleString('pt-PT')}${currencySymbol}`}
                   icon={getCategoryIcon(debt.type === 'Carro' ? 'Transporte' : 'Habitação')}
                   headerAction={
                     <div className="flex gap-2">
@@ -760,8 +798,8 @@ const App: React.FC = () => {
                     </div>
                   }
                 >
-                  <div className="flex justify-between items-end mb-3"><p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">Estado do Financiamento</p><p className="text-lg font-black text-orange-600">{(debt.monthlyPayment || 0).toLocaleString('pt-PT')}€/mês</p></div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border mb-6"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Custo Remanescente</p><p className="text-2xl font-black text-slate-800">{(debt.remainingValue || 0).toLocaleString('pt-PT')}€</p></div>
+                  <div className="flex justify-between items-end mb-3"><p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">Estado do Financiamento</p><p className="text-lg font-black text-orange-600">{(debt.monthlyPayment || 0).toLocaleString('pt-PT')}{currencySymbol}/mês</p></div>
+                  <div className="p-4 bg-slate-50 rounded-2xl border mb-6"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Custo Remanescente</p><p className="text-2xl font-black text-slate-800">{(debt.remainingValue || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                   <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
                     <div><p className="text-[10px] text-slate-400 uppercase font-bold">Modo Cálculo</p><p className="text-sm font-bold text-slate-800">{debt.calculationType === 'installments' ? 'Prestações' : 'Data Fim'}</p></div>
                     <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">Dia Liquidação</p><p className="text-sm font-bold text-slate-800">{debt.dayOfMonth || '-'}</p></div>
@@ -783,15 +821,15 @@ const App: React.FC = () => {
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Wallet size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total Acumulado</p><p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total Acumulado</p><p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Sparkles size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Sonhos</p><p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Sonhos</p><p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><PieChart size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Investimentos</p><p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString('pt-PT')}€</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Investimentos</p><p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
@@ -808,11 +846,11 @@ const App: React.FC = () => {
                         <PartyPopper size={32} className="hidden sm:block" />
                       </div>
                     )}
-                    <div className="flex justify-between items-start mb-8"><div className="text-right"><p className="text-[10px] font-black text-slate-300 uppercase mb-1">Objetivo Final</p><p className="text-2xl font-black text-slate-800">{Number(goal.targetAmount).toLocaleString('pt-PT')}€</p></div></div>
+                    <div className="flex justify-between items-start mb-8"><div className="text-right"><p className="text-[10px] font-black text-slate-300 uppercase mb-1">Objetivo Final</p><p className="text-2xl font-black text-slate-800">{Number(goal.targetAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div></div>
                     <div className="w-full bg-slate-50 h-6 rounded-full overflow-hidden p-1.5 border mb-10"><div className={`${isAchieved ? 'bg-emerald-500' : 'bg-blue-500'} h-full rounded-full transition-all duration-1000`} style={{ width: `${Math.min((Number(goal.currentAmount) / Number(goal.targetAmount)) * 100, 100)}%` }} /></div>
                     <div className="grid grid-cols-2 gap-4 border-t pt-6">
-                      <div><p className="text-[10px] text-slate-400 uppercase font-black mb-1">Saldo Atual</p><p className="text-xl font-bold text-slate-800">{Number(goal.currentAmount).toLocaleString('pt-PT')}€</p></div>
-                      <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-black mb-1">O que falta</p><p className={`text-xl font-black ${isAchieved ? 'text-emerald-600' : 'text-blue-600'}`}>{remaining.toLocaleString('pt-PT')}€</p></div>
+                      <div><p className="text-[10px] text-slate-400 uppercase font-black mb-1">Saldo Atual</p><p className="text-xl font-bold text-slate-800">{Number(goal.currentAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                      <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-black mb-1">O que falta</p><p className={`text-xl font-black ${isAchieved ? 'text-emerald-600' : 'text-blue-600'}`}>{remaining.toLocaleString('pt-PT')}{currencySymbol}</p></div>
                     </div>
                     {!isAchieved && (
                       <div className="mt-6 flex flex-col gap-3">
@@ -832,7 +870,7 @@ const App: React.FC = () => {
                   <div className="flex justify-between items-end mb-6">
                     <div>
                       <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Património Acumulado</p>
-                      <p className="text-3xl font-black text-slate-800">{(inv.amount || 0).toLocaleString('pt-PT')}€</p>
+                      <p className="text-3xl font-black text-slate-800">{(inv.amount || 0).toLocaleString('pt-PT')}{currencySymbol}</p>
                     </div>
                     {inv.type === 'PPR' && <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Automático</div>}
                   </div>
@@ -841,7 +879,7 @@ const App: React.FC = () => {
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reforço Mensal</p>
-                        <p className="text-xl font-black text-emerald-600">{inv.monthlyReinforcement.toLocaleString('pt-PT')}€</p>
+                        <p className="text-xl font-black text-emerald-600">{inv.monthlyReinforcement.toLocaleString('pt-PT')}{currencySymbol}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dia do Mês</p>
@@ -873,10 +911,10 @@ const App: React.FC = () => {
             </div>
           </div>
         );
-      case 'irs': return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} />;
-      case 'irs-confirmation': return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} />;
-      case 'reports': return <ReportsPage state={state} />;
-      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} />;
+      case 'irs': return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} />;
+      case 'irs-confirmation': return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} />;
+      case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} />;
+      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} />;
       default: return null;
     }
   };
@@ -909,7 +947,7 @@ const App: React.FC = () => {
         <div className="mb-10 bg-white p-10 rounded-[40px] shadow-xl border-l-8 border-emerald-600 animate-in fade-in slide-in-from-top-6"><div className="flex items-center gap-3 text-emerald-600 font-black mb-4 uppercase text-xs tracking-widest"><Sparkles size={18} /> Estratégia IA</div><p className="text-slate-600 text-lg leading-relaxed font-medium italic">"{advice}"</p></div>
       )}
       {renderContent()}
-      {editingTransaction && <EditTransactionModal transaction={editingTransaction} onSave={updateTransaction} onDelete={deleteTransaction} onClose={() => setEditingTransaction(null)} />}
+      {editingTransaction && <EditTransactionModal transaction={editingTransaction} onSave={updateTransaction} onDelete={deleteTransaction} onClose={() => setEditingTransaction(null)} currencySymbol={currencySymbol} />}
     </Layout>
   );
 };

@@ -6,9 +6,10 @@ interface Props {
   plan: 'monthly' | 'yearly';
   onPaymentSuccess: () => void;
   onBack: () => void;
+  currencySymbol: string;
 }
 
-const CheckoutPage: React.FC<Props> = ({ plan, onPaymentSuccess, onBack }) => {
+const CheckoutPage: React.FC<Props> = ({ plan, onPaymentSuccess, onBack, currencySymbol }) => {
   const [loading, setLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [formData, setFormData] = useState({
@@ -152,7 +153,7 @@ const CheckoutPage: React.FC<Props> = ({ plan, onPaymentSuccess, onBack }) => {
                       Aguarde Confirmação...
                     </>
                   ) : (
-                    <>Pagar {price}€ com MBWay</>
+                    <>Pagar {price}{currencySymbol} com MBWay</>
                   )}
                 </button>
               </form>
@@ -177,15 +178,15 @@ const CheckoutPage: React.FC<Props> = ({ plan, onPaymentSuccess, onBack }) => {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400 font-medium">Plano Familiar 360 ({plan === 'yearly' ? 'Anual' : 'Mensal'})</span>
-                <span className="font-bold">{price}€</span>
+                <span className="font-bold">{price}{currencySymbol}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400 font-medium">Taxas e IVA</span>
-                <span className="font-bold">0.00€</span>
+                <span className="font-bold">0.00{currencySymbol}</span>
               </div>
               <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                 <span className="text-slate-400 text-xs font-black uppercase tracking-widest">Total a Pagar</span>
-                <span className="text-3xl font-black text-emerald-400">{price}€</span>
+                <span className="text-3xl font-black text-emerald-400">{price}{currencySymbol}</span>
               </div>
             </div>
 

@@ -14,6 +14,7 @@ interface Props {
   initialEditId?: string;
   initialEditType?: 'debt' | 'goal' | 'investment' | 'income' | 'expense';
   onClearEdit?: () => void;
+  currencySymbol: string;
 }
 
 const MONTHS = [
@@ -26,7 +27,7 @@ const MONTHS = [
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
 
-const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit }) => {
+const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit, currencySymbol }) => {
   const [activeTab, setActiveTab] = useState<'present' | 'past' | 'goals'>(initialSubTab);
 
   useEffect(() => {
@@ -261,7 +262,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
               <Select label="Fonte" value={newIncome.source} onChange={e => setNewIncome({ ...newIncome, source: e.target.value as any })}>
                 {INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
               </Select>
-              <Input label="Montante €" type="number" placeholder="0.00" value={newIncome.amount || ''} onChange={e => setNewIncome({ ...newIncome, amount: Number(e.target.value) })} />
+              <Input label={`Montante ${currencySymbol}`} type="number" placeholder="0.00" value={newIncome.amount || ''} onChange={e => setNewIncome({ ...newIncome, amount: Number(e.target.value) })} />
               <Input label="Dia Recebimento" type="number" min="1" max="31" icon={<Calendar size={18} />} value={newIncome.dayOfMonth || ''} onChange={e => setNewIncome({ ...newIncome, dayOfMonth: Number(e.target.value) })} />
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
@@ -274,7 +275,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {(state.recurringIncomes || []).map(inc => (
-                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${inc.source} • Dia ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString('pt-PT')}€`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
+                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${inc.source} • Dia ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
               ))}
               {(state.recurringIncomes || []).length === 0 && (
                 <div className="p-12 text-center text-slate-300">
@@ -302,7 +303,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
               <Select label="Ano Ref." className={newRecurringExpense.frequency === 'Mensal' ? 'opacity-30' : ''} value={newRecurringExpense.year} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, year: Number(e.target.value) })} disabled={newRecurringExpense.frequency === 'Mensal'}>
                 {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
               </Select>
-              <Input label="Montante €" type="number" placeholder="0.00" value={newRecurringExpense.amount || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, amount: Number(e.target.value) })} />
+              <Input label={`Montante ${currencySymbol}`} type="number" placeholder="0.00" value={newRecurringExpense.amount || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, amount: Number(e.target.value) })} />
               <Select label="Categoria" value={newRecurringExpense.category} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, category: e.target.value as any })}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </Select>
@@ -328,7 +329,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
                     </div>
                     <div className="divide-y divide-slate-50">
                       {expenses.map(exp => (
-                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${exp.frequency} • Próxima: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString('pt-PT')}€`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
+                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${exp.frequency} • Próxima: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
                       ))}
                     </div>
                   </div>
@@ -349,7 +350,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
               </Select>
               <Input label="Cap. Contratado" type="number" value={newDebt.contractedValue || ''} onChange={e => setNewDebt({ ...newDebt, contractedValue: Number(e.target.value) })} />
               <Input label="Dia Liq." type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newDebt.dayOfMonth || ''} onChange={e => setNewDebt({ ...newDebt, dayOfMonth: Number(e.target.value) })} />
-              <Input label="Valor €" type="number" variant="orange" value={newDebt.monthlyPayment || ''} onChange={e => setNewDebt({ ...newDebt, monthlyPayment: Number(e.target.value) })} />
+              <Input label={`Valor ${currencySymbol}`} type="number" variant="orange" value={newDebt.monthlyPayment || ''} onChange={e => setNewDebt({ ...newDebt, monthlyPayment: Number(e.target.value) })} />
               {newDebt.calculationType === 'installments' ? <Input label="Nr. Prest." type="number" icon={<Hash size={18} />} value={newDebt.remainingInstallments || ''} onChange={e => setNewDebt({ ...newDebt, remainingInstallments: Number(e.target.value) })} /> : <Input label="Data Fim" type="date" icon={<CalendarRange size={18} />} value={newDebt.endDate} onChange={e => setNewDebt({ ...newDebt, endDate: e.target.value })} />}
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
@@ -362,7 +363,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {state.debts.map(d => (
-                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${d.type} • Dia ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString('pt-PT')}€`} value={`${(d.monthlyPayment || 0).toLocaleString('pt-PT')}€`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
+                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${d.type} • Dia ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString('pt-PT')}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
               ))}
             </div>
           </SectionCard>
@@ -374,7 +375,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
           <SectionCard title="Sonhos e Objetivos de Futuro" icon={<TrendingUp size={24} className="text-blue-600" />}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Input label="Descrição" placeholder="Descrição" value={newGoal.name} onChange={e => setNewGoal({ ...newGoal, name: e.target.value })} />
-              <Input label="Valor Alvo €" type="number" value={newGoal.targetAmount || ''} onChange={e => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })} />
+              <Input label={`Valor Alvo ${currencySymbol}`} type="number" value={newGoal.targetAmount || ''} onChange={e => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })} />
               <Select label="Categoria" value={newGoal.category} onChange={e => setNewGoal({ ...newGoal, category: e.target.value as any })}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </Select>
@@ -389,7 +390,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {state.goals.map(g => (
-                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString('pt-PT')}€ Alvo`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
+                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString('pt-PT')}${currencySymbol} Alvo`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
               ))}
             </div>
           </SectionCard>
@@ -397,13 +398,13 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
           <SectionCard variant="slate" title="Investimentos Estratégicos" icon={<PieChart size={24} className="text-emerald-500" />}>
             <div className={`grid grid-cols-1 md:grid-cols-2 ${newInvestment.type === 'PPR' ? 'lg:grid-cols-5' : 'lg:grid-cols-3'} gap-6 items-end`}>
               <Input variant="slate-emerald" label="Descrição" placeholder="Descrição" value={newInvestment.name} onChange={e => setNewInvestment({ ...newInvestment, name: e.target.value })} />
-              <Input variant="slate-emerald" label="Valor Investido €" type="number" value={newInvestment.amount || ''} onChange={e => setNewInvestment({ ...newInvestment, amount: Number(e.target.value) })} />
+              <Input variant="slate-emerald" label={`Valor Investido ${currencySymbol}`} type="number" value={newInvestment.amount || ''} onChange={e => setNewInvestment({ ...newInvestment, amount: Number(e.target.value) })} />
               <Select variant="slate-emerald" label="Tipo" value={newInvestment.type} onChange={e => setNewInvestment({ ...newInvestment, type: e.target.value as any })}>
                 <option value="Acções">Acções</option><option value="Certificados de Aforro">Certificados de Aforro</option><option value="Cryptomoeda">Cryptomoeda</option><option value="Outro">Outro</option><option value="PPR">PPR</option>
               </Select>
               {newInvestment.type === 'PPR' && (
                 <>
-                  <Input variant="slate-emerald" label="Valor Reforço €" type="number" value={newInvestment.monthlyReinforcement || ''} onChange={e => setNewInvestment({ ...newInvestment, monthlyReinforcement: Number(e.target.value) })} />
+                  <Input variant="slate-emerald" label={`Valor Reforço ${currencySymbol}`} type="number" value={newInvestment.monthlyReinforcement || ''} onChange={e => setNewInvestment({ ...newInvestment, monthlyReinforcement: Number(e.target.value) })} />
                   <Input variant="slate-emerald" label="Dia Reforço" type="number" min="1" max="31" value={newInvestment.dayOfMonth || ''} onChange={e => setNewInvestment({ ...newInvestment, dayOfMonth: Number(e.target.value) })} />
                 </>
               )}
@@ -418,7 +419,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {(state.investments || []).map(inv => (
-                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}€ (Dia ${inv.dayOfMonth})` : inv.type} value={`${(inv.amount || 0).toLocaleString('pt-PT')}€`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
+                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}${currencySymbol} (Dia ${inv.dayOfMonth})` : inv.type} value={`${(inv.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
               ))}
             </div>
           </SectionCard>

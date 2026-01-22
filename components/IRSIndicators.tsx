@@ -7,9 +7,10 @@ import { IRS_CONFIG, getCategoryIcon } from '../constants';
 interface Props {
   state: FinanceState;
   onConfirm: () => void;
+  currencySymbol: string;
 }
 
-const IRSIndicators: React.FC<Props> = ({ state, onConfirm }) => {
+const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol }) => {
   // Calcular totais por categoria de IRS
   const getTotalsByCategory = () => {
     const expenses = state.transactions.filter(t => t.type === 'saida');
@@ -67,7 +68,7 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm }) => {
           <div className="bg-white/10 backdrop-blur-xl p-8 rounded-[40px] border border-white/20 flex flex-col items-center gap-4 min-w-[240px]">
             <div className="text-center">
               <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Total Recuperável</p>
-              <p className="text-5xl font-black text-emerald-400">{totalBenefit.toLocaleString('pt-PT')}€</p>
+              <p className="text-5xl font-black text-emerald-400">{totalBenefit.toLocaleString('pt-PT')}{currencySymbol}</p>
             </div>
             <button
               onClick={onConfirm}
@@ -88,7 +89,7 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm }) => {
                 <div className={`p-4 rounded-2xl ${item.isOverLimit ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}`}>{getCategoryIcon(item.name)}</div>
                 <div><h4 className="text-xl font-bold text-slate-800">{item.name}</h4><p className="text-slate-400 text-xs font-medium">{item.description}</p></div>
               </div>
-              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600' : 'text-slate-800'}`}>{item.benefit.toLocaleString('pt-PT')}€</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Benefício Real</p></div>
+              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600' : 'text-slate-800'}`}>{item.benefit.toLocaleString('pt-PT')}{currencySymbol}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Benefício Real</p></div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-end">
@@ -97,8 +98,8 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm }) => {
               </div>
               <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden"><div className={`h-full transition-all duration-1000 rounded-full ${item.isOverLimit ? 'bg-orange-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(item.percentageOfLimit, 100)}%` }} /></div>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                <div><p className="text-[10px] text-slate-400 uppercase font-bold">Despesa Total</p><p className="text-lg font-bold text-slate-800">{item.expense.toLocaleString('pt-PT')}€</p></div>
-                <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">Teto Máximo</p><p className="text-lg font-bold text-slate-400">{item.maxBenefit.toLocaleString('pt-PT')}€</p></div>
+                <div><p className="text-[10px] text-slate-400 uppercase font-bold">Despesa Total</p><p className="text-lg font-bold text-slate-800">{item.expense.toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">Teto Máximo</p><p className="text-lg font-bold text-slate-400">{item.maxBenefit.toLocaleString('pt-PT')}{currencySymbol}</p></div>
               </div>
             </div>
           </div>

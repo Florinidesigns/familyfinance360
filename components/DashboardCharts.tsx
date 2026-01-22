@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Cell, PieChart, Pie, LabelList
 } from 'recharts';
 import { Transaction } from '../types';
@@ -10,11 +10,12 @@ import { getCategoryIcon } from '../constants';
 
 interface Props {
   transactions: Transaction[];
+  currencySymbol: string;
 }
 
 type Period = 'mensal' | 'trimestral' | 'semestral' | 'anual' | 'total';
 
-const DashboardCharts: React.FC<Props> = ({ transactions }) => {
+const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>('total'); // Alterado para 'total' para garantir que os dados apareçam sempre por defeito
 
@@ -81,12 +82,12 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
     } else {
       // VISÃO DRILL-DOWN: Agrupa por DESCRIÇÃO/FATURA dentro da categoria selecionada
       const filtered = expenses.filter(t => t.category === activeCategory);
-      
+
       const grouped = filtered.reduce((acc: Record<string, number>, t) => {
-        const subLabel = (activeCategory === 'Alimentação' && t.establishment) 
-          ? t.establishment 
+        const subLabel = (activeCategory === 'Alimentação' && t.establishment)
+          ? t.establishment
           : (t.description || t.establishment || 'Vários');
-          
+
         // Fix for line 93 (shifted to 97): Ensure operands are treated as numbers
         acc[subLabel] = (Number(acc[subLabel]) || 0) + Number(t.amount);
         return acc;
@@ -102,10 +103,10 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
 
   return (
     <div className="space-y-8 mb-8 animate-in fade-in duration-700">
-      
+
       {/* FILTROS E SELEÇÃO */}
       <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-8">
-        
+
         {/* Seletor de Período */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-50 pb-8">
           <div className="flex items-center gap-3">
@@ -117,17 +118,16 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Filtre a análise dos seus gastos</p>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap bg-slate-50 p-1.5 rounded-2xl border border-slate-100 gap-1">
             {(['mensal', 'trimestral', 'semestral', 'anual', 'total'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  period === p 
-                  ? 'bg-slate-900 text-white shadow-lg' 
-                  : 'text-slate-400 hover:text-slate-600 hover:bg-white'
-                }`}
+                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
+                    ? 'bg-slate-900 text-white shadow-lg'
+                    : 'text-slate-400 hover:text-slate-600 hover:bg-white'
+                  }`}
               >
                 {p}
               </button>
@@ -142,7 +142,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
               <LayoutGrid size={14} /> Categorias Ativas
             </h3>
             {activeCategory && (
-              <button 
+              <button
                 onClick={() => setActiveCategory(null)}
                 className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
               >
@@ -150,15 +150,14 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
               </button>
             )}
           </div>
-          
+
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setActiveCategory(null)}
-              className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 ${
-                activeCategory === null 
-                ? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105' 
-                : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
-              }`}
+              className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 ${activeCategory === null
+                  ? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
+                  : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
+                }`}
             >
               <LayoutGrid size={18} />
               <div className="text-left">
@@ -171,11 +170,10 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
               <button
                 key={cat.name}
                 onClick={() => setActiveCategory(cat.name)}
-                className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 group ${
-                  activeCategory === cat.name 
-                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100' 
-                  : 'bg-white border-slate-100 text-slate-500 hover:border-emerald-200'
-                }`}
+                className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 group ${activeCategory === cat.name
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100'
+                    : 'bg-white border-slate-100 text-slate-500 hover:border-emerald-200'
+                  }`}
               >
                 <div className={`${activeCategory === cat.name ? 'text-white' : 'text-emerald-500'} group-hover:scale-110 transition-transform`}>
                   {getCategoryIcon(cat.name)}
@@ -183,7 +181,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
                 <div className="text-left">
                   <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">{cat.name}</p>
                   <p className={`text-xs font-black leading-none ${activeCategory === cat.name ? 'text-white' : 'text-slate-800'}`}>
-                    {cat.value.toLocaleString('pt-PT')}€
+                    {cat.value.toLocaleString('pt-PT')}{currencySymbol}
                   </p>
                 </div>
               </button>
@@ -213,32 +211,32 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis 
-                    dataKey="name" 
-                    fontSize={10} 
-                    tickLine={false} 
-                    axisLine={false} 
+                  <XAxis
+                    dataKey="name"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
                     tick={{ fill: '#94a3b8', fontWeight: 800 }}
                   />
                   <YAxis hide />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: '#f8fafc', radius: 12 }}
                     contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
-                    formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}€`, 'Total']}
+                    formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, 'Total']}
                   />
-                  <Bar 
-                    dataKey="value" 
-                    radius={[12, 12, 4, 4]} 
+                  <Bar
+                    dataKey="value"
+                    radius={[12, 12, 4, 4]}
                     className="cursor-pointer"
                     onClick={(data) => { if (!activeCategory) setActiveCategory(data.name); }}
                   >
                     {chartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} fillOpacity={0.85} />
                     ))}
-                    <LabelList 
-                      dataKey="value" 
-                      position="top" 
-                      formatter={(val: number) => `${Math.round(Number(val))}€`}
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      formatter={(val: number) => `${Math.round(Number(val))}${currencySymbol}`}
                       style={{ fontSize: '11px', fill: '#1e293b', fontWeight: 900 }}
                     />
                   </Bar>
@@ -283,13 +281,13 @@ const DashboardCharts: React.FC<Props> = ({ transactions }) => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}€`, 'Volume']}
+                      formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, 'Volume']}
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                
+
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                   {chartData.slice(0, 8).map((entry, index) => (
                     <div key={entry.name} className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full">

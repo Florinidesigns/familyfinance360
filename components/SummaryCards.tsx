@@ -6,9 +6,10 @@ import { FinanceState } from '../types';
 interface Props {
   state: FinanceState;
   onNavigate: (tab: string) => void;
+  currencySymbol: string;
 }
 
-const SummaryCards: React.FC<Props> = ({ state, onNavigate }) => {
+const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol }) => {
   const totalDebt = (state.debts || []).reduce((acc, curr) => acc + Number(curr.remainingValue), 0);
   const monthlyInflow = (state.transactions || []).filter(t => t.type === 'entrada').reduce((acc, t) => acc + Number(t.amount), 0);
   const monthlyOutflow = (state.transactions || []).filter(t => t.type === 'saida').reduce((acc, t) => acc + Number(t.amount), 0);
@@ -84,7 +85,7 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-1">
               <p className={`text-3xl font-bold ${card.id === 'present' && card.value < 0 ? 'text-rose-600' : 'text-slate-800'}`}>
-                {card.value.toLocaleString('pt-PT')}€
+                {card.value.toLocaleString('pt-PT')}{currencySymbol}
               </p>
             </div>
             {(card as any).extra && (

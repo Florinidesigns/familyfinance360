@@ -6,9 +6,10 @@ import { CATEGORIES, INCOME_SOURCES, SUPERMARKETS, HABITACAO_TYPES, TRANSPORTE_T
 
 interface Props {
   onAdd: (transaction: Transaction) => void;
+  currencySymbol: string;
 }
 
-const TransactionForm: React.FC<Props> = ({ onAdd }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
   const [type, setType] = useState<'entrada' | 'saida'>('saida');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<Category | IncomeSource>(CATEGORIES[0]);
@@ -119,7 +120,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd }) => {
             onChange={(e) => setAmount(e.target.value)}
             required
           />
-          <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
+          <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{currencySymbol}</span>
         </div>
 
         {/* Categoria (Já virá ordenada A-Z por causa da constante) */}

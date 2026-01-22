@@ -90,6 +90,12 @@ export interface FamilyInfo {
   members: FamilyMember[];
 }
 
+export interface AppSettings {
+  currency: string;
+  language: string;
+  theme: 'light' | 'dark';
+}
+
 export interface FinanceState {
   transactions: Transaction[];
   debts: LongTermDebt[];
@@ -98,4 +104,5 @@ export interface FinanceState {
   recurringExpenses: RecurringExpense[];
   investments: Investment[];
   familyInfo?: FamilyInfo;
+  appSettings?: AppSettings;
 }

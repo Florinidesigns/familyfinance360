@@ -7,21 +7,22 @@ import * as XLSX from 'xlsx';
 
 interface Props {
   state: FinanceState;
+  currencySymbol: string;
 }
 
-const ReportsPage: React.FC<Props> = ({ state }) => {
-  
+const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
+
   const exportToExcel = (type: 'general' | 'irs') => {
     let exportData: any[] = [];
     let sheetName = "Extrato_Geral";
-    
+
     if (type === 'general') {
       exportData = state.transactions.map(t => ({
         'Data': t.date,
         'Tipo': t.type === 'entrada' ? 'Receita' : 'Despesa',
         'Categoria': t.category,
         'Descrição': t.description,
-        'Montante (€)': t.amount,
+        [`Montante (${currencySymbol})`]: t.amount,
         'Estabelecimento': t.establishment || 'N/A',
         'Nº Fatura': t.invoiceNumber || 'N/A'
       }));
@@ -35,7 +36,7 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
           'Data': t.date,
           'Entidade': t.establishment || 'N/A',
           'Nº Fatura': t.invoiceNumber || 'PENDENTE',
-          'Montante Bruto (€)': t.amount,
+          [`Montante Bruto (${currencySymbol})`]: t.amount,
         }));
       sheetName = "Suporte_IRS";
     }
@@ -43,11 +44,11 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    
-    const fileName = type === 'general' 
+
+    const fileName = type === 'general'
       ? `Relatorio_Geral_${new Date().getFullYear()}.xlsx`
       : `Suporte_IRS_Confirmacao_${new Date().getFullYear()}.xlsx`;
-      
+
     XLSX.writeFile(workbook, fileName);
   };
 
@@ -83,7 +84,7 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
             <h4 className="text-xl font-black text-slate-800 mb-3">Extrato Geral</h4>
             <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Ficheiro Excel completo com todas as transações para análise profunda.</p>
           </div>
-          <button 
+          <button
             onClick={() => exportToExcel('general')}
             className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
@@ -99,7 +100,7 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
             <h4 className="text-xl font-black text-slate-800 mb-3">Apoio ao IRS</h4>
             <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Relatório estruturado para conferência rápida com o portal e-fatura.</p>
           </div>
-          <button 
+          <button
             onClick={handlePrint}
             className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
           >
@@ -115,7 +116,7 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
             <h4 className="text-xl font-black text-slate-800 mb-3">Relatório Mensal PDF</h4>
             <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Sumário executivo visual para arquivo ou partilha familiar.</p>
           </div>
-          <button 
+          <button
             onClick={handlePrint}
             className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
@@ -144,8 +145,8 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
           <div>
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Relatório de Saúde Financeira</h1>
             <div className="flex gap-4 mt-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
-              <span className="flex items-center gap-1"><Calendar size={14}/> {new Date().toLocaleDateString('pt-PT')}</span>
-              <span className="flex items-center gap-1"><ShieldCheck size={14}/> Documento Verificado</span>
+              <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString('pt-PT')}</span>
+              <span className="flex items-center gap-1"><ShieldCheck size={14} /> Documento Verificado</span>
             </div>
           </div>
           <div className="text-right">
@@ -158,19 +159,19 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
         <div className="grid grid-cols-4 gap-4 mb-10">
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
             <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Rendimentos</p>
-            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString('pt-PT')}€</p>
+            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString('pt-PT')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
             <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Despesas</p>
-            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString('pt-PT')}€</p>
+            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString('pt-PT')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
             <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Poupança Futuro</p>
-            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString('pt-PT')}€</p>
+            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString('pt-PT')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-orange-50 rounded-3xl border border-orange-100">
             <p className="text-[10px] font-black uppercase text-orange-600 mb-1">Dívida Passado</p>
-            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString('pt-PT')}€</p>
+            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString('pt-PT')}{currencySymbol}</p>
           </div>
         </div>
 
@@ -193,8 +194,8 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
                     <p className="text-[10px] text-slate-400 uppercase font-black">{config.description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-slate-800">{amount.toLocaleString('pt-PT')}€</p>
-                    <p className="text-[10px] font-black text-emerald-600 uppercase">Recuperável: {benefit.toFixed(2)}€</p>
+                    <p className="font-black text-slate-800">{amount.toLocaleString('pt-PT')}{currencySymbol}</p>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase">Recuperável: {benefit.toFixed(2)}{currencySymbol}</p>
                   </div>
                 </div>
               );
@@ -228,7 +229,7 @@ const ReportsPage: React.FC<Props> = ({ state }) => {
                   </td>
                   <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? 'Sem NIF' : 'Pendente')}</td>
                   <td className={`p-3 text-right font-black ${t.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString('pt-PT')}€
+                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString('pt-PT')}{currencySymbol}
                   </td>
                 </tr>
               ))}

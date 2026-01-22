@@ -6,16 +6,17 @@ import { getCategoryIcon } from '../constants';
 
 interface Props {
   transactions: Transaction[];
+  currencySymbol: string;
 }
 
-const InvoicesPage: React.FC<Props> = ({ transactions }) => {
+const InvoicesPage: React.FC<Props> = ({ transactions, currencySymbol }) => {
   const expenses = transactions.filter(t => t.type === 'saida');
   const invoices = expenses.filter(t => !!t.invoiceNumber);
   const totalInvoiced = invoices.reduce((acc, t) => acc + t.amount, 0);
   const pendingInvoices = expenses.filter(t => !t.invoiceNumber).length;
-  
-  const coveragePercent = expenses.length > 0 
-    ? Math.round((invoices.length / expenses.length) * 100) 
+
+  const coveragePercent = expenses.length > 0
+    ? Math.round((invoices.length / expenses.length) * 100)
     : 0;
 
   return (
@@ -36,7 +37,7 @@ const InvoicesPage: React.FC<Props> = ({ transactions }) => {
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
             <Receipt size={14} className="text-blue-500" /> Total em Faturas
           </p>
-          <p className="text-4xl font-black text-slate-800">{totalInvoiced.toLocaleString('pt-PT')}€</p>
+          <p className="text-4xl font-black text-slate-800">{totalInvoiced.toLocaleString('pt-PT')}{currencySymbol}</p>
           <p className="text-xs text-slate-400 mt-2 font-medium">{invoices.length} documentos registados</p>
         </div>
 
@@ -98,7 +99,7 @@ const InvoicesPage: React.FC<Props> = ({ transactions }) => {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right font-black text-slate-800">
-                    {invoice.amount.toLocaleString('pt-PT')}€
+                    {invoice.amount.toLocaleString('pt-PT')}{currencySymbol}
                   </td>
                 </tr>
               ))}

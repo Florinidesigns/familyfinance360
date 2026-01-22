@@ -65,3 +65,10 @@ export const getCategoryIcon = (category: string) => {
     default: return <HelpCircle {...iconProps} />;
   }
 };
+
+export const CURRENCY_SYMBOLS: Record<string, string> = {
+  EUR: '€',
+  USD: '$',
+  GBP: '£',
+  BRL: 'R$'
+};

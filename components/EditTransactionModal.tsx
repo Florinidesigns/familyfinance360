@@ -9,29 +9,30 @@ interface Props {
   onSave: (updated: Transaction) => void;
   onDelete?: (id: string) => void;
   onClose: () => void;
+  currencySymbol: string;
 }
 
-const EditTransactionModal: React.FC<Props> = ({ transaction, onSave, onDelete, onClose }) => {
+const EditTransactionModal: React.FC<Props> = ({ transaction, onSave, onDelete, onClose, currencySymbol }) => {
   const [type, setType] = useState<'entrada' | 'saida'>(transaction.type);
   const [amount, setAmount] = useState(transaction.amount.toString());
   const [category, setCategory] = useState<Category | IncomeSource>(transaction.category);
   const [description, setDescription] = useState(transaction.description);
-  
+
   const [establishment, setEstablishment] = useState(transaction.establishment || SUPERMARKETS[0]);
   const [habitacaoType, setHabitacaoType] = useState(transaction.establishment || HABITACAO_TYPES[0]);
   const [transporteType, setTransporteType] = useState(transaction.establishment || TRANSPORTE_TYPES[0]);
   const [despesasType, setDespesasType] = useState(transaction.establishment || DESPESAS_TYPES[0]);
   const [animaisType, setAnimaisType] = useState(transaction.establishment || ANIMAIS_TYPES[0]);
-  
+
   const [isManualContext, setIsManualContext] = useState(
-    transaction.establishment 
+    transaction.establishment
       ? (
-          transaction.category === 'Alimentação' ? !SUPERMARKETS.includes(transaction.establishment) : 
+        transaction.category === 'Alimentação' ? !SUPERMARKETS.includes(transaction.establishment) :
           transaction.category === 'Habitação' ? !HABITACAO_TYPES.includes(transaction.establishment) :
-          transaction.category === 'Transporte' ? !TRANSPORTE_TYPES.includes(transaction.establishment) :
-          transaction.category === 'Despesas' ? !DESPESAS_TYPES.includes(transaction.establishment) :
-          transaction.category === 'Animais' ? !ANIMAIS_TYPES.includes(transaction.establishment) : false
-        )
+            transaction.category === 'Transporte' ? !TRANSPORTE_TYPES.includes(transaction.establishment) :
+              transaction.category === 'Despesas' ? !DESPESAS_TYPES.includes(transaction.establishment) :
+                transaction.category === 'Animais' ? !ANIMAIS_TYPES.includes(transaction.establishment) : false
+      )
       : false
   );
 
@@ -85,7 +86,7 @@ const EditTransactionModal: React.FC<Props> = ({ transaction, onSave, onDelete, 
             </div>
             <div className="flex-1 min-w-[150px] relative">
               <input type="number" step="0.01" className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-xl font-black text-slate-800 outline-none" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{currencySymbol}</span>
             </div>
           </div>
 
