@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
   const navItems = [
     { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { id: 'past', icon: <History size={20} />, label: 'Passado' },
-    { id: 'present', icon: <Target size={20} />, label: 'Presente' },
+    { id: 'present', icon: <Target size={20} />, label: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][new Date().getMonth()] },
     { id: 'future', icon: <TrendingUp size={20} />, label: 'Futuro' },
     { id: 'irs', icon: <FileText size={20} />, label: 'IRS' },
     { id: 'reports', icon: <Download size={20} />, label: 'Relatórios' },
@@ -37,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
               <button
                 onClick={() => setActiveTab(item.id)}
                 className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all ${activeTab === item.id
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 font-semibold'
-                    : 'text-slate-500 hover:bg-slate-50'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 font-semibold'
+                  : 'text-slate-500 hover:bg-slate-50'
                   }`}
               >
                 {item.icon}

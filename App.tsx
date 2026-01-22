@@ -40,6 +40,11 @@ const MONTHS = [
   { val: 10, name: 'Out' }, { val: 11, name: 'Nov' }, { val: 12, name: 'Dez' }
 ];
 
+const FULL_MONTHS = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
 
@@ -536,7 +541,7 @@ const App: React.FC = () => {
       case 'present':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <SectionCard variant="emerald" title="Economia Familiar Hoje" icon={<Target size={150} />}>
+            <SectionCard variant="emerald" title={`Economia Familiar ${FULL_MONTHS[new Date().getMonth()]}`} icon={<Target size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowUpRight size={24} /></div>
@@ -880,7 +885,7 @@ const App: React.FC = () => {
     switch (tab) {
       case 'dashboard': return 'Saúde Financeira';
       case 'past': return 'Passado';
-      case 'present': return 'Presente';
+      case 'present': return FULL_MONTHS[new Date().getMonth()];
       case 'future': return 'Futuro';
       case 'backoffice': return 'Backoffice';
       case 'settings': return 'Configurações';
