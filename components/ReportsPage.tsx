@@ -1,44 +1,46 @@
-
 import React from 'react';
 import { Download, FileSpreadsheet, FileText, TrendingUp, Info, FileCheck, Printer, Calendar, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { FinanceState } from '../types';
 import { IRS_CONFIG, getCategoryIcon } from '../constants';
 import * as XLSX from 'xlsx';
+import { TranslationType } from '../translations';
 
 interface Props {
   state: FinanceState;
   currencySymbol: string;
+  t: TranslationType;
+  language: string;
 }
 
-const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
+const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) => {
 
   const exportToExcel = (type: 'general' | 'irs') => {
     let exportData: any[] = [];
-    let sheetName = "Extrato_Geral";
+    let sheetName = t.reports.excel.generalSheet;
 
     if (type === 'general') {
-      exportData = state.transactions.map(t => ({
-        'Data': t.date,
-        'Tipo': t.type === 'entrada' ? 'Receita' : 'Despesa',
-        'Categoria': t.category,
-        'Descrição': t.description,
-        [`Montante (${currencySymbol})`]: t.amount,
-        'Estabelecimento': t.establishment || 'N/A',
-        'Nº Fatura': t.invoiceNumber || 'N/A'
+      exportData = state.transactions.map(tData => ({
+        [t.present.date]: tData.date,
+        ['Tipo']: tData.type === 'entrada' ? t.reports.excel.income : t.reports.excel.expense,
+        [t.present.category]: tData.category,
+        [t.present.description]: tData.description,
+        [`${t.present.amount} (${currencySymbol})`]: tData.amount,
+        ['Estabelecimento']: tData.establishment || 'N/A',
+        ['Nº Fatura']: tData.invoiceNumber || 'N/A'
       }));
-      sheetName = "Finanças360_Extracto";
+      sheetName = t.reports.excel.generalSheet;
     } else {
       const irsCategories = ['Saúde', 'Educação', 'Habitação', 'Lazer', 'Alimentação', 'Utilidades', 'Outros'];
       exportData = state.transactions
-        .filter(t => t.type === 'saida' && irsCategories.includes(t.category))
-        .map(t => ({
-          'Fiscal_Categoria': t.category === 'Lazer' ? 'Restauração/IVA' : (['Alimentação', 'Utilidades', 'Outros'].includes(t.category) ? 'Despesas Gerais' : t.category),
-          'Data': t.date,
-          'Entidade': t.establishment || 'N/A',
-          'Nº Fatura': t.invoiceNumber || 'PENDENTE',
-          [`Montante Bruto (${currencySymbol})`]: t.amount,
+        .filter(tData => tData.type === 'saida' && irsCategories.includes(tData.category))
+        .map(tData => ({
+          'Fiscal_Categoria': tData.category === 'Lazer' ? 'Restauração/IVA' : (['Alimentação', 'Utilidades', 'Outros'].includes(tData.category) ? 'Despesas Gerais' : tData.category),
+          [t.present.date]: tData.date,
+          ['Entidade']: tData.establishment || 'N/A',
+          ['Nº Fatura']: tData.invoiceNumber || t.reports.excel.pending,
+          [`${t.present.amount} Bruto (${currencySymbol})`]: tData.amount,
         }));
-      sheetName = "Suporte_IRS";
+      sheetName = t.reports.excel.irsSheet;
     }
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -67,9 +69,9 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
       <div className="bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden print:hidden">
         <div className="relative z-10">
           <h3 className="text-3xl font-black mb-2 flex items-center gap-3">
-            <Download className="text-emerald-400" /> Centro de Exportação
+            <Download className="text-emerald-400" /> {t.reports.title}
           </h3>
-          <p className="opacity-60 max-w-md">Transforme os seus dados em documentos oficiais. Formatos otimizados para gestão profissional e fiscal.</p>
+          <p className="opacity-60 max-w-md">{t.reports.subtitle}</p>
         </div>
         <TrendingUp size={180} className="absolute -right-10 -bottom-10 opacity-5 pointer-events-none" />
       </div>
@@ -81,46 +83,48 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
             <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <FileSpreadsheet size={28} />
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-3">Extrato Geral</h4>
-            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Ficheiro Excel completo com todas as transações para análise profunda.</p>
+            <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.generalExtract}</h4>
+            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.generalExtractDesc}</p>
           </div>
           <button
             onClick={() => exportToExcel('general')}
             className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
-            Exportar Excel <Download size={14} />
+            {t.reports.exportExcel} <Download size={14} />
           </button>
         </div>
 
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-amber-200 transition-all flex flex-col justify-between ring-2 ring-amber-500/10">
-          <div>
-            <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <FileCheck size={28} />
+        {language === 'Português' && (
+          <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-amber-200 transition-all flex flex-col justify-between ring-2 ring-amber-500/10">
+            <div>
+              <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <FileCheck size={28} />
+              </div>
+              <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.irsSupport}</h4>
+              <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.irsSupportDesc}</p>
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-3">Apoio ao IRS</h4>
-            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Relatório estruturado para conferência rápida com o portal e-fatura.</p>
+            <button
+              onClick={handlePrint}
+              className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+            >
+              {t.reports.generateIrsReport} <Printer size={14} />
+            </button>
           </div>
-          <button
-            onClick={handlePrint}
-            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
-          >
-            Gerar Relatório IRS <Printer size={14} />
-          </button>
-        </div>
+        )}
 
         <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-blue-200 transition-all flex flex-col justify-between">
           <div>
             <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <FileText size={28} />
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-3">Relatório Mensal PDF</h4>
-            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">Sumário executivo visual para arquivo ou partilha familiar.</p>
+            <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.monthlyReportPdf}</h4>
+            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.monthlyReportDesc}</p>
           </div>
           <button
             onClick={handlePrint}
             className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
-            Imprimir PDF <FileText size={14} />
+            {t.reports.printPdf} <FileText size={14} />
           </button>
         </div>
       </div>
@@ -131,9 +135,9 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
           <ShieldCheck size={24} />
         </div>
         <div>
-          <h5 className="font-bold text-slate-800 mb-1 uppercase text-xs tracking-widest">Relatórios Certificados</h5>
+          <h5 className="font-bold text-slate-800 mb-1 uppercase text-xs tracking-widest">{t.reports.certifiedReports}</h5>
           <p className="text-slate-500 text-sm leading-relaxed">
-            Todos os documentos gerados utilizam as normas ISO de formatação de dados, garantindo que os seus valores são preservados e legíveis em qualquer sistema fiscal ou bancário.
+            {t.reports.certifiedReportsDesc}
           </p>
         </div>
       </div>
@@ -143,10 +147,10 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
         {/* Print Header */}
         <div className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-10">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Relatório de Saúde Financeira</h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{t.reports.financialHealthReport}</h1>
             <div className="flex gap-4 mt-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
-              <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString('pt-PT')}</span>
-              <span className="flex items-center gap-1"><ShieldCheck size={14} /> Documento Verificado</span>
+              <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}</span>
+              <span className="flex items-center gap-1"><ShieldCheck size={14} /> {t.reports.verifiedDocument}</span>
             </div>
           </div>
           <div className="text-right">
@@ -158,27 +162,27 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
         {/* Print Summary Cards */}
         <div className="grid grid-cols-4 gap-4 mb-10">
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Rendimentos</p>
-            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString('pt-PT')}{currencySymbol}</p>
+            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{t.reports.income}</p>
+            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Despesas</p>
-            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString('pt-PT')}{currencySymbol}</p>
+            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{t.reports.expenses}</p>
+            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
-            <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Poupança Futuro</p>
-            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString('pt-PT')}{currencySymbol}</p>
+            <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">{t.reports.futureSavings}</p>
+            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-orange-50 rounded-3xl border border-orange-100">
-            <p className="text-[10px] font-black uppercase text-orange-600 mb-1">Dívida Passado</p>
-            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString('pt-PT')}{currencySymbol}</p>
+            <p className="text-[10px] font-black uppercase text-orange-600 mb-1">{t.reports.pastDebt}</p>
+            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
           </div>
         </div>
 
         {/* IRS Audit Section (The "Apoio ao IRS" part of the PDF) */}
         <div className="mb-10 page-break-inside-avoid">
           <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
-            <FileCheck className="text-amber-500" size={20} /> Detalhe para Conferência IRS (e-fatura)
+            <FileCheck className="text-amber-500" size={20} /> {t.reports.irsAuditDetail}
           </h3>
           <div className="grid grid-cols-2 gap-8">
             {Object.entries(IRS_CONFIG).map(([category, config]) => {
@@ -194,8 +198,8 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
                     <p className="text-[10px] text-slate-400 uppercase font-black">{config.description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-slate-800">{amount.toLocaleString('pt-PT')}{currencySymbol}</p>
-                    <p className="text-[10px] font-black text-emerald-600 uppercase">Recuperável: {benefit.toFixed(2)}{currencySymbol}</p>
+                    <p className="font-black text-slate-800">{amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase">{t.reports.recoverable}: {benefit.toFixed(2)}{currencySymbol}</p>
                   </div>
                 </div>
               );
@@ -206,16 +210,16 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
         {/* Transactions Table */}
         <div className="mb-10">
           <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
-            <TrendingUp className="text-emerald-500" size={20} /> Extrato Detalhado de Operações
+            <TrendingUp className="text-emerald-500" size={20} /> {t.reports.detailedExtract}
           </h3>
           <table className="w-full text-left text-[10px]">
             <thead>
               <tr className="bg-slate-900 text-white">
-                <th className="p-3 font-black uppercase tracking-widest">Data</th>
-                <th className="p-3 font-black uppercase tracking-widest">Categoria</th>
-                <th className="p-3 font-black uppercase tracking-widest">Entidade / Descrição</th>
-                <th className="p-3 font-black uppercase tracking-widest">Nº Fatura</th>
-                <th className="p-3 font-black uppercase tracking-widest text-right">Montante</th>
+                <th className="p-3 font-black uppercase tracking-widest">{t.present.date}</th>
+                <th className="p-3 font-black uppercase tracking-widest">{t.present.category}</th>
+                <th className="p-3 font-black uppercase tracking-widest">{t.reports.entityDescription}</th>
+                <th className="p-3 font-black uppercase tracking-widest">{t.reports.excel.irsSheet === 'Suporte_IRS' ? 'Nº Fatura' : 'Invoice Number'}</th>
+                <th className="p-3 font-black uppercase tracking-widest text-right">{t.present.amount}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -227,9 +231,9 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
                     <p className="font-bold">{t.description}</p>
                     {t.establishment && <p className="text-emerald-600 font-black uppercase text-[8px]">@ {t.establishment}</p>}
                   </td>
-                  <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? 'Sem NIF' : 'Pendente')}</td>
+                  <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? t.reports.excel.noNif : t.reports.excel.pending)}</td>
                   <td className={`p-3 text-right font-black ${t.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString('pt-PT')}{currencySymbol}
+                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}
                   </td>
                 </tr>
               ))}
@@ -239,10 +243,10 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol }) => {
 
         {/* Print Footer */}
         <div className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center opacity-50">
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">Gerado por Finanças360 Ecosystem • Todos os direitos reservados</p>
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">{t.reports.footerText}</p>
           <div className="flex items-center gap-2">
             <CheckCircle2 size={12} className="text-emerald-500" />
-            <span className="text-[8px] font-bold text-slate-800 uppercase">Documento de Integridade Verificada</span>
+            <span className="text-[8px] font-bold text-slate-800 uppercase">{t.reports.integrityVerified}</span>
           </div>
         </div>
       </div>

@@ -4,12 +4,15 @@ import { Plus, Check, ChevronLeft, Store, FileText, UserMinus, Home, Car, Zap, P
 import { Transaction, Category, IncomeSource } from '../types';
 import { CATEGORIES, INCOME_SOURCES, SUPERMARKETS, HABITACAO_TYPES, TRANSPORTE_TYPES, DESPESAS_TYPES, ANIMAIS_TYPES } from '../constants';
 
+import { TranslationType } from '../translations';
+
 interface Props {
   onAdd: (transaction: Transaction) => void;
   currencySymbol: string;
+  t: TranslationType;
 }
 
-const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
   const [type, setType] = useState<'entrada' | 'saida'>('saida');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<Category | IncomeSource>(CATEGORIES[0]);
@@ -97,7 +100,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'entrada' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'
               }`}
           >
-            Entrada
+            {t.present.inflow}
           </button>
           <button
             type="button"
@@ -105,7 +108,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'saida' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'
               }`}
           >
-            Saída
+            {t.present.outflow}
           </button>
         </div>
 
@@ -145,7 +148,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                   {SUPERMARKETS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder="Loja..." className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={establishment} onChange={(e) => setEstablishment(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.establishmentPlaceholder} className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={establishment} onChange={(e) => setEstablishment(e.target.value)} autoFocus />
               )}
             </div>
             <button type="button" onClick={() => { setIsManualEstablishment(!isManualEstablishment); setEstablishment(isManualEstablishment ? SUPERMARKETS[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualEstablishment ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}><Plus size={20} /></button>
@@ -162,7 +165,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                   {HABITACAO_TYPES.map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder="Tipo..." className="bg-orange-50 border border-orange-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-orange-700 focus:ring-4 focus:ring-orange-500/10 outline-none" value={habitacaoType} onChange={(e) => setHabitacaoType(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.typePlaceholder} className="bg-orange-50 border border-orange-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-orange-700 focus:ring-4 focus:ring-orange-500/10 outline-none" value={habitacaoType} onChange={(e) => setHabitacaoType(e.target.value)} autoFocus />
               )}
             </div>
             <button type="button" onClick={() => { setIsManualHabitacao(!isManualHabitacao); setHabitacaoType(isManualHabitacao ? HABITACAO_TYPES[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualHabitacao ? 'bg-slate-800 text-white' : 'bg-orange-100 text-orange-700 hover:bg-orange-200'}`}><Plus size={20} /></button>
@@ -179,7 +182,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                   {TRANSPORTE_TYPES.map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder="Tipo..." className="bg-blue-50 border border-blue-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-blue-700 focus:ring-4 focus:ring-blue-500/10 outline-none" value={transporteType} onChange={(e) => setTransporteType(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.typePlaceholder} className="bg-blue-50 border border-blue-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-blue-700 focus:ring-4 focus:ring-blue-500/10 outline-none" value={transporteType} onChange={(e) => setTransporteType(e.target.value)} autoFocus />
               )}
             </div>
             <button type="button" onClick={() => { setIsManualTransporte(!isManualTransporte); setTransporteType(isManualTransporte ? TRANSPORTE_TYPES[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualTransporte ? 'bg-slate-800 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}><Plus size={20} /></button>
@@ -196,7 +199,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                   {DESPESAS_TYPES.map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder="Tipo..." className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={despesasType} onChange={(e) => setDespesasType(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.typePlaceholder} className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={despesasType} onChange={(e) => setDespesasType(e.target.value)} autoFocus />
               )}
             </div>
             <button type="button" onClick={() => { setIsManualDespesas(!isManualDespesas); setDespesasType(isManualDespesas ? DESPESAS_TYPES[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualDespesas ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}><Plus size={20} /></button>
@@ -213,7 +216,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                   {ANIMAIS_TYPES.map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder="Tipo..." className="bg-violet-50 border border-violet-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-violet-700 focus:ring-4 focus:ring-violet-500/10 outline-none" value={animaisType} onChange={(e) => setAnimaisType(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.typePlaceholder} className="bg-violet-50 border border-violet-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-violet-700 focus:ring-4 focus:ring-violet-500/10 outline-none" value={animaisType} onChange={(e) => setAnimaisType(e.target.value)} autoFocus />
               )}
             </div>
             <button type="button" onClick={() => { setIsManualAnimais(!isManualAnimais); setAnimaisType(isManualAnimais ? ANIMAIS_TYPES[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualAnimais ? 'bg-slate-800 text-white' : 'bg-violet-100 text-violet-700 hover:bg-violet-200'}`}><Plus size={20} /></button>
@@ -222,7 +225,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-6">
-        <input type="text" placeholder="Descrição da transação" className="flex-1 min-w-[200px] bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-medium text-slate-700 focus:ring-4 focus:ring-emerald-500/10 outline-none placeholder:text-[10px]" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input type="text" placeholder={t.present.transactionDescription} className="flex-1 min-w-[200px] bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-medium text-slate-700 focus:ring-4 focus:ring-emerald-500/10 outline-none placeholder:text-[10px]" value={description} onChange={(e) => setDescription(e.target.value)} />
         {type === 'saida' && (
           <div className="flex flex-wrap items-center gap-6 bg-slate-50/50 p-4 rounded-3xl border border-slate-100">
             <label className="flex items-center gap-3 cursor-pointer group">
@@ -230,18 +233,18 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
                 <input type="checkbox" className="sr-only peer" checked={hasInvoice} onChange={(e) => { setHasInvoice(e.target.checked); if (!e.target.checked) { setInvoiceNumber(''); setIsNoNif(false); } }} />
                 <div className="w-12 h-7 bg-slate-200 rounded-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
               </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">Tem Fatura?</span>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">{t.present.hasInvoice}</span>
             </label>
             {hasInvoice && (
               <div className="flex items-center gap-4 animate-in fade-in slide-in-from-left-2 duration-200">
                 <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm">
                   <input type="checkbox" id="no-nif-toggle" className="w-4 h-4 accent-rose-500" checked={isNoNif} onChange={(e) => { setIsNoNif(e.target.checked); if (e.target.checked) setInvoiceNumber(''); }} />
-                  <label htmlFor="no-nif-toggle" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer flex items-center gap-1"><UserMinus size={12} /> Sem NIF</label>
+                  <label htmlFor="no-nif-toggle" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer flex items-center gap-1"><UserMinus size={12} /> {t.present.noNif}</label>
                 </div>
                 {!isNoNif && (
                   <div className="relative min-w-[180px]">
                     <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" size={16} />
-                    <input type="text" placeholder="Nº da Fatura" className="w-full bg-white border border-emerald-100 rounded-2xl pl-10 pr-6 py-3 text-xs font-bold text-emerald-700 outline-none placeholder:text-[10px]" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} autoFocus />
+                    <input type="text" placeholder={t.present.invoiceNumber} className="w-full bg-white border border-emerald-100 rounded-2xl pl-10 pr-6 py-3 text-xs font-bold text-emerald-700 outline-none placeholder:text-[10px]" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} autoFocus />
                   </div>
                 )}
               </div>
@@ -249,7 +252,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol }) => {
           </div>
         )}
         <button type="submit" className="bg-slate-900 text-white p-4 px-8 rounded-[24px] hover:bg-slate-800 transition-all flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 ml-auto">
-          <Check size={20} className="text-emerald-400" /> Adicionar
+          <Check size={20} className="text-emerald-400" /> {t.present.add}
         </button>
       </div>
     </form>

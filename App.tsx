@@ -18,6 +18,7 @@ import { Input, Select, Button } from './components/ui/FormElements';
 import ItemRow from './components/ui/ItemRow';
 import { useFinanceState } from './hooks/useFinanceState';
 import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpense, LongTermDebt, FutureGoal, Investment, Category, InvestmentType, IncomeSource, Frequency } from './types';
+import { translations, TranslationType } from './translations';
 import { getFinancialAdvice } from './services/geminiService';
 import { apiService } from './services/apiService';
 import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders } from 'lucide-react';
@@ -34,20 +35,12 @@ const DEFAULT_STATE: FinanceState = {
   appSettings: { currency: 'EUR', language: 'Português', theme: 'light' }
 };
 
-const MONTHS = [
-  { val: 1, name: 'Jan' }, { val: 2, name: 'Fev' }, { val: 3, name: 'Mar' },
-  { val: 4, name: 'Abr' }, { val: 5, name: 'Mai' }, { val: 6, name: 'Jun' },
-  { val: 7, name: 'Jul' }, { val: 8, name: 'Ago' }, { val: 9, name: 'Set' },
-  { val: 10, name: 'Out' }, { val: 11, name: 'Nov' }, { val: 12, name: 'Dez' }
-];
-
-const FULL_MONTHS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
+
+const frequenciesPt = { 'Anual': 'Anual', 'Mensal': 'Mensal', 'Semestral': 'Semestral', 'Trimestral': 'Trimestral' };
+const frequenciesEn = { 'Anual': 'Annual', 'Mensal': 'Monthly', 'Semestral': 'Semi-annual', 'Trimestral': 'Quarterly' };
 
 type ViewState = 'landing' | 'pricing' | 'checkout' | 'login' | 'dashboard';
 
@@ -498,6 +491,22 @@ const App: React.FC = () => {
   };
 
   const currencySymbol = CURRENCY_SYMBOLS[state.appSettings?.currency || 'EUR'];
+  const t: TranslationType = state.appSettings?.language === 'English' ? translations.en : translations.pt;
+
+  const MONTHS = [
+    { val: 1, name: t.common.cancel === 'Cancelar' ? 'Jan' : 'Jan' },
+    { val: 2, name: t.common.cancel === 'Cancelar' ? 'Fev' : 'Feb' },
+    { val: 3, name: t.common.cancel === 'Cancelar' ? 'Mar' : 'Mar' },
+    { val: 4, name: t.common.cancel === 'Cancelar' ? 'Abr' : 'Apr' },
+    { val: 5, name: t.common.cancel === 'Cancelar' ? 'Mai' : 'May' },
+    { val: 6, name: t.common.cancel === 'Cancelar' ? 'Jun' : 'Jun' },
+    { val: 7, name: t.common.cancel === 'Cancelar' ? 'Jul' : 'Jul' },
+    { val: 8, name: t.common.cancel === 'Cancelar' ? 'Ago' : 'Aug' },
+    { val: 9, name: t.common.cancel === 'Cancelar' ? 'Set' : 'Sep' },
+    { val: 10, name: t.common.cancel === 'Cancelar' ? 'Out' : 'Oct' },
+    { val: 11, name: t.common.cancel === 'Cancelar' ? 'Nov' : 'Nov' },
+    { val: 12, name: t.common.cancel === 'Cancelar' ? 'Dez' : 'Dec' }
+  ];
 
   if (isInitialLoading) {
     return (
@@ -523,9 +532,9 @@ const App: React.FC = () => {
                 <p className="text-emerald-600 font-bold uppercase tracking-[0.3em] text-[10px] mt-1">Família {state.familyInfo.familyName}</p>
               )}
             </div>
-            <SummaryCards state={state} onNavigate={setActiveTab} currencySymbol={currencySymbol} />
-            <DashboardCharts transactions={state.transactions} currencySymbol={currencySymbol} />
-            <SectionCard title="Atividade Recente" headerAction={<button onClick={() => setActiveTab('present')} className="text-emerald-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">Ver todas <ArrowRight size={14} /></button>}>
+            <SummaryCards state={state} onNavigate={setActiveTab} currencySymbol={currencySymbol} t={t} />
+            <DashboardCharts transactions={state.transactions} currencySymbol={currencySymbol} t={t} />
+            <SectionCard title={t.dashboard.recentActivity} headerAction={<button onClick={() => setActiveTab('present')} className="text-emerald-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">{t.dashboard.viewAll} <ArrowRight size={14} /></button>}>
               <div className="space-y-4">
                 {state.transactions.length > 0 ? (
                   state.transactions.slice(0, 5).map(tx => (
@@ -534,7 +543,7 @@ const App: React.FC = () => {
                 ) : (
                   <div className="py-10 text-center text-slate-400">
                     <History size={32} className="mx-auto mb-2 opacity-20" />
-                    <p className="text-xs font-bold uppercase tracking-widest">Ainda não tem transações</p>
+                    <p className="text-xs font-bold uppercase tracking-widest">{t.dashboard.noTransactions}</p>
                   </div>
                 )}
               </div>
@@ -544,23 +553,23 @@ const App: React.FC = () => {
       case 'present':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <SectionCard variant="emerald" title={`Economia Familiar ${FULL_MONTHS[new Date().getMonth()]}`} icon={<Target size={150} />}>
+            <SectionCard variant="emerald" title={t.present.familyEconomy} icon={<Target size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowUpRight size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Entradas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.income}</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowDownLeft size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Saídas</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.expenses}</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
-            <TransactionForm onAdd={addTransaction} currencySymbol={currencySymbol} />
-            <SectionCard title="Histórico Detalhado">
+            <TransactionForm onAdd={addTransaction} currencySymbol={currencySymbol} t={t} />
+            <SectionCard title={t.present.detailedHistory}>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-50/50"><tr><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Data</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descrição</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Categoria</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Montante</th></tr></thead>
+                  <thead className="bg-slate-50/50"><tr><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.description}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.category}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">{t.present.amount}</th></tr></thead>
                   <tbody className="divide-y divide-slate-50">
                     {state.transactions.map(tx => (
                       <tr key={tx.id} className="hover:bg-slate-50 transition-all group/row">
@@ -579,68 +588,86 @@ const App: React.FC = () => {
       case 'settings':
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 pb-20">
-            <SectionCard variant="slate" title="Onboarding Familiar" subtitle="Registe o seu agregado e estruture a sua vida financeira pilar a pilar." icon={<Settings size={180} />} />
+            <SectionCard variant="slate" title={t.settings.onboarding} subtitle={t.settings.onboardingSubtitle} icon={<Settings size={180} />} />
 
             <div className="space-y-8">
-              <div className="flex items-center gap-3 px-4"><Users className="text-emerald-600" size={28} /><h4 className="text-2xl font-black text-slate-800">1. Agregado Familiar</h4></div>
+              <div className="flex items-center gap-3 px-4"><Users className="text-emerald-600" size={28} /><h4 className="text-2xl font-black text-slate-800">1. {t.settings.household}</h4></div>
               <SectionCard>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   <div className="space-y-8">
                     <div className="flex flex-col gap-6">
-                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Fingerprint size={14} /> Identificação e Rendimento</p>
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Fingerprint size={14} /> {t.settings.identification}</p>
                       <div className="max-w-xs">
-                        <Input label="Apelido / Nome de Família" placeholder="Ex: Florim" value={state.familyInfo?.familyName || ''} onChange={e => updateGlobalState({ familyInfo: { ...state.familyInfo!, familyName: e.target.value } })} />
+                        <Input label={t.settings.familyName} placeholder="Ex: Florim" value={state.familyInfo?.familyName || ''} onChange={e => updateGlobalState({ familyInfo: { ...state.familyInfo!, familyName: e.target.value } })} />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <Input label="Nome" value={newMemberName} onChange={e => setNewMemberName(e.target.value)} />
-                      <Select label="Papel" value={newMemberRole} onChange={e => setNewMemberRole(e.target.value)}><option>Cônjuge</option><option>Filho/a</option><option>Outro</option><option>Pai/Mãe</option></Select>
-                      <Input label="Data Nascimento" type="date" value={newMemberBirthDate} onChange={e => setNewMemberBirthDate(e.target.value)} />
-                      <Input label="NIF" maxLength={9} value={newMemberNif} onChange={e => setNewMemberNif(e.target.value.replace(/\D/g, ''))} />
+                      <Input label={t.settings.name} value={newMemberName} onChange={e => setNewMemberName(e.target.value)} />
+                      <Select label={t.settings.role} value={newMemberRole} onChange={e => setNewMemberRole(e.target.value)}>
+                        <option value="Cônjuge">{t.settings.roleOptions.spouse}</option>
+                        <option value="Filho/a">{t.settings.roleOptions.child}</option>
+                        <option value="Outro">{t.settings.roleOptions.other}</option>
+                        <option value="Pai/Mãe">{t.settings.roleOptions.parent}</option>
+                      </Select>
+                      <Input label={t.settings.birthDate} type="date" value={newMemberBirthDate} onChange={e => setNewMemberBirthDate(e.target.value)} />
+                      <Input label={t.settings.nif} maxLength={9} value={newMemberNif} onChange={e => setNewMemberNif(e.target.value.replace(/\D/g, ''))} />
                     </div>
                     <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100 space-y-4">
-                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Coins size={14} className="text-emerald-600" /> Rendimentos Mensais</p>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Coins size={14} className="text-emerald-600" /> {t.settings.monthlyIncome}</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder="Descrição" value={newIncomeName} onChange={e => setNewIncomeName(e.target.value)} />
-                        <input type="number" className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={`Valor ${currencySymbol}`} value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
-                        <select className="bg-white border rounded-xl px-4 py-2 text-[10px] font-black uppercase" value={newIncomeSource} onChange={e => setNewIncomeSource(e.target.value as any)}>{INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}</select>
+                        <input className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={t.present.description} value={newIncomeName} onChange={e => setNewIncomeName(e.target.value)} />
+                        <input type="number" className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={`${t.present.amount} ${currencySymbol}`} value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
+                        <select className="bg-white border rounded-xl px-4 py-2 text-[10px] font-black uppercase" value={newIncomeSource} onChange={e => setNewIncomeSource(e.target.value as any)}>
+                          {INCOME_SOURCES.map(s => <option key={s} value={s}>{t.incomeSources[s as keyof typeof t.incomeSources] || s}</option>)}
+                        </select>
                       </div>
-                      <Button variant="ghost-emerald" fullWidth onClick={addIncomeToTempMember} icon={<Plus size={14} />}>Adicionar Rendimento</Button>
+                      <Button variant="ghost-emerald" fullWidth onClick={addIncomeToTempMember} icon={<Plus size={14} />}>{t.settings.addIncome}</Button>
                       <div className="flex flex-wrap gap-2">{tempMemberIncomes.map((inc, i) => (<div key={i} className="bg-white px-3 py-1.5 rounded-lg border flex items-center gap-2 shadow-sm"><span className="text-[10px] font-black text-slate-700">{inc.name}: {Number(inc.amount).toLocaleString()}{currencySymbol}</span><button onClick={() => setTempMemberIncomes(tempMemberIncomes.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-rose-600"><X size={12} /></button></div>))}</div>
                     </div>
                     <Button fullWidth onClick={addMemberAction} icon={editingMemberId ? <Check size={18} /> : <ArrowRight size={18} />}>
-                      {editingMemberId ? 'Atualizar Membro' : 'Registar no Agregado'}
+                      {editingMemberId ? t.settings.updateMember : t.settings.registerHousehold}
                     </Button>
                     {editingMemberId && (
-                      <Button fullWidth variant="ghost-slate" onClick={() => { setEditingMemberId(null); setNewMemberName(''); setNewMemberBirthDate(''); setNewMemberNif(''); setNewMemberRole('Pai/Mãe'); setTempMemberIncomes([]); }}>Cancelar Edição</Button>
+                      <Button fullWidth variant="ghost-slate" onClick={() => { setEditingMemberId(null); setNewMemberName(''); setNewMemberBirthDate(''); setNewMemberNif(''); setNewMemberRole('Pai/Mãe'); setTempMemberIncomes([]); }}>{t.settings.cancelEdition}</Button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
-                    {state.familyInfo?.members.map(m => (
-                      <ItemRow key={m.id} title={m.name} subtitle={`${m.role} • ${m.age} anos`} value={m.salary ? `${m.salary.toLocaleString('pt-PT')}${currencySymbol}` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
-                    ))}
+                    {state.familyInfo?.members.map(m => {
+                      const roleDisplay = m.role === 'Cônjuge' ? t.settings.roleOptions.spouse :
+                        m.role === 'Filho/a' ? t.settings.roleOptions.child :
+                          m.role === 'Pai/Mãe' ? t.settings.roleOptions.parent :
+                            t.settings.roleOptions.other;
+                      return (
+                        <ItemRow key={m.id} title={m.name} subtitle={`${roleDisplay} • ${m.age} ${m.age === 1 ? t.common.year : t.common.years}`} value={m.salary ? `${m.salary.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
+                      );
+                    })}
                   </div>
                 </div>
               </SectionCard>
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-center gap-3 px-4"><Rocket className="text-orange-600" size={28} /><h4 className="text-2xl font-black text-slate-800">2. Estratégia Financeira</h4></div>
-              <SectionCard title="Créditos e Financiamentos" icon={<CreditCard className="text-orange-600" size={20} />}>
+              <div className="flex items-center gap-3 px-4"><Rocket className="text-orange-600" size={28} /><h4 className="text-2xl font-black text-slate-800">2. {t.settings.strategy}</h4></div>
+              <SectionCard title={t.settings.credits} icon={<CreditCard className="text-orange-600" size={20} />}>
                 <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 w-fit mb-6">
-                  <button onClick={() => setTempDebtCalcType('installments')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'installments' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>Prestações</button>
-                  <button onClick={() => setTempDebtCalcType('endDate')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'endDate' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>Data Fim</button>
+                  <button onClick={() => setTempDebtCalcType('installments')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'installments' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>{t.past.installments}</button>
+                  <button onClick={() => setTempDebtCalcType('endDate')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'endDate' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>{t.past.endDate}</button>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-7 items-end gap-3">
-                  <Input label="Descrição" placeholder="Descrição" value={tempDebtName} onChange={e => setTempDebtName(e.target.value)} />
-                  <Select label="Tipo" value={tempDebtType} onChange={e => setTempDebtType(e.target.value)}><option>Carro</option><option>Empréstimo</option><option>Hipoteca</option><option>Outros</option></Select>
-                  <Input label="Cap. Contratado" type="number" placeholder={`Capital ${currencySymbol}`} value={tempDebtContracted} onChange={e => setTempDebtContracted(e.target.value)} />
-                  <Input label={`Valor ${currencySymbol}`} type="number" variant="orange" placeholder={`Mensalidade ${currencySymbol}`} value={tempDebtMonthly} onChange={e => setTempDebtMonthly(e.target.value)} />
-                  <Input label="Dia Liq." type="number" min="1" max="31" placeholder="Dia Liq." value={tempDebtDay} onChange={e => setTempDebtDay(e.target.value)} />
-                  {tempDebtCalcType === 'installments' ? <Input label="Nr. Prest." type="number" placeholder="Prestações" value={tempDebtInstallments} onChange={e => setTempDebtInstallments(e.target.value)} /> : <Input label="Data Fim" type="date" value={tempDebtEndDate} onChange={e => setTempDebtEndDate(e.target.value)} />}
+                  <Input label={t.present.description} placeholder={t.present.description} value={tempDebtName} onChange={e => setTempDebtName(e.target.value)} />
+                  <Select label={t.backoffice.type} value={tempDebtType} onChange={e => setTempDebtType(e.target.value)}>
+                    <option value="Carro">{t.settings.debtTypes.car}</option>
+                    <option value="Empréstimo">{t.settings.debtTypes.loan}</option>
+                    <option value="Hipoteca">{t.settings.debtTypes.mortgage}</option>
+                    <option value="Outros">{t.settings.debtTypes.other}</option>
+                  </Select>
+                  <Input label={t.backoffice.contractedCap} type="number" placeholder={`${t.backoffice.contractedCap} ${currencySymbol}`} value={tempDebtContracted} onChange={e => setTempDebtContracted(e.target.value)} />
+                  <Input label={`${t.present.amount} ${currencySymbol}`} type="number" variant="orange" placeholder={`${t.past.monthlyBurden} ${currencySymbol}`} value={tempDebtMonthly} onChange={e => setTempDebtMonthly(e.target.value)} />
+                  <Input label={t.past.liquidationDay} type="number" min="1" max="31" placeholder={t.past.liquidationDay} value={tempDebtDay} onChange={e => setTempDebtDay(e.target.value)} />
+                  {tempDebtCalcType === 'installments' ? <Input label={t.past.installments} type="number" placeholder={t.past.installments} value={tempDebtInstallments} onChange={e => setTempDebtInstallments(e.target.value)} /> : <Input label={t.past.endDate} type="date" value={tempDebtEndDate} onChange={e => setTempDebtEndDate(e.target.value)} />}
                   <div className="flex flex-col gap-2">
-                    <Button variant="orange" onClick={addDebtAction} icon={editingDebtId ? <Check size={16} /> : <Plus size={16} />}>{editingDebtId ? 'Atualizar' : 'Adicionar'}</Button>
-                    {editingDebtId && <Button variant="ghost-slate" onClick={() => { setEditingDebtId(null); setTempDebtName(''); setTempDebtMonthly(''); setTempDebtContracted(''); setTempDebtInstallments(''); setTempDebtEndDate(''); setTempDebtDay('1'); }}>Cancelar</Button>}
+                    <Button variant="orange" onClick={addDebtAction} icon={editingDebtId ? <Check size={16} /> : <Plus size={16} />}>{editingDebtId ? t.common.update : t.present.add}</Button>
+                    {editingDebtId && <Button variant="ghost-slate" onClick={() => { setEditingDebtId(null); setTempDebtName(''); setTempDebtMonthly(''); setTempDebtContracted(''); setTempDebtInstallments(''); setTempDebtEndDate(''); setTempDebtDay('1'); }}>{t.common.cancel}</Button>}
                   </div>
                 </div>
 
@@ -648,23 +675,28 @@ const App: React.FC = () => {
                 {state.debts.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.debts.map(debt => (
-                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${debt.type} • Dia ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
+                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${t.settings.debtTypes[debt.type === 'Carro' ? 'car' : debt.type === 'Empréstimo' ? 'loan' : debt.type === 'Hipoteca' ? 'mortgage' : 'other']} • ${t.future.monthDay} ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
                     ))}
                   </div>
                 )}
               </SectionCard>
 
-              <SectionCard title="Compromissos Fixos" icon={<Layers className="text-orange-600" size={20} />}>
+              <SectionCard title={t.settings.fixedCommitments} icon={<Layers className="text-orange-600" size={20} />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3">
-                  <Select label="Frequência" value={tempRecFreq} onChange={e => setTempRecFreq(e.target.value as Frequency)}><option value="Anual">Anual</option><option value="Mensal">Mensal</option><option value="Semestral">Semestral</option><option value="Trimestral">Trimestral</option></Select>
-                  <Input label="Descrição" placeholder="Descrição" value={tempRecName} onChange={e => setTempRecName(e.target.value)} />
-                  <Input label="Dia Liq." type="number" value={tempRecDay} onChange={e => setTempRecDay(e.target.value)} />
-                  <Select label="Mês" className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecMonth} onChange={e => setTempRecMonth(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{MONTHS.map(m => <option key={m.val} value={m.val}>{m.name}</option>)}</Select>
-                  <Select label="Ano" className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecYear} onChange={e => setTempRecYear(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}</Select>
-                  <Input label={`Valor ${currencySymbol}`} type="number" value={tempRecAmount} onChange={e => setTempRecAmount(e.target.value)} />
+                  <Select label={t.backoffice.frequency} value={tempRecFreq} onChange={e => setTempRecFreq(e.target.value as Frequency)}>
+                    <option value="Anual">{t.common.cancel === 'Cancelar' ? 'Anual' : 'Annual'}</option>
+                    <option value="Mensal">{t.common.cancel === 'Cancelar' ? 'Mensal' : 'Monthly'}</option>
+                    <option value="Semestral">{t.common.cancel === 'Cancelar' ? 'Semestral' : 'Semi-annual'}</option>
+                    <option value="Trimestral">{t.common.cancel === 'Cancelar' ? 'Trimestral' : 'Quarterly'}</option>
+                  </Select>
+                  <Input label={t.present.description} placeholder={t.present.description} value={tempRecName} onChange={e => setTempRecName(e.target.value)} />
+                  <Input label={t.past.liquidationDay} type="number" value={tempRecDay} onChange={e => setTempRecDay(e.target.value)} />
+                  <Select label={t.common.month} className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecMonth} onChange={e => setTempRecMonth(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{MONTHS.map(m => <option key={m.val} value={m.val}>{m.name}</option>)}</Select>
+                  <Select label={t.backoffice.refYear} className={tempRecFreq === 'Mensal' ? 'opacity-30' : ''} value={tempRecYear} onChange={e => setTempRecYear(Number(e.target.value))} disabled={tempRecFreq === 'Mensal'}>{YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}</Select>
+                  <Input label={`${t.present.amount} ${currencySymbol}`} type="number" value={tempRecAmount} onChange={e => setTempRecAmount(e.target.value)} />
                   <div className="flex flex-col gap-2 self-end">
-                    <Button variant="orange" onClick={addRecurringAction} icon={editingRecExpenseId ? <Check size={16} /> : <Plus size={16} />}>{editingRecExpenseId ? 'Atualizar' : 'Adicionar'}</Button>
-                    {editingRecExpenseId && <Button variant="ghost-slate" onClick={() => { setEditingRecExpenseId(null); setTempRecName(''); setTempRecAmount(''); }}>Cancelar</Button>}
+                    <Button variant="orange" onClick={addRecurringAction} icon={editingRecExpenseId ? <Check size={16} /> : <Plus size={16} />}>{editingRecExpenseId ? t.common.update : t.present.add}</Button>
+                    {editingRecExpenseId && <Button variant="ghost-slate" onClick={() => { setEditingRecExpenseId(null); setTempRecName(''); setTempRecAmount(''); }}>{t.common.cancel}</Button>}
                   </div>
                 </div>
 
@@ -672,21 +704,23 @@ const App: React.FC = () => {
                 {state.recurringExpenses.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.recurringExpenses.map(exp => (
-                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${exp.frequency} • Dia ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
+                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${t.common.cancel === 'Cancelar' ? frequenciesPt[exp.frequency] : frequenciesEn[exp.frequency]} • ${t.future.monthDay} ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
                     ))}
                   </div>
                 )}
               </SectionCard>
 
-              <SectionCard title="Sonhos e Objetivos" icon={<Sparkles className="text-blue-600" size={20} />}>
+              <SectionCard title={t.settings.dreamsGoals} icon={<Sparkles className="text-blue-600" size={20} />}>
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
-                  <Input placeholder="Objetivo" value={tempGoalName} onChange={e => setTempGoalName(e.target.value)} />
-                  <Input type="number" placeholder={`Alvo ${currencySymbol}`} value={tempGoalAmount} onChange={e => setTempGoalAmount(e.target.value)} />
-                  <Input type="number" variant="blue" placeholder={`Já tem ${currencySymbol}`} value={tempGoalCurrent} onChange={e => setTempGoalCurrent(e.target.value)} />
-                  <Select value={tempGoalCategory} onChange={e => setTempGoalCategory(e.target.value as Category)}>{CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</Select>
+                  <Input placeholder={t.future.dreams} value={tempGoalName} onChange={e => setTempGoalName(e.target.value)} />
+                  <Input type="number" placeholder={`${t.future.finalGoal} ${currencySymbol}`} value={tempGoalAmount} onChange={e => setTempGoalAmount(e.target.value)} />
+                  <Input type="number" variant="blue" placeholder={`${t.future.currentBalance} ${currencySymbol}`} value={tempGoalCurrent} onChange={e => setTempGoalCurrent(e.target.value)} />
+                  <Select value={tempGoalCategory} onChange={e => setTempGoalCategory(e.target.value as Category)}>
+                    {CATEGORIES.map(c => <option key={c} value={c}>{t.categories[c as keyof typeof t.categories] || c}</option>)}
+                  </Select>
                   <div className="flex flex-col gap-2">
-                    <Button variant="blue" onClick={addGoalAction} icon={editingGoalId ? <Check size={16} /> : <Plus size={16} />}>{editingGoalId ? 'Atualizar' : 'Adicionar'}</Button>
-                    {editingGoalId && <Button variant="ghost-slate" onClick={() => { setEditingGoalId(null); setTempGoalName(''); setTempGoalAmount(''); setTempGoalCurrent(''); }}>Cancelar</Button>}
+                    <Button variant="blue" onClick={addGoalAction} icon={editingGoalId ? <Check size={16} /> : <Plus size={16} />}>{editingGoalId ? t.common.update : t.present.add}</Button>
+                    {editingGoalId && <Button variant="ghost-slate" onClick={() => { setEditingGoalId(null); setTempGoalName(''); setTempGoalAmount(''); setTempGoalCurrent(''); }}>{t.common.cancel}</Button>}
                   </div>
                 </div>
 
@@ -694,77 +728,84 @@ const App: React.FC = () => {
                 {state.goals.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.goals.map(goal => (
-                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${goal.category}`} value={`${goal.targetAmount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
+                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${t.categories[goal.category as keyof typeof t.categories] || goal.category}`} value={`${goal.targetAmount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
                     ))}
                   </div>
                 )}
               </SectionCard>
 
-              <SectionCard variant="slate" title="Investimentos Familiares" icon={<PieChart className="text-emerald-500" size={20} />}>
+              <SectionCard variant="slate" title={t.settings.familyInvestments} icon={<PieChart className="text-emerald-500" size={20} />}>
                 <div className={`grid grid-cols-1 ${tempInvType === 'PPR' ? 'lg:grid-cols-6' : 'lg:grid-cols-4'} gap-4 items-end mb-8`}>
-                  <Input variant="slate-emerald" placeholder="Identificação" value={tempInvName} onChange={e => setTempInvName(e.target.value)} />
-                  <Input variant="slate-emerald" type="number" placeholder={`Total ${currencySymbol}`} value={tempInvAmount} onChange={e => setTempInvAmount(e.target.value)} />
-                  <Select variant="slate-emerald" value={tempInvType} onChange={e => setTempInvType(e.target.value as InvestmentType)}><option value="Acções">Acções</option><option value="Certificados de Aforro">Aforro</option><option value="Cryptomoeda">Crypto</option><option value="PPR">PPR</option></Select>
+                  <Input variant="slate-emerald" placeholder={t.backoffice.description} value={tempInvName} onChange={e => setTempInvName(e.target.value)} />
+                  <Input variant="slate-emerald" type="number" placeholder={`${t.backoffice.investedValue} ${currencySymbol}`} value={tempInvAmount} onChange={e => setTempInvAmount(e.target.value)} />
+                  <Select variant="slate-emerald" value={tempInvType} onChange={e => setTempInvType(e.target.value as InvestmentType)}>
+                    <option value="Acções">{t.settings.invTypes.stocks}</option>
+                    <option value="Certificados de Aforro">{t.settings.invTypes.savings}</option>
+                    <option value="Cryptomoeda">{t.settings.invTypes.crypto}</option>
+                    <option value="PPR">{t.settings.invTypes.ppr}</option>
+                  </Select>
                   {tempInvType === 'PPR' && (
                     <>
-                      <Input variant="slate-emerald" type="number" placeholder={`Reforço ${currencySymbol}`} value={tempInvReinforcement} onChange={e => setTempInvReinforcement(e.target.value)} />
-                      <Input variant="slate-emerald" type="number" min="1" max="31" placeholder="Dia" value={tempInvDay} onChange={e => setTempInvDay(e.target.value)} />
+                      <Input variant="slate-emerald" type="number" placeholder={`${t.future.monthlyReinforcement} ${currencySymbol}`} value={tempInvReinforcement} onChange={e => setTempInvReinforcement(e.target.value)} />
+                      <Input variant="slate-emerald" type="number" min="1" max="31" placeholder={t.future.monthDay} value={tempInvDay} onChange={e => setTempInvDay(e.target.value)} />
                     </>
                   )}
                   <div className="flex flex-col gap-2">
-                    <Button variant="emerald" noShadow onClick={addInvAction} icon={editingInvId ? <Check size={16} /> : <Plus size={16} />}>{editingInvId ? 'Atualizar' : 'Adicionar'}</Button>
-                    {editingInvId && <Button variant="ghost-slate" onClick={() => { setEditingInvId(null); setTempInvName(''); setTempInvAmount(''); setTempInvDay('1'); setTempInvReinforcement(''); }}>Cancelar</Button>}
+                    <Button variant="emerald" noShadow onClick={addInvAction} icon={editingInvId ? <Check size={16} /> : <Plus size={16} />}>{editingInvId ? t.common.save : t.common.confirm}</Button>
+                    {editingInvId && <Button variant="ghost-slate" onClick={() => { setEditingInvId(null); setTempInvName(''); setTempInvAmount(''); setTempInvDay('1'); setTempInvReinforcement(''); }}>{t.common.cancel}</Button>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {state.investments.map(inv => (
-                    <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}${currencySymbol} (Dia ${inv.dayOfMonth})` : inv.type} value={`${inv.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
-                  ))}
+                  {state.investments.map(inv => {
+                    const typeDisplay = t.settings.invTypes[inv.type === 'Acções' ? 'stocks' : inv.type === 'Certificados de Aforro' ? 'savings' : inv.type === 'Cryptomoeda' ? 'crypto' : 'ppr'];
+                    return (
+                      <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${typeDisplay} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : typeDisplay} value={`${inv.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
+                    );
+                  })}
                 </div>
               </SectionCard>
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-center gap-3 px-4"><Settings className="text-slate-600" size={28} /><h4 className="text-2xl font-black text-slate-800">3. Configurações da Aplicação</h4></div>
-              <SectionCard title="Preferências do Sistema" icon={<Sliders size={20} />}>
+              <div className="flex items-center gap-3 px-4"><Settings className="text-slate-600" size={28} /><h4 className="text-2xl font-black text-slate-800">3. {t.settings.appSettings}</h4></div>
+              <SectionCard title={t.settings.sysPreferences} icon={<Sliders size={20} />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Select
-                    label="Moeda Principal"
+                    label={t.settings.currency}
                     value={state.appSettings?.currency || 'EUR'}
                     onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, currency: e.target.value } })}
                   >
-                    <option value="EUR">Euro (€)</option>
-                    <option value="USD">Dólar ($)</option>
-                    <option value="GBP">Libra (£)</option>
-                    <option value="BRL">Real (R$)</option>
+                    <option value="EUR">{t.common.cancel === 'Cancelar' ? 'Euro' : 'Euro'} (€)</option>
+                    <option value="USD">{t.common.cancel === 'Cancelar' ? 'Dólar' : 'Dollar'} ($)</option>
+                    <option value="GBP">{t.common.cancel === 'Cancelar' ? 'Libra' : 'Pound'} (£)</option>
+                    <option value="BRL">{t.common.cancel === 'Cancelar' ? 'Real' : 'Real'} (R$)</option>
                   </Select>
                   <Select
-                    label="Idioma"
+                    label={t.settings.language}
                     value={state.appSettings?.language || 'Português'}
                     onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, language: e.target.value } })}
                   >
                     <option>Português</option>
                     <option>English</option>
-                    <option>Español</option>
                   </Select>
                   <Select
-                    label="Tema Visual"
+                    label={t.settings.theme}
                     value={state.appSettings?.theme || 'light'}
                     onChange={e => updateGlobalState({ appSettings: { ...state.appSettings!, theme: e.target.value as any } })}
                   >
-                    <option value="light">Modo Claro</option>
-                    <option value="dark">Modo Escuro</option>
+                    <option value="light">{t.settings.lightMode}</option>
+                    <option value="dark">{t.settings.darkMode}</option>
                   </Select>
                 </div>
               </SectionCard>
             </div>
 
             <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row gap-8 items-center justify-between">
-              <div className="flex items-center gap-6"><div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center shadow-sm"><ShieldCheck size={32} /></div><div><h5 className="font-black text-slate-800">Pronto para começar?</h5><p className="text-slate-400 text-sm">Os seus dados estão seguros e organizados.</p></div></div>
+              <div className="flex items-center gap-6"><div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center shadow-sm"><ShieldCheck size={32} /></div><div><h5 className="font-black text-slate-800">{t.settings.readyToStart}</h5><p className="text-slate-400 text-sm">{t.settings.readySubtitle}</p></div></div>
               <div className="flex flex-col md:flex-row gap-4">
-                <Button variant="ghost-slate" icon={<Trash2 size={16} />} onClick={() => { if (confirm('Tem a certeza que deseja apagar todos os dados?')) apiService.clearDatabase(); }}>Limpar Tudo</Button>
-                <Button onClick={() => { processRecurring(state); setActiveTab('dashboard'); }}>ATUALIZAR APLICAÇÃO</Button>
+                <Button variant="ghost-slate" icon={<Trash2 size={16} />} onClick={() => { if (confirm(t.settings.confirmClearAll)) apiService.clearDatabase(); }}>{t.settings.clearAll}</Button>
+                <Button onClick={() => { processRecurring(state); setActiveTab('dashboard'); }}>{t.settings.updateApp}</Button>
               </div>
             </div>
           </div>
@@ -772,15 +813,15 @@ const App: React.FC = () => {
       case 'past':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <SectionCard variant="orange" title="Compromissos do Passado" icon={<History size={150} />}>
+            <SectionCard variant="orange" title={t.past.pastCommitments} icon={<History size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><CreditCard size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total em Dívida Efetiva</p><p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.totalDebt}</p><p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><Layers size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Carga Mensal Fixa</p><p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.monthlyBurden}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
@@ -798,18 +839,18 @@ const App: React.FC = () => {
                     </div>
                   }
                 >
-                  <div className="flex justify-between items-end mb-3"><p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">Estado do Financiamento</p><p className="text-lg font-black text-orange-600">{(debt.monthlyPayment || 0).toLocaleString('pt-PT')}{currencySymbol}/mês</p></div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border mb-6"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Custo Remanescente</p><p className="text-2xl font-black text-slate-800">{(debt.remainingValue || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div className="flex justify-between items-end mb-3"><p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">{t.past.financeStatus}</p><p className="text-lg font-black text-orange-600">{(debt.monthlyPayment || 0).toLocaleString('pt-PT')}{currencySymbol}/{t.future.monthDay}</p></div>
+                  <div className="p-4 bg-slate-50 rounded-2xl border mb-6"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t.past.remainingCost}</p><p className="text-2xl font-black text-slate-800">{(debt.remainingValue || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                   <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                    <div><p className="text-[10px] text-slate-400 uppercase font-bold">Modo Cálculo</p><p className="text-sm font-bold text-slate-800">{debt.calculationType === 'installments' ? 'Prestações' : 'Data Fim'}</p></div>
-                    <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">Dia Liquidação</p><p className="text-sm font-bold text-slate-800">{debt.dayOfMonth || '-'}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase font-bold">Fim Previsto</p><p className="text-sm font-bold text-slate-800">{debt.calculationType === 'endDate' ? debt.endDate : `${debt.remainingInstallments} meses`}</p></div>
+                    <div><p className="text-[10px] text-slate-400 uppercase font-bold">{t.past.calcMode}</p><p className="text-sm font-bold text-slate-800">{debt.calculationType === 'installments' ? t.past.installments : t.past.endDate}</p></div>
+                    <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">{t.past.liquidationDay}</p><p className="text-sm font-bold text-slate-800">{debt.dayOfMonth || '-'}</p></div>
+                    <div><p className="text-[10px] text-slate-400 uppercase font-bold">{t.past.expectedEnd}</p><p className="text-sm font-bold text-slate-800">{debt.calculationType === 'endDate' ? debt.endDate : `${debt.remainingInstallments} meses`}</p></div>
                   </div>
                 </SectionCard>
               ))}
               <button onClick={() => { setBackofficeSubTab('past'); setActiveTab('backoffice'); }} className="min-h-[250px] border-4 border-dashed border-slate-100 rounded-[40px] flex flex-col items-center justify-center gap-4 text-slate-300 hover:text-orange-400 transition-all group">
                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-orange-50"><PlusCircle size={32} /></div>
-                <span className="font-black text-sm uppercase tracking-widest">Configurar Compromissos</span>
+                <span className="font-black text-sm uppercase tracking-widest">{t.past.configureCommitments}</span>
               </button>
             </div>
           </div>
@@ -817,19 +858,19 @@ const App: React.FC = () => {
       case 'future':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-            <SectionCard variant="blue" title="Construir o Amanhã" icon={<TrendingUp size={150} />}>
+            <SectionCard variant="blue" title={t.future.buildTomorrow} icon={<TrendingUp size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Wallet size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Total Acumulado</p><p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.totalAccumulated}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Sparkles size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Sonhos</p><p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.dreams}</p><p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
                 <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
                   <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><PieChart size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">Investimentos</p><p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.investments}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
                 </div>
               </div>
             </SectionCard>
@@ -842,22 +883,22 @@ const App: React.FC = () => {
                     {isAchieved && (
                       <div className="absolute top-1/2 left-0 -translate-y-1/2 bg-emerald-600/90 text-white font-black text-xl md:text-2xl uppercase py-6 w-full flex items-center justify-center gap-4 shadow-[0_0_50px_rgba(16,185,129,0.4)] z-20 backdrop-blur-md border-y-4 border-white/30 pointer-events-none whitespace-nowrap">
                         <PartyPopper size={32} className="hidden sm:block" />
-                        Sonho Alcançado
+                        {t.future.achieved}
                         <PartyPopper size={32} className="hidden sm:block" />
                       </div>
                     )}
-                    <div className="flex justify-between items-start mb-8"><div className="text-right"><p className="text-[10px] font-black text-slate-300 uppercase mb-1">Objetivo Final</p><p className="text-2xl font-black text-slate-800">{Number(goal.targetAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div></div>
+                    <div className="flex justify-between items-start mb-8"><div className="text-right"><p className="text-[10px] font-black text-slate-300 uppercase mb-1">{t.future.finalGoal}</p><p className="text-2xl font-black text-slate-800">{Number(goal.targetAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div></div>
                     <div className="w-full bg-slate-50 h-6 rounded-full overflow-hidden p-1.5 border mb-10"><div className={`${isAchieved ? 'bg-emerald-500' : 'bg-blue-500'} h-full rounded-full transition-all duration-1000`} style={{ width: `${Math.min((Number(goal.currentAmount) / Number(goal.targetAmount)) * 100, 100)}%` }} /></div>
                     <div className="grid grid-cols-2 gap-4 border-t pt-6">
-                      <div><p className="text-[10px] text-slate-400 uppercase font-black mb-1">Saldo Atual</p><p className="text-xl font-bold text-slate-800">{Number(goal.currentAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div>
-                      <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-black mb-1">O que falta</p><p className={`text-xl font-black ${isAchieved ? 'text-emerald-600' : 'text-blue-600'}`}>{remaining.toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                      <div><p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.future.currentBalance}</p><p className="text-xl font-bold text-slate-800">{Number(goal.currentAmount).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                      <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.future.remaining}</p><p className={`text-xl font-black ${isAchieved ? 'text-emerald-600' : 'text-blue-600'}`}>{remaining.toLocaleString('pt-PT')}{currencySymbol}</p></div>
                     </div>
                     {!isAchieved && (
                       <div className="mt-6 flex flex-col gap-3">
                         {reinforcingGoalId === goal.id || removingGoalId === goal.id ? (
                           <div className="flex items-center gap-3"><input type="number" className="flex-1 bg-slate-50 border rounded-2xl px-6 py-4 font-black" value={customAmount} onChange={(e) => setCustomAmount(e.target.value)} autoFocus /><button onClick={() => reinforcingGoalId === goal.id ? transferToFuture(Number(customAmount), goal.id) : removeFromFuture(Number(customAmount), goal.id)} className="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center"><Check size={24} /></button><button onClick={() => { setReinforcingGoalId(null); setRemovingGoalId(null); setCustomAmount(''); }} className="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center"><X size={24} /></button></div>
                         ) : (
-                          <div className="flex items-center gap-3"><Button fullWidth variant="blue" onClick={() => setReinforcingGoalId(goal.id)}>Reforçar</Button><button onClick={() => setRemovingGoalId(goal.id)} className="w-16 h-16 bg-white text-rose-600 rounded-3xl border flex items-center justify-center shadow-sm"><MinusCircle size={24} /></button></div>
+                          <div className="flex items-center gap-3"><Button fullWidth variant="blue" onClick={() => setReinforcingGoalId(goal.id)}>{t.future.reinforce}</Button><button onClick={() => setRemovingGoalId(goal.id)} className="w-16 h-16 bg-white text-rose-600 rounded-3xl border flex items-center justify-center shadow-sm"><MinusCircle size={24} /></button></div>
                         )}
                       </div>
                     )}
@@ -869,82 +910,86 @@ const App: React.FC = () => {
                 <SectionCard key={inv.id} title={inv.name} subtitle={inv.type} icon={<PieChart size={24} className="text-emerald-500" />}>
                   <div className="flex justify-between items-end mb-6">
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase font-black mb-1">Património Acumulado</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-black mb-1">{t.future.patrimony}</p>
                       <p className="text-3xl font-black text-slate-800">{(inv.amount || 0).toLocaleString('pt-PT')}{currencySymbol}</p>
                     </div>
-                    {inv.type === 'PPR' && <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Automático</div>}
+                    {inv.type === 'PPR' && <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">{t.future.automatic}</div>}
                   </div>
 
                   {inv.type === 'PPR' && inv.monthlyReinforcement && (
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reforço Mensal</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t.future.monthlyReinforcement}</p>
                         <p className="text-xl font-black text-emerald-600">{inv.monthlyReinforcement.toLocaleString('pt-PT')}{currencySymbol}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dia do Mês</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t.future.monthDay}</p>
                         <p className="text-xl font-black text-slate-800">{inv.dayOfMonth}</p>
                       </div>
                     </div>
                   )}
 
                   <div className="mt-8 pt-6 border-t border-slate-50">
-                    <Button fullWidth variant="ghost-emerald" onClick={() => { setBackofficeSubTab('investments'); setActiveTab('backoffice'); }}>Gerir Ativo</Button>
+                    <Button fullWidth variant="ghost-emerald" onClick={() => { setBackofficeSubTab('investments'); setActiveTab('backoffice'); }}>{t.future.manageAsset}</Button>
                   </div>
                 </SectionCard>
               ))}
 
               <button onClick={() => { setBackofficeSubTab('goals'); setActiveTab('backoffice'); }} className="min-h-[350px] border-4 border-dashed border-slate-100 rounded-[40px] flex flex-col items-center justify-center gap-4 text-slate-300 hover:text-blue-600 transition-all group">
                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-blue-50 text-slate-400 group-hover:text-blue-500 transition-colors"><PlusCircle size={32} /></div>
-                <span className="font-black text-sm uppercase tracking-widest">Novo Sonho</span>
+                <span className="font-black text-sm uppercase tracking-widest">{t.future.newDream}</span>
               </button>
 
               <button onClick={() => { setBackofficeSubTab('investments'); setActiveTab('backoffice'); }} className="min-h-[350px] border-4 border-dashed border-slate-100 rounded-[40px] flex flex-col items-center justify-center gap-4 text-slate-300 hover:text-emerald-600 transition-all group">
                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-emerald-50 text-slate-400 group-hover:text-emerald-500 transition-colors"><PlusCircle size={32} /></div>
-                <span className="font-black text-sm uppercase tracking-widest">Novo Investimento</span>
+                <span className="font-black text-sm uppercase tracking-widest">{t.future.newInvestment}</span>
               </button>
 
               <button onClick={() => { setBackofficeSubTab('past'); setActiveTab('backoffice'); }} className="min-h-[350px] border-4 border-dashed border-slate-100 rounded-[40px] flex flex-col items-center justify-center gap-4 text-slate-300 hover:text-orange-600 transition-all group">
                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-orange-50 text-slate-400 group-hover:text-orange-500 transition-colors"><PlusCircle size={32} /></div>
-                <span className="font-black text-sm uppercase tracking-widest">Configurar Estratégia</span>
+                <span className="font-black text-sm uppercase tracking-widest">{t.future.configureStrategy}</span>
               </button>
             </div>
           </div>
         );
-      case 'irs': return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} />;
-      case 'irs-confirmation': return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} />;
-      case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} />;
-      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} />;
+      case 'irs':
+        if (state.appSettings.language === 'English') return null;
+        return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} />;
+      case 'irs-confirmation':
+        if (state.appSettings.language === 'English') return null;
+        return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} />;
+      case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings.language} />;
+      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} t={t} />;
       default: return null;
     }
   };
 
   const getPageTitle = (tab: string) => {
     switch (tab) {
-      case 'dashboard': return 'Saúde Financeira';
-      case 'past': return 'Passado';
-      case 'present': return FULL_MONTHS[new Date().getMonth()];
-      case 'future': return 'Futuro';
-      case 'backoffice': return 'Backoffice';
-      case 'settings': return 'Configurações';
-      case 'irs': return 'Indicadores de IRS';
-      case 'irs-confirmation': return 'Auditoria Fiscal';
-      case 'reports': return 'Exportação de Dados';
+      case 'dashboard': return t.nav.dashboard;
+      case 'present': return t.nav.present;
+      case 'past': return t.nav.past;
+      case 'future': return t.nav.future;
+      case 'backoffice': return t.nav.backoffice;
+      case 'settings': return t.nav.settings;
+      case 'irs': return t.nav.irs;
+      case 'reports': return t.nav.reports;
+      case 'invoices': return t.nav.invoices;
       default: return tab.charAt(0).toUpperCase() + tab.slice(1);
     }
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} t={t} language={state.appSettings.language}>
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
-        <div><div className="flex items-center gap-3 mb-2"><h2 className="text-4xl font-black text-slate-800 tracking-tight">{getPageTitle(activeTab)}</h2><div className="hidden sm:flex items-center gap-2">{isSyncing ? <span className="flex items-center gap-2 text-[10px] bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full font-black border border-amber-100"><Cloud size={12} className="animate-bounce" /> Cloud Sync</span> : <span className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full font-black border border-emerald-100"><CloudCheck size={12} /> Protegido</span>}</div></div></div>
+        <div><div className="flex items-center gap-3 mb-2"><h2 className="text-4xl font-black text-slate-800 tracking-tight">{getPageTitle(activeTab)}</h2><div className="hidden sm:flex items-center gap-2">{isSyncing ? <span className="flex items-center gap-2 text-[10px] bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full font-black border border-amber-100"><Cloud size={12} className="animate-bounce" /> {t.dashboard.cloudSync}</span> : <span className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full font-black border border-emerald-100"><CloudCheck size={12} /> {t.dashboard.protected}</span>}</div></div></div>
         <div className="flex gap-4">
-          <button onClick={handleGetAdvice} disabled={loadingAdvice} className={`flex items-center gap-3 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all shadow-sm ${showAdvice ? 'bg-slate-800 text-white' : 'bg-white border text-slate-800'}`}>{loadingAdvice ? <Loader2 className="animate-spin" size={18} /> : <BrainCircuit size={18} className="text-emerald-500" />} IA Consultor</button>
+          <button onClick={handleGetAdvice} disabled={loadingAdvice} className={`flex items-center gap-3 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all shadow-sm ${showAdvice ? 'bg-slate-800 text-white' : 'bg-white border text-slate-800'}`}>{loadingAdvice ? <Loader2 className="animate-spin" size={18} /> : <BrainCircuit size={18} className="text-emerald-500" />} {t.dashboard.aiAdvisor}</button>
           <button onClick={() => setActiveTab('present')} className="bg-emerald-600 text-white p-4 rounded-3xl shadow-lg hover:scale-105 transition-all"><PlusCircle size={24} /></button>
         </div>
       </div>
       {showAdvice && advice && (
-        <div className="mb-10 bg-white p-10 rounded-[40px] shadow-xl border-l-8 border-emerald-600 animate-in fade-in slide-in-from-top-6"><div className="flex items-center gap-3 text-emerald-600 font-black mb-4 uppercase text-xs tracking-widest"><Sparkles size={18} /> Estratégia IA</div><p className="text-slate-600 text-lg leading-relaxed font-medium italic">"{advice}"</p></div>
+        <div className="mb-10 bg-white p-10 rounded-[40px] shadow-xl border-l-8 border-emerald-600 animate-in fade-in slide-in-from-top-6"><div className="flex items-center gap-3 text-emerald-600 font-black mb-4 uppercase text-xs tracking-widest"><Sparkles size={18} /> {t.dashboard.aiStrategy}</div><p className="text-slate-600 text-lg leading-relaxed font-medium italic">"{advice}"</p></div>
       )}
       {renderContent()}
       {editingTransaction && <EditTransactionModal transaction={editingTransaction} onSave={updateTransaction} onDelete={deleteTransaction} onClose={() => setEditingTransaction(null)} currencySymbol={currencySymbol} />}

@@ -2,24 +2,27 @@
 import React from 'react';
 import { LayoutDashboard, Target, History, TrendingUp, Sparkles, LogOut, Settings, FileText, Download, FileCheck, Sliders } from 'lucide-react';
 import { apiService } from '../services/apiService';
+import { TranslationType } from '../translations';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  t: TranslationType;
+  language: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, language }) => {
   const navItems = [
-    { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-    { id: 'past', icon: <History size={20} />, label: 'Passado' },
-    { id: 'present', icon: <Target size={20} />, label: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][new Date().getMonth()] },
-    { id: 'future', icon: <TrendingUp size={20} />, label: 'Futuro' },
-    { id: 'irs', icon: <FileText size={20} />, label: 'IRS' },
-    { id: 'reports', icon: <Download size={20} />, label: 'Relatórios' },
-    { id: 'backoffice', icon: <Sliders size={20} />, label: 'Backoffice' },
-    { id: 'settings', icon: <Settings size={20} />, label: 'Configuração' },
-  ];
+    { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: t.nav.dashboard },
+    { id: 'past', icon: <History size={20} />, label: t.nav.past },
+    { id: 'present', icon: <Target size={20} />, label: t.nav.present },
+    { id: 'future', icon: <TrendingUp size={20} />, label: t.nav.future },
+    { id: 'irs', icon: <FileText size={20} />, label: t.nav.irs },
+    { id: 'reports', icon: <Download size={20} />, label: t.nav.reports },
+    { id: 'backoffice', icon: <Sliders size={20} />, label: t.nav.backoffice },
+    { id: 'settings', icon: <Settings size={20} />, label: t.nav.settings },
+  ].filter(item => item.id !== 'irs' || language !== 'English');
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
@@ -54,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
             className="flex items-center gap-3 w-full p-4 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all font-medium"
           >
             <LogOut size={20} />
-            <span>Sair da Conta</span>
+            <span>{t.nav.logout}</span>
           </button>
         </div>
       </nav>

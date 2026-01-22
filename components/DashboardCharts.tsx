@@ -8,14 +8,17 @@ import { Transaction } from '../types';
 import { BarChart3, PieChart as PieChartIcon, LayoutGrid, Calendar, ArrowLeft, AlertCircle } from 'lucide-react';
 import { getCategoryIcon } from '../constants';
 
+import { TranslationType } from '../translations';
+
 interface Props {
   transactions: Transaction[];
   currencySymbol: string;
+  t: TranslationType;
 }
 
 type Period = 'mensal' | 'trimestral' | 'semestral' | 'anual' | 'total';
 
-const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
+const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>('total'); // Alterado para 'total' para garantir que os dados apareçam sempre por defeito
 
@@ -114,8 +117,8 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
               <Calendar size={20} />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Horizonte Temporal</h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Filtre a análise dos seus gastos</p>
+              <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">{t.dashboard.timeHorizon}</h3>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{t.dashboard.filterAnalysis}</p>
             </div>
           </div>
 
@@ -125,11 +128,11 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
-                    ? 'bg-slate-900 text-white shadow-lg'
-                    : 'text-slate-400 hover:text-slate-600 hover:bg-white'
+                  ? 'bg-slate-900 text-white shadow-lg'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-white'
                   }`}
               >
-                {p}
+                {t.dashboard.periods[p]}
               </button>
             ))}
           </div>
@@ -139,14 +142,14 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-              <LayoutGrid size={14} /> Categorias Ativas
+              <LayoutGrid size={14} /> {t.dashboard.activeCategories}
             </h3>
             {activeCategory && (
               <button
                 onClick={() => setActiveCategory(null)}
                 className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline"
               >
-                <ArrowLeft size={12} /> Limpar Filtro
+                <ArrowLeft size={12} /> {t.dashboard.clearFilter}
               </button>
             )}
           </div>
@@ -155,14 +158,14 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
             <button
               onClick={() => setActiveCategory(null)}
               className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 ${activeCategory === null
-                  ? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
-                  : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
+                ? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
+                : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
                 }`}
             >
               <LayoutGrid size={18} />
               <div className="text-left">
-                <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">Geral</p>
-                <p className="text-xs font-black leading-none">Tudo</p>
+                <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">{t.dashboard.general}</p>
+                <p className="text-xs font-black leading-none">{t.dashboard.all}</p>
               </div>
             </button>
 
@@ -171,8 +174,8 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
                 key={cat.name}
                 onClick={() => setActiveCategory(cat.name)}
                 className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 group ${activeCategory === cat.name
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100'
-                    : 'bg-white border-slate-100 text-slate-500 hover:border-emerald-200'
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100'
+                  : 'bg-white border-slate-100 text-slate-500 hover:border-emerald-200'
                   }`}
               >
                 <div className={`${activeCategory === cat.name ? 'text-white' : 'text-emerald-500'} group-hover:scale-110 transition-transform`}>
@@ -198,10 +201,10 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
             <div>
               <h4 className="text-2xl font-black text-slate-800 flex items-center gap-3">
                 <BarChart3 size={24} className="text-emerald-500" />
-                {activeCategory ? `Faturas de ${activeCategory}` : 'Distribuição de Gastos'}
+                {activeCategory ? `${t.dashboard.billsFrom} ${activeCategory}` : t.dashboard.spendingDistribution}
               </h4>
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
-                {period} • {activeCategory ? 'Verificando itens individuais' : 'Comparativo entre categorias'}
+                {t.dashboard.periods[period]} • {activeCategory ? t.dashboard.individualItems : t.dashboard.comparative}
               </p>
             </div>
           </div>
@@ -222,7 +225,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
                   <Tooltip
                     cursor={{ fill: '#f8fafc', radius: 12 }}
                     contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
-                    formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, 'Total']}
+                    formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, t.dashboard.volume]}
                   />
                   <Bar
                     dataKey="value"
@@ -245,7 +248,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
             ) : (
               <div className="flex flex-col items-center gap-4 text-slate-300">
                 <AlertCircle size={48} />
-                <p className="font-black text-xs uppercase tracking-[0.2em]">Sem dados para este período</p>
+                <p className="font-black text-xs uppercase tracking-[0.2em]">{t.dashboard.noData}</p>
               </div>
             )}
           </div>
@@ -257,9 +260,9 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
             <div>
               <h4 className="text-2xl font-black text-slate-800 flex items-center gap-3">
                 <PieChartIcon size={24} className="text-blue-500" />
-                Peso Orçamental
+                {t.dashboard.budgetWeight}
               </h4>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Percentagem {period}</p>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{t.dashboard.budgetWeight} {t.dashboard.periods[period]}</p>
             </div>
           </div>
 
@@ -300,7 +303,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol }) => {
             ) : (
               <div className="flex flex-col items-center gap-4 text-slate-300">
                 <PieChartIcon size={48} />
-                <p className="font-black text-xs uppercase tracking-[0.2em]">Análise indisponível</p>
+                <p className="font-black text-xs uppercase tracking-[0.2em]">{t.dashboard.analysisUnavailable}</p>
               </div>
             )}
           </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Home, Car, TrendingUp, Wallet, Coins, History, Target, Calendar, CreditCard, PieChart, Briefcase, Clock, Layers, CalendarRange, Hash } from 'lucide-react';
 import { FinanceState, LongTermDebt, FutureGoal, RecurringIncome, RecurringExpense, IncomeSource, Category, Investment, InvestmentType, Frequency } from '../types';
@@ -6,6 +5,10 @@ import { CATEGORIES, INCOME_SOURCES, getCategoryIcon } from '../constants';
 import SectionCard from './ui/SectionCard';
 import { Input, Select, Button } from './ui/FormElements';
 import ItemRow from './ui/ItemRow';
+import { TranslationType } from '../translations';
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
 
 interface Props {
   state: FinanceState;
@@ -15,19 +18,24 @@ interface Props {
   initialEditType?: 'debt' | 'goal' | 'investment' | 'income' | 'expense';
   onClearEdit?: () => void;
   currencySymbol: string;
+  t: TranslationType;
 }
 
-const MONTHS = [
-  { val: 1, name: 'Janeiro' }, { val: 2, name: 'Fevereiro' }, { val: 3, name: 'Março' },
-  { val: 4, name: 'Abril' }, { val: 5, name: 'Maio' }, { val: 6, name: 'Junho' },
-  { val: 7, name: 'Julho' }, { val: 8, name: 'Agosto' }, { val: 9, name: 'Setembro' },
-  { val: 10, name: 'Outubro' }, { val: 11, name: 'Novembro' }, { val: 12, name: 'Dezembro' }
-];
-
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
-
-const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit, currencySymbol }) => {
+const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit, currencySymbol, t }) => {
+  const MONTHS = [
+    { val: 1, name: t.common.cancel === 'Cancelar' ? 'Janeiro' : 'January' },
+    { val: 2, name: t.common.cancel === 'Cancelar' ? 'Fevereiro' : 'February' },
+    { val: 3, name: t.common.cancel === 'Cancelar' ? 'Março' : 'March' },
+    { val: 4, name: t.common.cancel === 'Cancelar' ? 'Abril' : 'April' },
+    { val: 5, name: t.common.cancel === 'Cancelar' ? 'Maio' : 'May' },
+    { val: 6, name: t.common.cancel === 'Cancelar' ? 'Junho' : 'June' },
+    { val: 7, name: t.common.cancel === 'Cancelar' ? 'Julho' : 'July' },
+    { val: 8, name: t.common.cancel === 'Cancelar' ? 'Agosto' : 'August' },
+    { val: 9, name: t.common.cancel === 'Cancelar' ? 'Setembro' : 'September' },
+    { val: 10, name: t.common.cancel === 'Cancelar' ? 'Outubro' : 'October' },
+    { val: 11, name: t.common.cancel === 'Cancelar' ? 'Novembro' : 'November' },
+    { val: 12, name: t.common.cancel === 'Cancelar' ? 'Dezembro' : 'December' }
+  ];
   const [activeTab, setActiveTab] = useState<'present' | 'past' | 'goals'>(initialSubTab);
 
   useEffect(() => {
@@ -119,7 +127,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
     let checkDate = new Date(expense.year || today.getFullYear(), monthIndex, day);
     const interval = expense.frequency === 'Mensal' ? 1 : expense.frequency === 'Trimestral' ? 3 : expense.frequency === 'Semestral' ? 6 : 12;
     while (checkDate <= today) checkDate.setMonth(checkDate.getMonth() + interval);
-    return checkDate.toLocaleDateString('pt-PT');
+    return checkDate.toLocaleDateString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US');
   };
 
   const handleAddRecurringExpense = () => {
@@ -230,6 +238,8 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
   };
 
   const frequencies: Frequency[] = ['Mensal', 'Trimestral', 'Semestral', 'Anual'];
+  const frequenciesPt = { 'Mensal': 'Mensal', 'Trimestral': 'Trimestral', 'Semestral': 'Semestral', 'Anual': 'Anual' };
+  const frequenciesEn = { 'Mensal': 'Monthly', 'Trimestral': 'Quarterly', 'Semestral': 'Semi-annual', 'Anual': 'Annual' };
   const groupedExpenses = (state.recurringExpenses || []).reduce((acc, expense) => {
     const freq = expense.frequency;
     if (!acc[freq]) acc[freq] = [];
@@ -240,47 +250,47 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
       <SectionCard
-        title="Backoffice Financeiro"
-        subtitle="Estruture os pilares da sua economia familiar."
+        title={t.backoffice.title}
+        subtitle={t.backoffice.subtitle}
         variant="slate"
         icon={<TrendingUp size={180} />}
       />
 
       <div className="flex flex-col gap-3 w-full max-w-5xl mx-auto">
         <div className="flex bg-white p-2 rounded-3xl border border-slate-100 w-full shadow-sm">
-          <button onClick={() => setActiveTab('past')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'past' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100' : 'text-slate-400 hover:text-slate-600'}`}><History size={16} /> Estrutura do Passado</button>
-          <button onClick={() => setActiveTab('present')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'present' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'}`}><Target size={16} /> Estrutura do Presente</button>
-          <button onClick={() => setActiveTab('goals')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'goals' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:text-slate-600'}`}><TrendingUp size={16} /> Estrutura do Futuro</button>
+          <button onClick={() => setActiveTab('past')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'past' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100' : 'text-slate-400 hover:text-slate-600'}`}><History size={16} /> {t.backoffice.pastTab}</button>
+          <button onClick={() => setActiveTab('present')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'present' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'}`}><Target size={16} /> {t.backoffice.presentTab}</button>
+          <button onClick={() => setActiveTab('goals')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'goals' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:text-slate-600'}`}><TrendingUp size={16} /> {t.backoffice.futureTab}</button>
         </div>
       </div>
 
       {activeTab === 'present' && (
         <div className="space-y-8">
-          <SectionCard title="Rendimentos Mensais (Ordenados)" icon={<Wallet size={24} className="text-emerald-600" />}>
+          <SectionCard title={t.backoffice.recurringIncomes} icon={<Wallet size={24} className="text-emerald-600" />}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Input label="Descrição" placeholder="Descrição" value={newIncome.name} onChange={e => setNewIncome({ ...newIncome, name: e.target.value })} />
-              <Select label="Fonte" value={newIncome.source} onChange={e => setNewIncome({ ...newIncome, source: e.target.value as any })}>
-                {INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+              <Input label={t.backoffice.description} placeholder={t.backoffice.description} value={newIncome.name} onChange={e => setNewIncome({ ...newIncome, name: e.target.value })} />
+              <Select label={t.backoffice.source} value={newIncome.source} onChange={e => setNewIncome({ ...newIncome, source: e.target.value as any })}>
+                {INCOME_SOURCES.map(s => <option key={s} value={s}>{t.incomeSources[s as keyof typeof t.incomeSources] || s}</option>)}
               </Select>
-              <Input label={`Montante ${currencySymbol}`} type="number" placeholder="0.00" value={newIncome.amount || ''} onChange={e => setNewIncome({ ...newIncome, amount: Number(e.target.value) })} />
-              <Input label="Dia Recebimento" type="number" min="1" max="31" icon={<Calendar size={18} />} value={newIncome.dayOfMonth || ''} onChange={e => setNewIncome({ ...newIncome, dayOfMonth: Number(e.target.value) })} />
+              <Input label={`${t.backoffice.amount} ${currencySymbol}`} type="number" placeholder="0.00" value={newIncome.amount || ''} onChange={e => setNewIncome({ ...newIncome, amount: Number(e.target.value) })} />
+              <Input label={t.backoffice.receiptDay} type="number" min="1" max="31" icon={<Calendar size={18} />} value={newIncome.dayOfMonth || ''} onChange={e => setNewIncome({ ...newIncome, dayOfMonth: Number(e.target.value) })} />
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
               <Button onClick={handleAddIncome} icon={<Plus size={18} />}>
-                {newIncome.id ? 'Atualizar Rendimento Fixo' : 'Registar Rendimento Fixo'}
+                {newIncome.id ? t.backoffice.updateIncome : t.backoffice.registerIncome}
               </Button>
-              {newIncome.id && <Button variant="ghost-slate" onClick={() => { setNewIncome({ name: '', amount: 0, source: 'Ordenado', dayOfMonth: 1 }); if (onClearEdit) onClearEdit(); }}>Cancelar</Button>}
+              {newIncome.id && <Button variant="ghost-slate" onClick={() => { setNewIncome({ name: '', amount: 0, source: 'Ordenado', dayOfMonth: 1 }); if (onClearEdit) onClearEdit(); }}>{t.common.cancel}</Button>}
             </div>
 
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {(state.recurringIncomes || []).map(inc => (
-                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${inc.source} • Dia ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
+                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${t.incomeSources[inc.source as keyof typeof t.incomeSources] || inc.source} • ${t.future.monthDay} ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
               ))}
               {(state.recurringIncomes || []).length === 0 && (
                 <div className="p-12 text-center text-slate-300">
                   <Briefcase size={40} className="mx-auto mb-4 opacity-20" />
-                  <p className="font-black text-xs uppercase tracking-widest">Nenhum rendimento fixo configurado</p>
+                  <p className="font-black text-xs uppercase tracking-widest">{t.backoffice.noIncomes}</p>
                 </div>
               )}
             </div>
@@ -290,29 +300,29 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
 
       {activeTab === 'past' && (
         <div className="space-y-8">
-          <SectionCard title="Compromissos Fixos (Recorrentes)" icon={<CreditCard size={24} className="text-orange-600" />}>
+          <SectionCard title={t.backoffice.recurringExpenses} icon={<CreditCard size={24} className="text-orange-600" />}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
-              <Select label="Frequência" variant="orange" value={newRecurringExpense.frequency} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, frequency: e.target.value as Frequency })}>
-                {frequencies.map(f => <option key={f} value={f}>{f}</option>)}
+              <Select label={t.backoffice.frequency} variant="orange" value={newRecurringExpense.frequency} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, frequency: e.target.value as Frequency })}>
+                {frequencies.map(f => <option key={f} value={f}>{t.dashboard.periods[f.toLowerCase() as keyof typeof t.dashboard.periods] || f}</option>)}
               </Select>
-              <Input label="Descrição" placeholder="Descrição" value={newRecurringExpense.name} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, name: e.target.value })} />
-              <Input label="Dia da Liq." type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newRecurringExpense.dayOfMonth || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, dayOfMonth: Number(e.target.value) })} />
-              <Select label="Mês Ref." className={newRecurringExpense.frequency === 'Mensal' ? 'opacity-30' : ''} value={newRecurringExpense.month} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, month: Number(e.target.value) })} disabled={newRecurringExpense.frequency === 'Mensal'}>
+              <Input label={t.backoffice.description} placeholder={t.backoffice.description} value={newRecurringExpense.name} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, name: e.target.value })} />
+              <Input label={t.backoffice.liqDay} type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newRecurringExpense.dayOfMonth || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, dayOfMonth: Number(e.target.value) })} />
+              <Select label={t.backoffice.refMonth} className={newRecurringExpense.frequency === 'Mensal' ? 'opacity-30' : ''} value={newRecurringExpense.month} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, month: Number(e.target.value) })} disabled={newRecurringExpense.frequency === 'Mensal'}>
                 {MONTHS.map(m => <option key={m.val} value={m.val}>{m.name}</option>)}
               </Select>
-              <Select label="Ano Ref." className={newRecurringExpense.frequency === 'Mensal' ? 'opacity-30' : ''} value={newRecurringExpense.year} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, year: Number(e.target.value) })} disabled={newRecurringExpense.frequency === 'Mensal'}>
+              <Select label={t.backoffice.refYear} className={newRecurringExpense.frequency === 'Mensal' ? 'opacity-30' : ''} value={newRecurringExpense.year} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, year: Number(e.target.value) })} disabled={newRecurringExpense.frequency === 'Mensal'}>
                 {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
               </Select>
-              <Input label={`Montante ${currencySymbol}`} type="number" placeholder="0.00" value={newRecurringExpense.amount || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, amount: Number(e.target.value) })} />
-              <Select label="Categoria" value={newRecurringExpense.category} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, category: e.target.value as any })}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <Input label={`${t.backoffice.amount} ${currencySymbol}`} type="number" placeholder="0.00" value={newRecurringExpense.amount || ''} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, amount: Number(e.target.value) })} />
+              <Select label={t.present.category} value={newRecurringExpense.category} onChange={e => setNewRecurringExpense({ ...newRecurringExpense, category: e.target.value as any })}>
+                {CATEGORIES.map(c => <option key={c} value={c}>{t.categories[c as keyof typeof t.categories] || c}</option>)}
               </Select>
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
               <Button variant="orange" onClick={handleAddRecurringExpense} icon={<Plus size={18} />}>
-                {newRecurringExpense.id ? 'Atualizar Compromisso' : 'Adicionar Compromisso'}
+                {newRecurringExpense.id ? t.backoffice.updateCommitment : t.backoffice.addCommitment}
               </Button>
-              {newRecurringExpense.id && <Button variant="ghost-slate" onClick={() => { setNewRecurringExpense({ name: '', amount: 0, category: 'Lazer', frequency: 'Mensal', dayOfMonth: 1, month: new Date().getMonth() + 1, year: CURRENT_YEAR }); if (onClearEdit) onClearEdit(); }}>Cancelar</Button>}
+              {newRecurringExpense.id && <Button variant="ghost-slate" onClick={() => { setNewRecurringExpense({ name: '', amount: 0, category: 'Lazer', frequency: 'Mensal', dayOfMonth: 1, month: new Date().getMonth() + 1, year: CURRENT_YEAR }); if (onClearEdit) onClearEdit(); }}>{t.common.cancel}</Button>}
             </div>
 
             {/* Integrated List grouped by frequency */}
@@ -324,12 +334,12 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
                   <div key={freq} className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-slate-50/50 px-8 py-4 border-b border-slate-50">
                       <h5 className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                        <Layers size={14} className="text-orange-500" /> {freq}
+                        <Layers size={14} className="text-orange-500" /> {t.common.cancel === 'Cancelar' ? frequenciesPt[freq] : frequenciesEn[freq]}
                       </h5>
                     </div>
                     <div className="divide-y divide-slate-50">
                       {expenses.map(exp => (
-                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${exp.frequency} • Próxima: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
+                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${t.common.cancel === 'Cancelar' ? frequenciesPt[exp.frequency] : frequenciesEn[exp.frequency]} • ${t.present.next}: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
                       ))}
                     </div>
                   </div>
@@ -338,32 +348,35 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
           </SectionCard>
 
-          <SectionCard title="Créditos e Financiamentos" icon={<Home size={24} className="text-orange-600" />}>
+          <SectionCard title={t.backoffice.credits} icon={<Home size={24} className="text-orange-600" />}>
             <div className="mb-10 p-2 bg-slate-50 rounded-[32px] border border-slate-100 flex items-center gap-2 w-fit">
-              <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'installments' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'installments' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><Hash size={14} /> Nº Prestações</button>
-              <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'endDate' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'endDate' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><CalendarRange size={14} /> Data de Fim</button>
+              <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'installments' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'installments' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><Hash size={14} /> {t.backoffice.installmentsNr}</button>
+              <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'endDate' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'endDate' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><CalendarRange size={14} /> {t.backoffice.endDate}</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-end gap-6">
-              <Input label="Descrição" placeholder="Descrição" value={newDebt.name} onChange={e => setNewDebt({ ...newDebt, name: e.target.value })} />
-              <Select label="Tipo" value={newDebt.type} onChange={e => setNewDebt({ ...newDebt, type: e.target.value as any })}>
-                <option value="Carro">Carro</option><option value="Empréstimo">Empréstimo</option><option value="Hipoteca">Hipoteca</option><option value="Outros">Outro</option>
+              <Input label={t.backoffice.description} placeholder={t.backoffice.description} value={newDebt.name} onChange={e => setNewDebt({ ...newDebt, name: e.target.value })} />
+              <Select label={t.backoffice.type} value={newDebt.type} onChange={e => setNewDebt({ ...newDebt, type: e.target.value as any })}>
+                <option value="Carro">{t.common.cancel === 'Cancelar' ? 'Carro' : 'Car'}</option>
+                <option value="Empréstimo">{t.common.cancel === 'Cancelar' ? 'Empréstimo' : 'Loan'}</option>
+                <option value="Hipoteca">{t.common.cancel === 'Cancelar' ? 'Hipoteca' : 'Mortgage'}</option>
+                <option value="Outros">{t.common.cancel === 'Cancelar' ? 'Outro' : 'Other'}</option>
               </Select>
-              <Input label="Cap. Contratado" type="number" value={newDebt.contractedValue || ''} onChange={e => setNewDebt({ ...newDebt, contractedValue: Number(e.target.value) })} />
-              <Input label="Dia Liq." type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newDebt.dayOfMonth || ''} onChange={e => setNewDebt({ ...newDebt, dayOfMonth: Number(e.target.value) })} />
-              <Input label={`Valor ${currencySymbol}`} type="number" variant="orange" value={newDebt.monthlyPayment || ''} onChange={e => setNewDebt({ ...newDebt, monthlyPayment: Number(e.target.value) })} />
-              {newDebt.calculationType === 'installments' ? <Input label="Nr. Prest." type="number" icon={<Hash size={18} />} value={newDebt.remainingInstallments || ''} onChange={e => setNewDebt({ ...newDebt, remainingInstallments: Number(e.target.value) })} /> : <Input label="Data Fim" type="date" icon={<CalendarRange size={18} />} value={newDebt.endDate} onChange={e => setNewDebt({ ...newDebt, endDate: e.target.value })} />}
+              <Input label={t.backoffice.contractedCap} type="number" value={newDebt.contractedValue || ''} onChange={e => setNewDebt({ ...newDebt, contractedValue: Number(e.target.value) })} />
+              <Input label={t.backoffice.liqDay} type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newDebt.dayOfMonth || ''} onChange={e => setNewDebt({ ...newDebt, dayOfMonth: Number(e.target.value) })} />
+              <Input label={`${t.present.amount} ${currencySymbol}`} type="number" variant="orange" value={newDebt.monthlyPayment || ''} onChange={e => setNewDebt({ ...newDebt, monthlyPayment: Number(e.target.value) })} />
+              {newDebt.calculationType === 'installments' ? <Input label={t.backoffice.installmentsNr} type="number" icon={<Hash size={18} />} value={newDebt.remainingInstallments || ''} onChange={e => setNewDebt({ ...newDebt, remainingInstallments: Number(e.target.value) })} /> : <Input label={t.backoffice.endDate} type="date" icon={<CalendarRange size={18} />} value={newDebt.endDate} onChange={e => setNewDebt({ ...newDebt, endDate: e.target.value })} />}
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
               <Button variant="orange" onClick={handleAddDebt} icon={<Plus size={18} />}>
-                {newDebt.id ? 'Atualizar Financiamento' : 'Registar Financiamento'}
+                {newDebt.id ? t.backoffice.updateFinancing : t.backoffice.registerFinancing}
               </Button>
-              {newDebt.id && <Button variant="ghost-slate" onClick={() => { setNewDebt({ name: '', type: 'Hipoteca', calculationType: 'installments', monthlyPayment: 0, contractedValue: 0, remainingInstallments: 0, endDate: '', dayOfMonth: 1 }); if (onClearEdit) onClearEdit(); }}>Cancelar</Button>}
+              {newDebt.id && <Button variant="ghost-slate" onClick={() => { setNewDebt({ name: '', type: 'Hipoteca', calculationType: 'installments', monthlyPayment: 0, contractedValue: 0, remainingInstallments: 0, endDate: '', dayOfMonth: 1 }); if (onClearEdit) onClearEdit(); }}>{t.common.cancel}</Button>}
             </div>
 
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {state.debts.map(d => (
-                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${d.type} • Dia ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString('pt-PT')}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
+                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${d.type} • ${t.future.monthDay} ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
               ))}
             </div>
           </SectionCard>
@@ -372,54 +385,58 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
 
       {activeTab === 'goals' && (
         <div className="space-y-8">
-          <SectionCard title="Sonhos e Objetivos de Futuro" icon={<TrendingUp size={24} className="text-blue-600" />}>
+          <SectionCard title={t.backoffice.dreamsGoals} icon={<TrendingUp size={24} className="text-blue-600" />}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Input label="Descrição" placeholder="Descrição" value={newGoal.name} onChange={e => setNewGoal({ ...newGoal, name: e.target.value })} />
-              <Input label={`Valor Alvo ${currencySymbol}`} type="number" value={newGoal.targetAmount || ''} onChange={e => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })} />
-              <Select label="Categoria" value={newGoal.category} onChange={e => setNewGoal({ ...newGoal, category: e.target.value as any })}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <Input label={t.backoffice.description} placeholder={t.backoffice.description} value={newGoal.name} onChange={e => setNewGoal({ ...newGoal, name: e.target.value })} />
+              <Input label={`${t.backoffice.targetValue} ${currencySymbol}`} type="number" value={newGoal.targetAmount || ''} onChange={e => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })} />
+              <Select label={t.present.category} value={newGoal.category} onChange={e => setNewGoal({ ...newGoal, category: e.target.value as any })}>
+                {CATEGORIES.map(c => <option key={c} value={c}>{t.categories[c as keyof typeof t.categories] || c}</option>)}
               </Select>
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
               <Button variant="blue" onClick={handleAddGoal} icon={<Plus size={18} />}>
-                {newGoal.id ? 'Atualizar Objetivo' : 'Criar Novo Objetivo'}
+                {newGoal.id ? t.backoffice.updateGoal : t.backoffice.createGoal}
               </Button>
-              {newGoal.id && <Button variant="ghost-slate" onClick={() => { setNewGoal({ name: '', targetAmount: 0, currentAmount: 0, category: 'Lazer' }); if (onClearEdit) onClearEdit(); }}>Cancelar</Button>}
+              {newGoal.id && <Button variant="ghost-slate" onClick={() => { setNewGoal({ name: '', targetAmount: 0, currentAmount: 0, category: 'Lazer' }); if (onClearEdit) onClearEdit(); }}>{t.common.cancel}</Button>}
             </div>
 
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {state.goals.map(g => (
-                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString('pt-PT')}${currencySymbol} Alvo`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
+                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol} ${t.backoffice.target}`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
               ))}
             </div>
           </SectionCard>
 
-          <SectionCard variant="slate" title="Investimentos Estratégicos" icon={<PieChart size={24} className="text-emerald-500" />}>
+          <SectionCard variant="slate" title={t.backoffice.strategicInvestments} icon={<PieChart size={24} className="text-emerald-500" />}>
             <div className={`grid grid-cols-1 md:grid-cols-2 ${newInvestment.type === 'PPR' ? 'lg:grid-cols-5' : 'lg:grid-cols-3'} gap-6 items-end`}>
-              <Input variant="slate-emerald" label="Descrição" placeholder="Descrição" value={newInvestment.name} onChange={e => setNewInvestment({ ...newInvestment, name: e.target.value })} />
-              <Input variant="slate-emerald" label={`Valor Investido ${currencySymbol}`} type="number" value={newInvestment.amount || ''} onChange={e => setNewInvestment({ ...newInvestment, amount: Number(e.target.value) })} />
-              <Select variant="slate-emerald" label="Tipo" value={newInvestment.type} onChange={e => setNewInvestment({ ...newInvestment, type: e.target.value as any })}>
-                <option value="Acções">Acções</option><option value="Certificados de Aforro">Certificados de Aforro</option><option value="Cryptomoeda">Cryptomoeda</option><option value="Outro">Outro</option><option value="PPR">PPR</option>
+              <Input variant="slate-emerald" label={t.backoffice.description} placeholder={t.backoffice.description} value={newInvestment.name} onChange={e => setNewInvestment({ ...newInvestment, name: e.target.value })} />
+              <Input variant="slate-emerald" label={`${t.backoffice.investedValue} ${currencySymbol}`} type="number" value={newInvestment.amount || ''} onChange={e => setNewInvestment({ ...newInvestment, amount: Number(e.target.value) })} />
+              <Select variant="slate-emerald" label={t.backoffice.type} value={newInvestment.type} onChange={e => setNewInvestment({ ...newInvestment, type: e.target.value as any })}>
+                <option value="Acções">{t.common.cancel === 'Cancelar' ? 'Acções' : 'Stocks'}</option>
+                <option value="Certificados de Aforro">{t.common.cancel === 'Cancelar' ? 'Certificados de Aforro' : 'Savings Certificates'}</option>
+                <option value="Cryptomoeda">{t.common.cancel === 'Cancelar' ? 'Cryptomoeda' : 'Cryptocurrency'}</option>
+                <option value="Outro">{t.common.cancel === 'Cancelar' ? 'Outro' : 'Other'}</option>
+                <option value="PPR">PPR</option>
               </Select>
               {newInvestment.type === 'PPR' && (
                 <>
-                  <Input variant="slate-emerald" label={`Valor Reforço ${currencySymbol}`} type="number" value={newInvestment.monthlyReinforcement || ''} onChange={e => setNewInvestment({ ...newInvestment, monthlyReinforcement: Number(e.target.value) })} />
-                  <Input variant="slate-emerald" label="Dia Reforço" type="number" min="1" max="31" value={newInvestment.dayOfMonth || ''} onChange={e => setNewInvestment({ ...newInvestment, dayOfMonth: Number(e.target.value) })} />
+                  <Input variant="slate-emerald" label={`${t.backoffice.reinforcementValue} ${currencySymbol}`} type="number" value={newInvestment.monthlyReinforcement || ''} onChange={e => setNewInvestment({ ...newInvestment, monthlyReinforcement: Number(e.target.value) })} />
+                  <Input variant="slate-emerald" label={t.backoffice.reinforcementDay} type="number" min="1" max="31" value={newInvestment.dayOfMonth || ''} onChange={e => setNewInvestment({ ...newInvestment, dayOfMonth: Number(e.target.value) })} />
                 </>
               )}
             </div>
             <div className="flex flex-col md:flex-row gap-4 mt-8">
               <Button variant="emerald" noShadow onClick={handleAddInvestment} icon={<Plus size={18} />}>
-                {newInvestment.id ? 'Atualizar Investimento' : 'Registar Investimento'}
+                {newInvestment.id ? t.backoffice.updateInvestment : t.backoffice.registerInvestment}
               </Button>
-              {newInvestment.id && <Button variant="ghost-slate" onClick={() => { setNewInvestment({ name: '', amount: 0, type: 'PPR', dayOfMonth: 1, monthlyReinforcement: 0 }); if (onClearEdit) onClearEdit(); }}>Cancelar</Button>}
+              {newInvestment.id && <Button variant="ghost-slate" onClick={() => { setNewInvestment({ name: '', amount: 0, type: 'PPR', dayOfMonth: 1, monthlyReinforcement: 0 }); if (onClearEdit) onClearEdit(); }}>{t.common.cancel}</Button>}
             </div>
 
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {(state.investments || []).map(inv => (
-                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • Reforço: ${inv.monthlyReinforcement}${currencySymbol} (Dia ${inv.dayOfMonth})` : inv.type} value={`${(inv.amount || 0).toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
+                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : inv.type} value={`${(inv.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
               ))}
             </div>
           </SectionCard>

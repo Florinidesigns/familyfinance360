@@ -2,14 +2,16 @@
 import React from 'react';
 import { History, Target, TrendingUp, Info, ChevronRight } from 'lucide-react';
 import { FinanceState } from '../types';
+import { TranslationType } from '../translations';
 
 interface Props {
   state: FinanceState;
   onNavigate: (tab: string) => void;
   currencySymbol: string;
+  t: TranslationType;
 }
 
-const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol }) => {
+const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol, t }) => {
   const totalDebt = (state.debts || []).reduce((acc, curr) => acc + Number(curr.remainingValue), 0);
   const monthlyInflow = (state.transactions || []).filter(t => t.type === 'entrada').reduce((acc, t) => acc + Number(t.amount), 0);
   const monthlyOutflow = (state.transactions || []).filter(t => t.type === 'saida').reduce((acc, t) => acc + Number(t.amount), 0);
@@ -29,40 +31,40 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol }) =>
   const cards = [
     {
       id: 'past',
-      label: 'Passado',
-      title: 'Dívidas e Compromissos',
+      label: t.nav.past,
+      title: t.dashboard.pastTitle,
       value: totalDebt,
       icon: <History size={16} />,
       bgIcon: <History size={80} />,
       color: 'text-orange-600',
-      info: 'Hipoteca, carros e empréstimos.',
+      info: t.dashboard.pastInfo,
       accent: 'hover:border-orange-200'
     },
     {
       id: 'present',
-      label: 'Presente',
-      title: 'Balanço Mensal',
+      label: t.nav.present,
+      title: t.dashboard.presentTitle,
       value: monthlyInflow - monthlyOutflow,
       extra: {
-        label: 'Taxa Esforço',
+        label: t.dashboard.effortRate,
         value: `${effortRate.toFixed(1)}%`,
         color: getEffortRateColor(effortRate)
       },
       icon: <Target size={16} />,
       bgIcon: <Target size={80} />,
       color: 'text-emerald-600',
-      info: 'Gastos diários e rendimento.',
+      info: t.dashboard.presentInfo,
       accent: 'hover:border-emerald-200'
     },
     {
       id: 'future',
-      label: 'Futuro',
-      title: 'Reserva e Objetivos',
+      label: t.nav.future,
+      title: t.dashboard.futureTitle,
       value: totalSavings,
       icon: <TrendingUp size={16} />,
       bgIcon: <TrendingUp size={80} />,
       color: 'text-blue-600',
-      info: 'Dinheiro para objetivos.',
+      info: t.dashboard.futureInfo,
       accent: 'hover:border-blue-200'
     }
   ];
