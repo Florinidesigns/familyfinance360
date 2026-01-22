@@ -491,7 +491,10 @@ const App: React.FC = () => {
   };
 
   const currencySymbol = CURRENCY_SYMBOLS[state.appSettings?.currency || 'EUR'];
-  const t: TranslationType = state.appSettings?.language === 'English' ? translations.en : translations.pt;
+  const t: TranslationType = state.appSettings?.language === 'English' ? translations.en :
+    state.appSettings?.language === 'Español' ? translations.es : translations.pt;
+  const locale = state.appSettings?.language === 'English' ? 'en-US' :
+    state.appSettings?.language === 'Español' ? 'es-ES' : 'pt-PT';
 
   const MONTHS = [
     { val: 1, name: t.common.cancel === 'Cancelar' ? 'Jan' : 'Jan' },
@@ -517,10 +520,10 @@ const App: React.FC = () => {
     );
   }
 
-  if (view === 'landing') return <LandingPage onStart={() => setView('pricing')} onLogin={() => setView('login')} />;
-  if (view === 'pricing') return <PricingPage onSelectPlan={(plan) => { setSelectedPlan(plan); setView('checkout'); }} onBack={() => setView('landing')} currencySymbol={currencySymbol} />;
-  if (view === 'checkout') return <CheckoutPage plan={selectedPlan!} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} currencySymbol={currencySymbol} />;
-  if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} />;
+  if (view === 'landing') return <LandingPage onStart={() => setView('pricing')} onLogin={() => setView('login')} t={t} />;
+  if (view === 'pricing') return <PricingPage onSelectPlan={(plan) => { setSelectedPlan(plan); setView('checkout'); }} onBack={() => setView('landing')} currencySymbol={currencySymbol} t={t} />;
+  if (view === 'checkout') return <CheckoutPage plan={selectedPlan!} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} currencySymbol={currencySymbol} t={t} />;
+  if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} t={t} />;
 
   const renderContent = () => {
     switch (activeTab) {
@@ -532,13 +535,13 @@ const App: React.FC = () => {
                 <p className="text-emerald-600 font-bold uppercase tracking-[0.3em] text-[10px] mt-1">Família {state.familyInfo.familyName}</p>
               )}
             </div>
-            <SummaryCards state={state} onNavigate={setActiveTab} currencySymbol={currencySymbol} t={t} />
-            <DashboardCharts transactions={state.transactions} currencySymbol={currencySymbol} t={t} />
+            <SummaryCards state={state} onNavigate={setActiveTab} currencySymbol={currencySymbol} t={t} locale={locale} />
+            <DashboardCharts transactions={state.transactions} currencySymbol={currencySymbol} t={t} locale={locale} />
             <SectionCard title={t.dashboard.recentActivity} headerAction={<button onClick={() => setActiveTab('present')} className="text-emerald-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">{t.dashboard.viewAll} <ArrowRight size={14} /></button>}>
               <div className="space-y-4">
                 {state.transactions.length > 0 ? (
                   state.transactions.slice(0, 5).map(tx => (
-                    <ItemRow key={tx.id} icon={getCategoryIcon(tx.category)} title={tx.description} subtitle={tx.category} value={`${tx.type === 'entrada' ? '+' : '-'}${tx.amount.toLocaleString('pt-PT')}${currencySymbol}`} onEdit={() => setEditingTransaction(tx)} variant={tx.type === 'entrada' ? 'emerald' : 'slate'} />
+                    <ItemRow key={tx.id} icon={getCategoryIcon(tx.category)} title={tx.description} subtitle={tx.category} value={`${tx.type === 'entrada' ? '+' : '-'}${tx.amount.toLocaleString(locale)}${currencySymbol}`} onEdit={() => setEditingTransaction(tx)} variant={tx.type === 'entrada' ? 'emerald' : 'slate'} />
                   ))
                 ) : (
                   <div className="py-10 text-center text-slate-400">
@@ -638,7 +641,7 @@ const App: React.FC = () => {
                           m.role === 'Pai/Mãe' ? t.settings.roleOptions.parent :
                             t.settings.roleOptions.other;
                       return (
-                        <ItemRow key={m.id} title={m.name} subtitle={`${roleDisplay} • ${m.age} ${m.age === 1 ? t.common.year : t.common.years}`} value={m.salary ? `${m.salary.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
+                        <ItemRow key={m.id} title={m.name} subtitle={`${roleDisplay} • ${m.age} ${m.age === 1 ? t.common.year : t.common.years}`} value={m.salary ? `${m.salary.toLocaleString(locale)}${currencySymbol}` : undefined} valueInside={true} onEdit={() => handleEditMember(m)} onDelete={() => removeMember(m.id)} variant="blue" />
                       );
                     })}
                   </div>
@@ -675,7 +678,7 @@ const App: React.FC = () => {
                 {state.debts.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.debts.map(debt => (
-                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${t.settings.debtTypes[debt.type === 'Carro' ? 'car' : debt.type === 'Empréstimo' ? 'loan' : debt.type === 'Hipoteca' ? 'mortgage' : 'other']} • ${t.future.monthDay} ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
+                      <ItemRow key={debt.id} variant="orange" title={debt.name} subtitle={`${t.settings.debtTypes[debt.type === 'Carro' ? 'car' : debt.type === 'Empréstimo' ? 'loan' : debt.type === 'Hipoteca' ? 'mortgage' : 'other']} • ${t.future.monthDay} ${debt.dayOfMonth}`} value={`${debt.monthlyPayment.toLocaleString(locale)}${currencySymbol}`} onEdit={() => handleEditDebt(debt)} onDelete={() => removeDebt(debt.id)} />
                     ))}
                   </div>
                 )}
@@ -704,7 +707,7 @@ const App: React.FC = () => {
                 {state.recurringExpenses.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.recurringExpenses.map(exp => (
-                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${t.common.cancel === 'Cancelar' ? frequenciesPt[exp.frequency] : frequenciesEn[exp.frequency]} • ${t.future.monthDay} ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
+                      <ItemRow key={exp.id} variant="orange" title={exp.name} subtitle={`${t.common.cancel === 'Cancelar' ? frequenciesPt[exp.frequency as keyof typeof frequenciesPt] : frequenciesEn[exp.frequency as keyof typeof frequenciesEn]} • ${t.future.monthDay} ${exp.dayOfMonth}`} value={`${exp.amount.toLocaleString(locale)}${currencySymbol}`} onEdit={() => handleEditRecExpense(exp)} onDelete={() => removeRecurringExpense(exp.id)} />
                     ))}
                   </div>
                 )}
@@ -728,7 +731,7 @@ const App: React.FC = () => {
                 {state.goals.length > 0 && (
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
                     {state.goals.map(goal => (
-                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${t.categories[goal.category as keyof typeof t.categories] || goal.category}`} value={`${goal.targetAmount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
+                      <ItemRow key={goal.id} variant="blue" title={goal.name} subtitle={`${t.categories[goal.category as keyof typeof t.categories] || goal.category}`} value={`${goal.targetAmount.toLocaleString(locale)}${currencySymbol}`} onEdit={() => handleEditGoal(goal)} onDelete={() => removeGoal(goal.id)} />
                     ))}
                   </div>
                 )}
@@ -760,7 +763,7 @@ const App: React.FC = () => {
                   {state.investments.map(inv => {
                     const typeDisplay = t.settings.invTypes[inv.type === 'Acções' ? 'stocks' : inv.type === 'Certificados de Aforro' ? 'savings' : inv.type === 'Cryptomoeda' ? 'crypto' : 'ppr'];
                     return (
-                      <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${typeDisplay} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : typeDisplay} value={`${inv.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
+                      <ItemRow key={inv.id} variant="emerald" title={inv.name} subtitle={inv.type === 'PPR' ? `${typeDisplay} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : typeDisplay} value={`${inv.amount.toLocaleString(locale)}${currencySymbol}`} onEdit={() => handleEditInvestment(inv)} onDelete={() => removeInvestment(inv.id)} />
                     );
                   })}
                 </div>
@@ -788,6 +791,7 @@ const App: React.FC = () => {
                   >
                     <option>Português</option>
                     <option>English</option>
+                    <option>Español</option>
                   </Select>
                   <Select
                     label={t.settings.theme}
@@ -953,13 +957,13 @@ const App: React.FC = () => {
           </div>
         );
       case 'irs':
-        if (state.appSettings.language === 'English') return null;
-        return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} />;
+        if (state.appSettings?.language !== 'Português') return null;
+        return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'irs-confirmation':
-        if (state.appSettings.language === 'English') return null;
-        return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} />;
-      case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings.language} />;
-      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} t={t} />;
+        if (state.appSettings?.language !== 'Português') return null;
+        return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
+      case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings?.language || 'Português'} locale={locale} />;
+      case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} t={t} locale={locale} />;
       default: return null;
     }
   };
@@ -992,7 +996,7 @@ const App: React.FC = () => {
         <div className="mb-10 bg-white p-10 rounded-[40px] shadow-xl border-l-8 border-emerald-600 animate-in fade-in slide-in-from-top-6"><div className="flex items-center gap-3 text-emerald-600 font-black mb-4 uppercase text-xs tracking-widest"><Sparkles size={18} /> {t.dashboard.aiStrategy}</div><p className="text-slate-600 text-lg leading-relaxed font-medium italic">"{advice}"</p></div>
       )}
       {renderContent()}
-      {editingTransaction && <EditTransactionModal transaction={editingTransaction} onSave={updateTransaction} onDelete={deleteTransaction} onClose={() => setEditingTransaction(null)} currencySymbol={currencySymbol} />}
+      {editingTransaction && <EditTransactionModal transaction={editingTransaction} onSave={updateTransaction} onDelete={deleteTransaction} onClose={() => setEditingTransaction(null)} currencySymbol={currencySymbol} t={t} locale={locale} />}
     </Layout>
   );
 };

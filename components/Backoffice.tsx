@@ -19,22 +19,23 @@ interface Props {
   onClearEdit?: () => void;
   currencySymbol: string;
   t: TranslationType;
+  locale: string;
 }
 
-const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit, currencySymbol, t }) => {
+const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'present', initialEditId, initialEditType, onClearEdit, currencySymbol, t, locale }) => {
   const MONTHS = [
-    { val: 1, name: t.common.cancel === 'Cancelar' ? 'Janeiro' : 'January' },
-    { val: 2, name: t.common.cancel === 'Cancelar' ? 'Fevereiro' : 'February' },
-    { val: 3, name: t.common.cancel === 'Cancelar' ? 'Março' : 'March' },
-    { val: 4, name: t.common.cancel === 'Cancelar' ? 'Abril' : 'April' },
-    { val: 5, name: t.common.cancel === 'Cancelar' ? 'Maio' : 'May' },
-    { val: 6, name: t.common.cancel === 'Cancelar' ? 'Junho' : 'June' },
-    { val: 7, name: t.common.cancel === 'Cancelar' ? 'Julho' : 'July' },
-    { val: 8, name: t.common.cancel === 'Cancelar' ? 'Agosto' : 'August' },
-    { val: 9, name: t.common.cancel === 'Cancelar' ? 'Setembro' : 'September' },
-    { val: 10, name: t.common.cancel === 'Cancelar' ? 'Outubro' : 'October' },
-    { val: 11, name: t.common.cancel === 'Cancelar' ? 'Novembro' : 'November' },
-    { val: 12, name: t.common.cancel === 'Cancelar' ? 'Dezembro' : 'December' }
+    { val: 1, name: t.months[1] },
+    { val: 2, name: t.months[2] },
+    { val: 3, name: t.months[3] },
+    { val: 4, name: t.months[4] },
+    { val: 5, name: t.months[5] },
+    { val: 6, name: t.months[6] },
+    { val: 7, name: t.months[7] },
+    { val: 8, name: t.months[8] },
+    { val: 9, name: t.months[9] },
+    { val: 10, name: t.months[10] },
+    { val: 11, name: t.months[11] },
+    { val: 12, name: t.months[12] }
   ];
   const [activeTab, setActiveTab] = useState<'present' | 'past' | 'goals'>(initialSubTab);
 
@@ -127,7 +128,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
     let checkDate = new Date(expense.year || today.getFullYear(), monthIndex, day);
     const interval = expense.frequency === 'Mensal' ? 1 : expense.frequency === 'Trimestral' ? 3 : expense.frequency === 'Semestral' ? 6 : 12;
     while (checkDate <= today) checkDate.setMonth(checkDate.getMonth() + interval);
-    return checkDate.toLocaleDateString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US');
+    return checkDate.toLocaleDateString(locale);
   };
 
   const handleAddRecurringExpense = () => {
@@ -238,8 +239,6 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
   };
 
   const frequencies: Frequency[] = ['Mensal', 'Trimestral', 'Semestral', 'Anual'];
-  const frequenciesPt = { 'Mensal': 'Mensal', 'Trimestral': 'Trimestral', 'Semestral': 'Semestral', 'Anual': 'Anual' };
-  const frequenciesEn = { 'Mensal': 'Monthly', 'Trimestral': 'Quarterly', 'Semestral': 'Semi-annual', 'Anual': 'Annual' };
   const groupedExpenses = (state.recurringExpenses || []).reduce((acc, expense) => {
     const freq = expense.frequency;
     if (!acc[freq]) acc[freq] = [];
@@ -285,7 +284,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {(state.recurringIncomes || []).map(inc => (
-                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${t.incomeSources[inc.source as keyof typeof t.incomeSources] || inc.source} • ${t.future.monthDay} ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
+                <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${t.incomeSources[inc.source as keyof typeof t.incomeSources] || inc.source} • ${t.future.monthDay} ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
               ))}
               {(state.recurringIncomes || []).length === 0 && (
                 <div className="p-12 text-center text-slate-300">
@@ -334,12 +333,12 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
                   <div key={freq} className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                     <div className="bg-slate-50/50 px-8 py-4 border-b border-slate-50">
                       <h5 className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                        <Layers size={14} className="text-orange-500" /> {t.common.cancel === 'Cancelar' ? frequenciesPt[freq] : frequenciesEn[freq]}
+                        <Layers size={14} className="text-orange-500" /> {t.dashboard.periods[freq.toLowerCase() as keyof typeof t.dashboard.periods] || freq}
                       </h5>
                     </div>
                     <div className="divide-y divide-slate-50">
                       {expenses.map(exp => (
-                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${t.common.cancel === 'Cancelar' ? frequenciesPt[exp.frequency] : frequenciesEn[exp.frequency]} • ${t.present.next}: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
+                        <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${t.dashboard.periods[exp.frequency.toLowerCase() as keyof typeof t.dashboard.periods] || exp.frequency} • ${t.present.next}: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
                       ))}
                     </div>
                   </div>
@@ -356,10 +355,10 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-end gap-6">
               <Input label={t.backoffice.description} placeholder={t.backoffice.description} value={newDebt.name} onChange={e => setNewDebt({ ...newDebt, name: e.target.value })} />
               <Select label={t.backoffice.type} value={newDebt.type} onChange={e => setNewDebt({ ...newDebt, type: e.target.value as any })}>
-                <option value="Carro">{t.common.cancel === 'Cancelar' ? 'Carro' : 'Car'}</option>
-                <option value="Empréstimo">{t.common.cancel === 'Cancelar' ? 'Empréstimo' : 'Loan'}</option>
-                <option value="Hipoteca">{t.common.cancel === 'Cancelar' ? 'Hipoteca' : 'Mortgage'}</option>
-                <option value="Outros">{t.common.cancel === 'Cancelar' ? 'Outro' : 'Other'}</option>
+                <option value="Carro">{t.debtTypes.Carro}</option>
+                <option value="Empréstimo">{t.debtTypes.Empréstimo}</option>
+                <option value="Hipoteca">{t.debtTypes.Hipoteca}</option>
+                <option value="Outros">{t.debtTypes.Outros}</option>
               </Select>
               <Input label={t.backoffice.contractedCap} type="number" value={newDebt.contractedValue || ''} onChange={e => setNewDebt({ ...newDebt, contractedValue: Number(e.target.value) })} />
               <Input label={t.backoffice.liqDay} type="number" min="1" max="31" variant="orange" icon={<Calendar size={16} />} value={newDebt.dayOfMonth || ''} onChange={e => setNewDebt({ ...newDebt, dayOfMonth: Number(e.target.value) })} />
@@ -376,7 +375,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {state.debts.map(d => (
-                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${d.type} • ${t.future.monthDay} ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
+                <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${t.debtTypes[d.type as keyof typeof t.debtTypes] || d.type} • ${t.future.monthDay} ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString(locale)}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
               ))}
             </div>
           </SectionCard>
@@ -403,7 +402,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
               {state.goals.map(g => (
-                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol} ${t.backoffice.target}`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
+                <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString(locale)}${currencySymbol} ${t.backoffice.target}`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
               ))}
             </div>
           </SectionCard>
@@ -413,11 +412,11 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
               <Input variant="slate-emerald" label={t.backoffice.description} placeholder={t.backoffice.description} value={newInvestment.name} onChange={e => setNewInvestment({ ...newInvestment, name: e.target.value })} />
               <Input variant="slate-emerald" label={`${t.backoffice.investedValue} ${currencySymbol}`} type="number" value={newInvestment.amount || ''} onChange={e => setNewInvestment({ ...newInvestment, amount: Number(e.target.value) })} />
               <Select variant="slate-emerald" label={t.backoffice.type} value={newInvestment.type} onChange={e => setNewInvestment({ ...newInvestment, type: e.target.value as any })}>
-                <option value="Acções">{t.common.cancel === 'Cancelar' ? 'Acções' : 'Stocks'}</option>
-                <option value="Certificados de Aforro">{t.common.cancel === 'Cancelar' ? 'Certificados de Aforro' : 'Savings Certificates'}</option>
-                <option value="Cryptomoeda">{t.common.cancel === 'Cancelar' ? 'Cryptomoeda' : 'Cryptocurrency'}</option>
-                <option value="Outro">{t.common.cancel === 'Cancelar' ? 'Outro' : 'Other'}</option>
-                <option value="PPR">PPR</option>
+                <option value="Acções">{t.invTypes.Acções}</option>
+                <option value="Certificados de Aforro">{t.invTypes['Certificados de Aforro']}</option>
+                <option value="Cryptomoeda">{t.invTypes.Cryptomoeda}</option>
+                <option value="Outro">{t.invTypes.Outro}</option>
+                <option value="PPR">{t.invTypes.PPR}</option>
               </Select>
               {newInvestment.type === 'PPR' && (
                 <>
@@ -436,7 +435,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             {/* Integrated List */}
             <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
               {(state.investments || []).map(inv => (
-                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : inv.type} value={`${(inv.amount || 0).toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
+                <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement.toLocaleString(locale)}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : (t.invTypes[inv.type as keyof typeof t.invTypes] || inv.type)} value={`${(inv.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
               ))}
             </div>
           </SectionCard>

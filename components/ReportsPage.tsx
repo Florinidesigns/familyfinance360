@@ -10,9 +10,10 @@ interface Props {
   currencySymbol: string;
   t: TranslationType;
   language: string;
+  locale: string;
 }
 
-const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) => {
+const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, locale }) => {
 
   const exportToExcel = (type: 'general' | 'irs') => {
     let exportData: any[] = [];
@@ -21,12 +22,12 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
     if (type === 'general') {
       exportData = state.transactions.map(tData => ({
         [t.present.date]: tData.date,
-        ['Tipo']: tData.type === 'entrada' ? t.reports.excel.income : t.reports.excel.expense,
-        [t.present.category]: tData.category,
+        [t.reports.excel.type]: tData.type === 'entrada' ? t.reports.excel.income : t.reports.excel.expense,
+        [t.present.category]: t.categories[tData.category as keyof typeof t.categories] || tData.category,
         [t.present.description]: tData.description,
         [`${t.present.amount} (${currencySymbol})`]: tData.amount,
-        ['Estabelecimento']: tData.establishment || 'N/A',
-        ['Nº Fatura']: tData.invoiceNumber || 'N/A'
+        [t.reports.excel.establishment]: tData.establishment || 'N/A',
+        [t.reports.excel.invoiceNumber]: tData.invoiceNumber || 'N/A'
       }));
       sheetName = t.reports.excel.generalSheet;
     } else {
@@ -34,11 +35,11 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
       exportData = state.transactions
         .filter(tData => tData.type === 'saida' && irsCategories.includes(tData.category))
         .map(tData => ({
-          'Fiscal_Categoria': tData.category === 'Lazer' ? 'Restauração/IVA' : (['Alimentação', 'Utilidades', 'Outros'].includes(tData.category) ? 'Despesas Gerais' : tData.category),
+          [t.reports.excel.fiscalCategory]: tData.category === 'Lazer' ? (language === 'Português' ? 'Restauração/IVA' : 'Restoration/VAT') : (['Alimentação', 'Utilidades', 'Outros'].includes(tData.category) ? (language === 'Português' ? 'Despesas Gerais' : 'General Expenses') : tData.category),
           [t.present.date]: tData.date,
-          ['Entidade']: tData.establishment || 'N/A',
-          ['Nº Fatura']: tData.invoiceNumber || t.reports.excel.pending,
-          [`${t.present.amount} Bruto (${currencySymbol})`]: tData.amount,
+          [t.reports.excel.entity]: tData.establishment || 'N/A',
+          [t.reports.excel.invoiceNumber]: tData.invoiceNumber || t.reports.excel.pending,
+          [`${t.present.amount} ${t.reports.excel.grossAmount} (${currencySymbol})`]: tData.amount,
         }));
       sheetName = t.reports.excel.irsSheet;
     }
@@ -48,8 +49,8 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
     const fileName = type === 'general'
-      ? `Relatorio_Geral_${new Date().getFullYear()}.xlsx`
-      : `Suporte_IRS_Confirmacao_${new Date().getFullYear()}.xlsx`;
+      ? `${language === 'Português' ? 'Relatorio_Geral' : language === 'Español' ? 'Informe_General' : 'General_Report'}_${new Date().getFullYear()}.xlsx`
+      : `${language === 'Português' ? 'Suporte_IRS_Confirmacao' : 'Income_Tax_Support'}_${new Date().getFullYear()}.xlsx`;
 
     XLSX.writeFile(workbook, fileName);
   };
@@ -149,7 +150,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
           <div>
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{t.reports.financialHealthReport}</h1>
             <div className="flex gap-4 mt-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
-              <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}</span>
+              <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString(locale)}</span>
               <span className="flex items-center gap-1"><ShieldCheck size={14} /> {t.reports.verifiedDocument}</span>
             </div>
           </div>
@@ -163,19 +164,19 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
         <div className="grid grid-cols-4 gap-4 mb-10">
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
             <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{t.reports.income}</p>
-            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+            <p className="text-2xl font-black text-slate-800">{totalIncome.toLocaleString(locale)}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
             <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{t.reports.expenses}</p>
-            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+            <p className="text-2xl font-black text-slate-800">{totalExpenses.toLocaleString(locale)}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
             <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">{t.reports.futureSavings}</p>
-            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+            <p className="text-2xl font-black text-emerald-700">{totalSavings.toLocaleString(locale)}{currencySymbol}</p>
           </div>
           <div className="p-6 bg-orange-50 rounded-3xl border border-orange-100">
             <p className="text-[10px] font-black uppercase text-orange-600 mb-1">{t.reports.pastDebt}</p>
-            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+            <p className="text-2xl font-black text-orange-700">{totalDebts.toLocaleString(locale)}{currencySymbol}</p>
           </div>
         </div>
 
@@ -198,7 +199,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
                     <p className="text-[10px] text-slate-400 uppercase font-black">{config.description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-slate-800">{amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}</p>
+                    <p className="font-black text-slate-800">{amount.toLocaleString(locale)}{currencySymbol}</p>
                     <p className="text-[10px] font-black text-emerald-600 uppercase">{t.reports.recoverable}: {benefit.toFixed(2)}{currencySymbol}</p>
                   </div>
                 </div>
@@ -218,7 +219,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
                 <th className="p-3 font-black uppercase tracking-widest">{t.present.date}</th>
                 <th className="p-3 font-black uppercase tracking-widest">{t.present.category}</th>
                 <th className="p-3 font-black uppercase tracking-widest">{t.reports.entityDescription}</th>
-                <th className="p-3 font-black uppercase tracking-widest">{t.reports.excel.irsSheet === 'Suporte_IRS' ? 'Nº Fatura' : 'Invoice Number'}</th>
+                <th className="p-3 font-black uppercase tracking-widest">{t.reports.excel.invoiceNumber}</th>
                 <th className="p-3 font-black uppercase tracking-widest text-right">{t.present.amount}</th>
               </tr>
             </thead>
@@ -233,7 +234,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language }) =>
                   </td>
                   <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? t.reports.excel.noNif : t.reports.excel.pending)}</td>
                   <td className={`p-3 text-right font-black ${t.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString(t.common.cancel === 'Cancelar' ? 'pt-PT' : 'en-US')}{currencySymbol}
+                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString(locale)}{currencySymbol}
                   </td>
                 </tr>
               ))}

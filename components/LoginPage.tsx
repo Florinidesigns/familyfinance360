@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import { Sparkles, Mail, Lock, Loader2 } from 'lucide-react';
 
+import { TranslationType } from '../translations';
+
 interface Props {
   onLogin: (email: string) => void;
   onBack: () => void;
+  t: TranslationType;
 }
 
-const LoginPage: React.FC<Props> = ({ onLogin, onBack }) => {
+const LoginPage: React.FC<Props> = ({ onLogin, onBack, t }) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,13 +31,13 @@ const LoginPage: React.FC<Props> = ({ onLogin, onBack }) => {
           <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
             <Sparkles size={32} className="fill-emerald-600" />
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-800">Benvindo de volta</h2>
-          <p className="text-slate-400 mt-2">Aceda às suas finanças familiares</p>
+          <h2 className="text-3xl font-extrabold text-slate-800">{t.login.welcomeBack}</h2>
+          <p className="text-slate-400 mt-2">{t.login.accessAccount}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 ml-1">E-mail</label>
+            <label className="text-sm font-bold text-slate-700 ml-1">{t.login.email}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
@@ -49,7 +52,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onBack }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 ml-1">Palavra-passe</label>
+            <label className="text-sm font-bold text-slate-700 ml-1">{t.login.password}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
@@ -65,7 +68,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onBack }) => {
             disabled={loading}
             className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2"
           >
-            {loading ? <Loader2 className="animate-spin" /> : 'Entrar na Conta'}
+            {loading ? <Loader2 className="animate-spin" /> : t.login.enterAccount}
           </button>
         </form>
 
@@ -73,7 +76,7 @@ const LoginPage: React.FC<Props> = ({ onLogin, onBack }) => {
           onClick={onBack}
           className="w-full mt-6 text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
         >
-          Voltar para a página inicial
+          {t.login.backToHome}
         </button>
       </div>
     </div>

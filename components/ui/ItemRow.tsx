@@ -2,6 +2,8 @@
 import React from 'react';
 import { Trash2, Pencil } from 'lucide-react';
 
+import { TranslationType } from '../../translations';
+
 interface Props {
     icon?: React.ReactNode;
     title: string;
@@ -11,6 +13,7 @@ interface Props {
     onDelete?: () => void;
     onEdit?: () => void;
     variant?: 'slate' | 'orange' | 'emerald' | 'blue';
+    t?: TranslationType;
 }
 
 const ItemRow: React.FC<Props> = ({
@@ -21,7 +24,8 @@ const ItemRow: React.FC<Props> = ({
     valueInside,
     onDelete,
     onEdit,
-    variant = 'slate'
+    variant = 'slate',
+    t
 }) => {
     const variantStyles = {
         slate: 'bg-slate-50 border-slate-100 hover:bg-slate-100',
@@ -48,7 +52,7 @@ const ItemRow: React.FC<Props> = ({
                 <div>
                     <p className="font-black text-lg text-slate-800 leading-tight">{title}</p>
                     {subtitle && <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{subtitle}</p>}
-                    {valueInside && value && <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">Rendimento: {value}</p>}
+                    {valueInside && value && <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">{t?.common.incomeLabel || 'Rendimento'}: {value}</p>}
                 </div>
             </div>
 

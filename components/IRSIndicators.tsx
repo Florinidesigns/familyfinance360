@@ -4,13 +4,17 @@ import { FileText, Info, AlertTriangle, CheckCircle2, TrendingUp, Calculator } f
 import { FinanceState } from '../types';
 import { IRS_CONFIG, getCategoryIcon } from '../constants';
 
+import { TranslationType } from '../translations';
+
 interface Props {
   state: FinanceState;
   onConfirm: () => void;
   currencySymbol: string;
+  t: TranslationType;
+  locale: string;
 }
 
-const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol }) => {
+const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol, t, locale }) => {
   // Calcular totais por categoria de IRS
   const getTotalsByCategory = () => {
     const expenses = state.transactions.filter(t => t.type === 'saida');
@@ -61,20 +65,20 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol }) =>
       <div className="bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest mb-4"><Calculator size={18} /> Simulador de Benefício Fiscal</div>
-            <h3 className="text-4xl font-black mb-2">Reembolso Acumulado</h3>
-            <p className="opacity-60 max-w-md">Este valor representa a estimativa de quanto o estado lhe irá devolver com base nas faturas registadas.</p>
+            <div className="flex items-center justify-center md:justify-start gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest mb-4"><Calculator size={18} /> {t.irs.simulatorTitle}</div>
+            <h3 className="text-4xl font-black mb-2">{t.irs.accumulatedRefund}</h3>
+            <p className="opacity-60 max-w-md">{t.irs.refundEstimateDesc}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-xl p-8 rounded-[40px] border border-white/20 flex flex-col items-center gap-4 min-w-[240px]">
             <div className="text-center">
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Total Recuperável</p>
-              <p className="text-5xl font-black text-emerald-400">{totalBenefit.toLocaleString('pt-PT')}{currencySymbol}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{t.irs.totalRecoverable}</p>
+              <p className="text-5xl font-black text-emerald-400">{totalBenefit.toLocaleString(locale)}{currencySymbol}</p>
             </div>
             <button
               onClick={onConfirm}
               className="w-full bg-emerald-500 hover:bg-emerald-400 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2"
             >
-              <CheckCircle2 size={14} /> Confirmar IRS
+              <CheckCircle2 size={14} /> {t.irs.confirmIrs}
             </button>
           </div>
         </div>
@@ -87,20 +91,20 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol }) =>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <div className={`p-4 rounded-2xl ${item.isOverLimit ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}`}>{getCategoryIcon(item.name)}</div>
-                <div><h4 className="text-xl font-bold text-slate-800">{item.name}</h4><p className="text-slate-400 text-xs font-medium">{item.description}</p></div>
+                <div><h4 className="text-xl font-bold text-slate-800">{t.categories[item.name as keyof typeof t.categories] || item.name}</h4><p className="text-slate-400 text-xs font-medium">{item.description}</p></div>
               </div>
-              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600' : 'text-slate-800'}`}>{item.benefit.toLocaleString('pt-PT')}{currencySymbol}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Benefício Real</p></div>
+              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600' : 'text-slate-800'}`}>{item.benefit.toLocaleString(locale)}{currencySymbol}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.irs.realBenefit}</p></div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-end">
-                <div className="flex items-center gap-2"><p className="text-xs font-bold text-slate-500 uppercase">Progresso do Teto</p>{item.isOverLimit && <span className="flex items-center gap-1 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"><AlertTriangle size={10} /> LIMITE ATINGIDO</span>}</div>
+                <div className="flex items-center gap-2"><p className="text-xs font-bold text-slate-500 uppercase">{t.irs.ceilingProgress}</p>{item.isOverLimit && <span className="flex items-center gap-1 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"><AlertTriangle size={10} /> {t.irs.limitReached}</span>}</div>
                 <p className="text-sm font-black text-slate-800">{Math.round(item.percentageOfLimit)}%</p>
               </div>
               <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden"><div className={`h-full transition-all duration-1000 rounded-full ${item.isOverLimit ? 'bg-orange-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(item.percentageOfLimit, 100)}%` }} /></div>
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                <div><p className="text-[10px] text-slate-400 uppercase font-bold">Despesa Total</p><p className="text-lg font-bold text-slate-800">{item.expense.toLocaleString('pt-PT')}{currencySymbol}</p></div>
-                <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">Teto Máximo</p><p className="text-lg font-bold text-slate-400">{item.maxBenefit.toLocaleString('pt-PT')}{currencySymbol}</p></div>
-              </div>
+              100:               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
+                101:                 <div><p className="text-[10px] text-slate-400 uppercase font-bold">{t.irs.totalExpense}</p><p className="text-lg font-bold text-slate-800">{item.expense.toLocaleString(locale)}{currencySymbol}</p></div>
+                102:                 <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">{t.irs.maxCeiling}</p><p className="text-lg font-bold text-slate-400">{item.maxBenefit.toLocaleString(locale)}{currencySymbol}</p></div>
+                103:               </div>
             </div>
           </div>
         ))}

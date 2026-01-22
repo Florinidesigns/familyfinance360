@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
     { id: 'reports', icon: <Download size={20} />, label: t.nav.reports },
     { id: 'backoffice', icon: <Sliders size={20} />, label: t.nav.backoffice },
     { id: 'settings', icon: <Settings size={20} />, label: t.nav.settings },
-  ].filter(item => item.id !== 'irs' || language !== 'English');
+  ].filter(item => item.id !== 'irs' || language === 'Português');
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">

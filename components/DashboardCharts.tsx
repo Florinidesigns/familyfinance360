@@ -14,11 +14,12 @@ interface Props {
   transactions: Transaction[];
   currencySymbol: string;
   t: TranslationType;
+  locale: string;
 }
 
 type Period = 'mensal' | 'trimestral' | 'semestral' | 'anual' | 'total';
 
-const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t }) => {
+const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, locale }) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>('total'); // Alterado para 'total' para garantir que os dados apareçam sempre por defeito
 
@@ -184,7 +185,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t }) =
                 <div className="text-left">
                   <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">{cat.name}</p>
                   <p className={`text-xs font-black leading-none ${activeCategory === cat.name ? 'text-white' : 'text-slate-800'}`}>
-                    {cat.value.toLocaleString('pt-PT')}{currencySymbol}
+                    {cat.value.toLocaleString(locale)}{currencySymbol}
                   </p>
                 </div>
               </button>
@@ -225,7 +226,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t }) =
                   <Tooltip
                     cursor={{ fill: '#f8fafc', radius: 12 }}
                     contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
-                    formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, t.dashboard.volume]}
+                    formatter={(value: number) => [`${Number(value).toLocaleString(locale)}${currencySymbol}`, t.dashboard.volume]}
                   />
                   <Bar
                     dataKey="value"
@@ -286,7 +287,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t }) =
                     </Pie>
                     <Tooltip
                       contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-                      formatter={(value: number) => [`${Number(value).toLocaleString('pt-PT')}${currencySymbol}`, 'Volume']}
+                      formatter={(value: number) => [`${Number(value).toLocaleString(locale)}${currencySymbol}`, 'Volume']}
                     />
                   </PieChart>
                 </ResponsiveContainer>
