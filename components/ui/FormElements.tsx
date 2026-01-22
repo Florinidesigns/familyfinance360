@@ -9,11 +9,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input: React.FC<InputProps> = ({ label, icon, variant = 'slate', className = '', ...props }) => {
     const variantStyles = {
-        slate: 'bg-slate-50 border-slate-100 focus:ring-emerald-500/10',
-        orange: 'bg-orange-50 border-orange-100 text-orange-700 focus:ring-orange-500/10',
-        emerald: 'bg-emerald-50 border-emerald-100 text-emerald-700 focus:ring-emerald-500/10',
-        blue: 'bg-blue-50 border-blue-100 text-blue-700 focus:ring-blue-500/10',
-        white: 'bg-white border-slate-200 focus:ring-emerald-500/10',
+        slate: 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-emerald-500/10 placeholder:text-slate-400 dark:placeholder:text-slate-500',
+        orange: 'bg-orange-50 dark:bg-orange-950/20 border-orange-100 dark:border-orange-900/30 text-orange-700 dark:text-orange-400 focus:ring-orange-500/10',
+        emerald: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400 focus:ring-emerald-500/10',
+        blue: 'bg-blue-50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30 text-blue-700 dark:text-blue-400 focus:ring-blue-500/10',
+        white: 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-emerald-500/10',
         'emerald-dark': 'bg-emerald-600 border-emerald-500 text-white placeholder:text-white/60 focus:ring-white/10',
         'slate-emerald': 'bg-slate-900 border-emerald-500 text-white placeholder:text-white/60 focus:ring-emerald-500/20'
     };
@@ -39,7 +39,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select: React.FC<SelectProps> = ({ label, variant = 'slate', className = '', children, ...props }) => {
     const variantStyles = {
-        slate: 'bg-slate-50 border-slate-100 focus:ring-emerald-500/10',
+        slate: 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-emerald-500/10',
         orange: 'bg-orange-600 text-white border-transparent focus:ring-orange-500/20',
         emerald: 'bg-emerald-600 text-white border-transparent focus:ring-emerald-500/20',
         blue: 'bg-blue-600 text-white border-transparent focus:ring-blue-500/20',
@@ -69,11 +69,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button: React.FC<ButtonProps> = ({ variant = 'emerald', icon, fullWidth, noShadow, children, className = '', ...props }) => {
     const variantStyles = {
-        emerald: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100',
-        orange: 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-100',
-        blue: 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100',
-        slate: 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-100',
-        'ghost-emerald': 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+        emerald: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100 dark:shadow-none',
+        orange: 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-100 dark:shadow-none',
+        blue: 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100 dark:shadow-none',
+        slate: 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 shadow-slate-100 dark:shadow-none',
+        'ghost-emerald': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'
     };
 
     return (

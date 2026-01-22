@@ -255,11 +255,11 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
         icon={<TrendingUp size={180} />}
       />
 
-      <div className="flex flex-col gap-3 w-full max-w-5xl mx-auto">
-        <div className="flex bg-white p-2 rounded-3xl border border-slate-100 w-full shadow-sm">
-          <button onClick={() => setActiveTab('past')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'past' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100' : 'text-slate-400 hover:text-slate-600'}`}><History size={16} /> {t.backoffice.pastTab}</button>
-          <button onClick={() => setActiveTab('present')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'present' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'}`}><Target size={16} /> {t.backoffice.presentTab}</button>
-          <button onClick={() => setActiveTab('goals')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'goals' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:text-slate-600'}`}><TrendingUp size={16} /> {t.backoffice.futureTab}</button>
+      <div className="flex flex-col gap-3 w-full max-w-5xl mx-auto transition-colors duration-300">
+        <div className="flex bg-white dark:bg-slate-900 p-2 rounded-3xl border border-slate-100 dark:border-slate-800 w-full shadow-sm">
+          <button onClick={() => setActiveTab('past')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'past' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><History size={16} /> {t.backoffice.pastTab}</button>
+          <button onClick={() => setActiveTab('present')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'present' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><Target size={16} /> {t.backoffice.presentTab}</button>
+          <button onClick={() => setActiveTab('goals')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'goals' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}><TrendingUp size={16} /> {t.backoffice.futureTab}</button>
         </div>
       </div>
 
@@ -282,7 +282,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
+            <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800 overflow-hidden divide-y divide-slate-50 dark:divide-slate-800 transition-colors duration-300">
               {(state.recurringIncomes || []).map(inc => (
                 <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${t.incomeSources[inc.source as keyof typeof t.incomeSources] || inc.source} • ${t.future.monthDay} ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
               ))}
@@ -330,8 +330,8 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
                 const expenses = groupedExpenses[freq] || [];
                 if (expenses.length === 0) return null;
                 return (
-                  <div key={freq} className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="bg-slate-50/50 px-8 py-4 border-b border-slate-50">
+                  <div key={freq} className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
+                    <div className="bg-slate-50/50 dark:bg-slate-800/50 px-8 py-4 border-b border-slate-50 dark:border-slate-800">
                       <h5 className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
                         <Layers size={14} className="text-orange-500" /> {t.dashboard.periods[freq.toLowerCase() as keyof typeof t.dashboard.periods] || freq}
                       </h5>
@@ -348,7 +348,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
           </SectionCard>
 
           <SectionCard title={t.backoffice.credits} icon={<Home size={24} className="text-orange-600" />}>
-            <div className="mb-10 p-2 bg-slate-50 rounded-[32px] border border-slate-100 flex items-center gap-2 w-fit">
+            <div className="mb-10 p-2 bg-slate-50 dark:bg-slate-800 rounded-[32px] border border-slate-100 dark:border-slate-700 flex items-center gap-2 w-fit">
               <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'installments' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'installments' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><Hash size={14} /> {t.backoffice.installmentsNr}</button>
               <button onClick={() => setNewDebt({ ...newDebt, calculationType: 'endDate' })} className={`px-8 py-3 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all ${newDebt.calculationType === 'endDate' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400'}`}><CalendarRange size={14} /> {t.backoffice.endDate}</button>
             </div>
@@ -373,7 +373,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
+            <div className="mt-12 bg-white/5 dark:bg-slate-800/30 rounded-[32px] border border-white/10 dark:border-slate-800 overflow-hidden divide-y divide-white/5 dark:divide-slate-800 transition-colors duration-300">
               {state.debts.map(d => (
                 <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${t.debtTypes[d.type as keyof typeof t.debtTypes] || d.type} • ${t.future.monthDay} ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString(locale)}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
               ))}
@@ -400,7 +400,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-slate-50/50 rounded-[32px] border border-slate-100 overflow-hidden divide-y divide-slate-50">
+            <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800 overflow-hidden divide-y divide-slate-50 dark:divide-slate-800 transition-colors duration-300">
               {state.goals.map(g => (
                 <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString(locale)}${currencySymbol} ${t.backoffice.target}`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
               ))}
@@ -433,7 +433,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-white/5 rounded-[32px] border border-white/10 overflow-hidden divide-y divide-white/5">
+            <div className="mt-12 bg-white/5 dark:bg-slate-800/30 rounded-[32px] border border-white/10 dark:border-slate-800 overflow-hidden divide-y divide-white/5 dark:divide-slate-800 transition-colors duration-300">
               {(state.investments || []).map(inv => (
                 <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement.toLocaleString(locale)}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : (t.invTypes[inv.type as keyof typeof t.invTypes] || inv.type)} value={`${(inv.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
               ))}

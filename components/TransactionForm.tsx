@@ -90,14 +90,14 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm mb-10 space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm mb-10 space-y-6 transition-colors duration-300">
       <div className="flex flex-wrap items-center gap-6">
         {/* Toggle Tipo */}
-        <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+        <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700">
           <button
             type="button"
             onClick={() => { setType('entrada'); setCategory(INCOME_SOURCES[0]); setHasInvoice(false); setIsNoNif(false); }}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'entrada' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'entrada' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
           >
             {t.present.inflow}
@@ -105,7 +105,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
           <button
             type="button"
             onClick={() => { setType('saida'); setCategory(CATEGORIES[0]); }}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'saida' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'saida' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
           >
             {t.present.outflow}
@@ -118,23 +118,23 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
             type="number"
             step="0.01"
             placeholder="0.00"
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-xl font-black text-slate-800 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-300 placeholder:text-[10px]"
+            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 text-xl font-black text-slate-800 dark:text-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:text-[10px]"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
           />
-          <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{currencySymbol}</span>
+          <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-bold">{currencySymbol}</span>
         </div>
 
         {/* Categoria (Já virá ordenada A-Z por causa da constante) */}
         <select
-          className="bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 outline-none appearance-none cursor-pointer"
+          className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 font-bold text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 outline-none appearance-none cursor-pointer"
           value={category}
           onChange={(e) => handleCategoryChange(e.target.value)}
         >
           {type === 'entrada'
-            ? INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)
-            : CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)
+            ? INCOME_SOURCES.map(s => <option key={s} value={s} className="dark:bg-slate-900">{s}</option>)
+            : CATEGORIES.map(c => <option key={c} value={c} className="dark:bg-slate-900">{c}</option>)
           }
         </select>
 
@@ -142,16 +142,16 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
         {type === 'saida' && category === 'Alimentação' && (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4 duration-300">
             <div className="relative group">
-              <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
               {!isManualEstablishment ? (
-                <select className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none cursor-pointer" value={establishment} onChange={(e) => setEstablishment(e.target.value)}>
-                  {SUPERMARKETS.map(s => <option key={s} value={s}>{s}</option>)}
+                <select className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 outline-none cursor-pointer" value={establishment} onChange={(e) => setEstablishment(e.target.value)}>
+                  {SUPERMARKETS.map(s => <option key={s} value={s} className="dark:bg-slate-900">{s}</option>)}
                 </select>
               ) : (
-                <input type="text" placeholder={t.present.establishmentPlaceholder} className="bg-emerald-50 border border-emerald-100 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={establishment} onChange={(e) => setEstablishment(e.target.value)} autoFocus />
+                <input type="text" placeholder={t.present.establishmentPlaceholder} className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800 rounded-2xl pl-12 pr-6 py-4 font-bold text-emerald-700 dark:text-emerald-400 focus:ring-4 focus:ring-emerald-500/10 outline-none" value={establishment} onChange={(e) => setEstablishment(e.target.value)} autoFocus />
               )}
             </div>
-            <button type="button" onClick={() => { setIsManualEstablishment(!isManualEstablishment); setEstablishment(isManualEstablishment ? SUPERMARKETS[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualEstablishment ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}><Plus size={20} /></button>
+            <button type="button" onClick={() => { setIsManualEstablishment(!isManualEstablishment); setEstablishment(isManualEstablishment ? SUPERMARKETS[0] : ''); }} className={`p-4 rounded-2xl transition-all ${isManualEstablishment ? 'bg-slate-800 dark:bg-slate-700 text-white' : 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800'}`}><Plus size={20} /></button>
           </div>
         )}
 
@@ -225,33 +225,33 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
       </div>
 
       <div className="flex flex-wrap items-center gap-6">
-        <input type="text" placeholder={t.present.transactionDescription} className="flex-1 min-w-[200px] bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-medium text-slate-700 focus:ring-4 focus:ring-emerald-500/10 outline-none placeholder:text-[10px]" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input type="text" placeholder={t.present.transactionDescription} className="flex-1 min-w-[200px] bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 font-medium text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 outline-none placeholder:text-[10px] dark:placeholder:text-slate-600" value={description} onChange={(e) => setDescription(e.target.value)} />
         {type === 'saida' && (
-          <div className="flex flex-wrap items-center gap-6 bg-slate-50/50 p-4 rounded-3xl border border-slate-100">
+          <div className="flex flex-wrap items-center gap-6 bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-slate-700">
             <label className="flex items-center gap-3 cursor-pointer group">
               <div className="relative">
                 <input type="checkbox" className="sr-only peer" checked={hasInvoice} onChange={(e) => { setHasInvoice(e.target.checked); if (!e.target.checked) { setInvoiceNumber(''); setIsNoNif(false); } }} />
-                <div className="w-12 h-7 bg-slate-200 rounded-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                <div className="w-12 h-7 bg-slate-200 dark:bg-slate-700 rounded-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
               </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">{t.present.hasInvoice}</span>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{t.present.hasInvoice}</span>
             </label>
             {hasInvoice && (
               <div className="flex items-center gap-4 animate-in fade-in slide-in-from-left-2 duration-200">
-                <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                   <input type="checkbox" id="no-nif-toggle" className="w-4 h-4 accent-rose-500" checked={isNoNif} onChange={(e) => { setIsNoNif(e.target.checked); if (e.target.checked) setInvoiceNumber(''); }} />
-                  <label htmlFor="no-nif-toggle" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer flex items-center gap-1"><UserMinus size={12} /> {t.present.noNif}</label>
+                  <label htmlFor="no-nif-toggle" className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 cursor-pointer flex items-center gap-1"><UserMinus size={12} /> {t.present.noNif}</label>
                 </div>
                 {!isNoNif && (
                   <div className="relative min-w-[180px]">
-                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600" size={16} />
-                    <input type="text" placeholder={t.present.invoiceNumber} className="w-full bg-white border border-emerald-100 rounded-2xl pl-10 pr-6 py-3 text-xs font-bold text-emerald-700 outline-none placeholder:text-[10px]" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} autoFocus />
+                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400" size={16} />
+                    <input type="text" placeholder={t.present.invoiceNumber} className="w-full bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-800 rounded-2xl pl-10 pr-6 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 outline-none placeholder:text-[10px]" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} autoFocus />
                   </div>
                 )}
               </div>
             )}
           </div>
         )}
-        <button type="submit" className="bg-slate-900 text-white p-4 px-8 rounded-[24px] hover:bg-slate-800 transition-all flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 ml-auto">
+        <button type="submit" className="bg-slate-900 dark:bg-emerald-600 text-white p-4 px-8 rounded-[24px] hover:bg-slate-800 dark:hover:bg-emerald-700 transition-all flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em] shadow-lg dark:shadow-none active:scale-95 ml-auto">
           <Check size={20} className="text-emerald-400" /> {t.present.add}
         </button>
       </div>

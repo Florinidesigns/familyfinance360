@@ -98,6 +98,16 @@ const App: React.FC = () => {
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
   const [tempMemberIncomes, setTempMemberIncomes] = useState<{ name: string, amount: string, source: IncomeSource }[]>([]);
+
+  // --- Dark Mode Sync ---
+  useEffect(() => {
+    const isDark = state.appSettings?.theme === 'dark';
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [state.appSettings?.theme]);
   const [newIncomeName, setNewIncomeName] = useState('');
   const [newIncomeAmount, setNewIncomeAmount] = useState('');
   const [newIncomeSource, setNewIncomeSource] = useState<IncomeSource>('Ordenado');

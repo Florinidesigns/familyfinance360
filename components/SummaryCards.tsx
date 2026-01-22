@@ -76,18 +76,18 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol, t, l
         <button
           key={card.id}
           onClick={() => onNavigate(card.id)}
-          className={`bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 relative overflow-hidden group text-left transition-all hover:shadow-xl hover:-translate-y-1 ${card.accent}`}
+          className={`bg-white dark:bg-slate-900 p-6 rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden group text-left transition-all hover:shadow-xl hover:-translate-y-1 ${card.accent} dark:hover:border-slate-700`}
         >
-          <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity ${card.color}`}>
+          <div className={`absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity ${card.color}`}>
             {card.bgIcon}
           </div>
           <div className={`flex items-center gap-2 font-bold mb-4 uppercase text-[10px] tracking-[0.2em] ${card.color}`}>
             {card.icon} {card.label}
           </div>
-          <h3 className="text-slate-500 text-xs mb-1 font-medium">{card.title}</h3>
+          <h3 className="text-slate-500 dark:text-slate-400 text-xs mb-1 font-medium">{card.title}</h3>
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-1">
-              <p className={`text-3xl font-bold ${card.id === 'present' && card.value < 0 ? 'text-rose-600' : 'text-slate-800'}`}>
+              <p className={`text-3xl font-bold ${card.id === 'present' && card.value < 0 ? 'text-rose-600' : 'text-slate-800 dark:text-slate-100'}`}>
                 {card.value.toLocaleString(locale)}{currencySymbol}
               </p>
             </div>
@@ -99,10 +99,10 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol, t, l
             )}
           </div>
           <div className="mt-6 flex items-center justify-between">
-            <div className="text-[10px] text-slate-400 flex items-center gap-1 font-medium">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
               <Info size={12} /> {card.info}
             </div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all group-hover:bg-slate-50 ${card.color}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all group-hover:bg-slate-50 dark:group-hover:bg-slate-800 ${card.color}`}>
               <ChevronRight size={18} />
             </div>
           </div>

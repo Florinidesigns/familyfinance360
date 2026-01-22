@@ -25,9 +25,9 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
   ].filter(item => item.id !== 'irs' || language === 'Português');
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Sidebar */}
-      <nav className="fixed bottom-0 w-full md:relative md:w-64 bg-white border-t md:border-t-0 md:border-r border-slate-200 z-50 flex flex-col">
+      <nav className="fixed bottom-0 w-full md:relative md:w-64 bg-white dark:bg-slate-900 border-t md:border-t-0 md:border-r border-slate-200 dark:border-slate-800 z-50 flex flex-col transition-colors duration-300">
         <div className="p-8 hidden md:block">
           <h1 className="text-xl font-bold text-emerald-600 flex items-center gap-2">
             <Sparkles className="fill-emerald-600" /> Finanças360
@@ -40,8 +40,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
               <button
                 onClick={() => setActiveTab(item.id)}
                 className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all ${activeTab === item.id
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 font-semibold'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none font-semibold'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
               >
                 {item.icon}
@@ -51,10 +51,10 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
           ))}
         </ul>
 
-        <div className="hidden md:block p-6 border-t border-slate-100">
+        <div className="hidden md:block p-6 border-t border-slate-100 dark:border-slate-800">
           <button
             onClick={() => apiService.logout()}
-            className="flex items-center gap-3 w-full p-4 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all font-medium"
+            className="flex items-center gap-3 w-full p-4 rounded-2xl text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all font-medium"
           >
             <LogOut size={20} />
             <span>{t.nav.logout}</span>

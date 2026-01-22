@@ -45,7 +45,7 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, cu
   const noNifCount = expenses.filter(t => t.isNoNif).length;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 transition-colors duration-300">
       <div className="bg-emerald-900 p-10 rounded-[40px] text-white relative overflow-hidden">
         <div className="relative z-10">
           <h3 className="text-3xl font-black mb-2 flex items-center gap-3"><FileCheck className="text-emerald-400" /> {t.irsReport.title}</h3>
@@ -55,10 +55,10 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, cu
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center gap-4"><div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center"><Receipt size={24} /></div><div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.irsReport.totalInvoices}</p><p className="text-2xl font-black text-slate-800">{totalCount}</p></div></div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center gap-4"><div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center"><CheckCircle2 size={24} /></div><div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.irsReport.validated}</p><p className="text-2xl font-black text-slate-800">{validatedCount}</p></div></div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center gap-4"><div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center"><AlertCircle size={24} /></div><div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.irsReport.pending}</p><p className="text-2xl font-black text-rose-600">{pendingCount}</p></div></div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center gap-4"><div className="w-12 h-12 bg-slate-100 text-slate-500 rounded-2xl flex items-center justify-center"><UserMinus size={24} /></div><div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.irsReport.noNif}</p><p className="text-2xl font-black text-slate-500">{noNifCount}</p></div></div>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4"><div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center"><Receipt size={24} /></div><div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t.irsReport.totalInvoices}</p><p className="text-2xl font-black text-slate-800 dark:text-white">{totalCount}</p></div></div>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4"><div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center"><CheckCircle2 size={24} /></div><div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t.irsReport.validated}</p><p className="text-2xl font-black text-slate-800 dark:text-white">{validatedCount}</p></div></div>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4"><div className="w-12 h-12 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 rounded-2xl flex items-center justify-center"><AlertCircle size={24} /></div><div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t.irsReport.pending}</p><p className="text-2xl font-black text-rose-600 dark:text-rose-400">{pendingCount}</p></div></div>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4"><div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl flex items-center justify-center"><UserMinus size={24} /></div><div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t.irsReport.noNif}</p><p className="text-2xl font-black text-slate-500 dark:text-slate-400">{noNifCount}</p></div></div>
       </div>
 
       {irsGroups.map((group) => {
@@ -67,21 +67,21 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, cu
         const groupTotal = groupTransactions.reduce((a, b) => a + b.amount, 0);
 
         return (
-          <div key={group.name} className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-              <div className="flex items-center gap-3"><div className="p-3 bg-white shadow-sm rounded-xl text-slate-600">{getCategoryIcon(group.categories[0])}</div><h4 className="text-xl font-black text-slate-800">{group.name}</h4></div>
-              <div className="text-right"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</p><p className="text-xl font-black text-emerald-600">{groupTotal.toLocaleString(locale)}{currencySymbol}</p></div>
+          <div key={group.name} className="bg-white dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center bg-slate-50/30 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3"><div className="p-3 bg-white dark:bg-slate-800 shadow-sm rounded-xl text-slate-600 dark:text-slate-400">{getCategoryIcon(group.categories[0])}</div><h4 className="text-xl font-black text-slate-800 dark:text-white">{group.name}</h4></div>
+              <div className="text-right"><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total</p><p className="text-xl font-black text-emerald-600 dark:text-emerald-400">{groupTotal.toLocaleString(locale)}{currencySymbol}</p></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-slate-50/50"><tr><th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.reports.entityDescription}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.irsReport.invoiceStatus}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">{t.present.amount}</th></tr></thead>
-                <tbody className="divide-y divide-slate-50">
+                <thead className="bg-slate-50/50 dark:bg-slate-800/30"><tr><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.reports.entityDescription}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.irsReport.invoiceStatus}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">{t.present.amount}</th></tr></thead>
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                   {groupTransactions.map(tx => (
-                    <tr key={tx.id} className="hover:bg-slate-50/50 transition-all group/row">
-                      <td className="px-8 py-4 text-xs font-medium text-slate-500">{tx.date}</td>
-                      <td className="px-8 py-4"><p className="text-sm font-bold text-slate-800">{tx.description}</p>{tx.establishment && <p className="text-[10px] text-emerald-600 font-black uppercase tracking-tighter">@ {tx.establishment}</p>}</td>
-                      <td className="px-8 py-4"><div className="flex items-center gap-3">{tx.invoiceNumber ? <div className="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-3 py-1.5 rounded-full uppercase tracking-tighter">{tx.invoiceNumber}</div> : tx.isNoNif ? <div className="text-slate-400 font-bold text-[10px] bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.noNif}</div> : <div className="text-rose-500 font-bold text-[10px] bg-rose-50 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.pending}</div>}</div></td>
-                      <td className="px-8 py-4 text-sm font-black text-slate-800 text-right">{tx.amount.toLocaleString(locale)}{currencySymbol}</td>
+                    <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all group/row">
+                      <td className="px-8 py-4 text-xs font-medium text-slate-500 dark:text-slate-400">{tx.date}</td>
+                      <td className="px-8 py-4"><p className="text-sm font-bold text-slate-800 dark:text-slate-200">{tx.description}</p>{tx.establishment && <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-tighter">@ {tx.establishment}</p>}</td>
+                      <td className="px-8 py-4"><div className="flex items-center gap-3">{tx.invoiceNumber ? <div className="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1.5 rounded-full uppercase tracking-tighter">{tx.invoiceNumber}</div> : tx.isNoNif ? <div className="text-slate-400 dark:text-slate-500 font-bold text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.noNif}</div> : <div className="text-rose-500 dark:text-rose-400 font-bold text-[10px] bg-rose-50 dark:bg-rose-950/20 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.pending}</div>}</div></td>
+                      <td className="px-8 py-4 text-sm font-black text-slate-800 dark:text-white text-right">{tx.amount.toLocaleString(locale)}{currencySymbol}</td>
                     </tr>
                   ))}
                 </tbody>

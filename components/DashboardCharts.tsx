@@ -109,28 +109,28 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
     <div className="space-y-8 mb-8 animate-in fade-in duration-700">
 
       {/* FILTROS E SELEÇÃO */}
-      <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-8">
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 transition-colors duration-300">
 
         {/* Seletor de Período */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-50 pb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-50 dark:border-slate-800 pb-8">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
               <Calendar size={20} />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">{t.dashboard.timeHorizon}</h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{t.dashboard.filterAnalysis}</p>
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest">{t.dashboard.timeHorizon}</h3>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">{t.dashboard.filterAnalysis}</p>
             </div>
           </div>
 
-          <div className="flex flex-wrap bg-slate-50 p-1.5 rounded-2xl border border-slate-100 gap-1">
+          <div className="flex flex-wrap bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 gap-1">
             {(['mensal', 'trimestral', 'semestral', 'anual', 'total'] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p
-                  ? 'bg-slate-900 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-slate-600 hover:bg-white'
+                  ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-lg dark:shadow-none'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-700'
                   }`}
               >
                 {t.dashboard.periods[p]}
@@ -159,8 +159,8 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
             <button
               onClick={() => setActiveCategory(null)}
               className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 ${activeCategory === null
-                ? 'bg-slate-900 border-slate-900 text-white shadow-xl scale-105'
-                : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
+                ? 'bg-slate-900 dark:bg-emerald-600 border-slate-900 dark:border-emerald-600 text-white shadow-xl dark:shadow-none scale-105'
+                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
             >
               <LayoutGrid size={18} />
@@ -175,8 +175,8 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
                 key={cat.name}
                 onClick={() => setActiveCategory(cat.name)}
                 className={`flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 group ${activeCategory === cat.name
-                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100'
-                  : 'bg-white border-slate-100 text-slate-500 hover:border-emerald-200'
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl scale-105 shadow-emerald-100 dark:shadow-none'
+                  : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-emerald-200 dark:hover:border-emerald-900'
                   }`}
               >
                 <div className={`${activeCategory === cat.name ? 'text-white' : 'text-emerald-500'} group-hover:scale-110 transition-transform`}>
@@ -184,7 +184,7 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
                 </div>
                 <div className="text-left">
                   <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">{cat.name}</p>
-                  <p className={`text-xs font-black leading-none ${activeCategory === cat.name ? 'text-white' : 'text-slate-800'}`}>
+                  <p className={`text-xs font-black leading-none ${activeCategory === cat.name ? 'text-white' : 'text-slate-800 dark:text-slate-100'}`}>
                     {cat.value.toLocaleString(locale)}{currencySymbol}
                   </p>
                 </div>
@@ -197,14 +197,14 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
       {/* GRÁFICOS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Bar Chart */}
-        <div className="bg-white p-10 rounded-[48px] shadow-sm border border-slate-100 min-h-[500px] flex flex-col">
+        <div className="bg-white dark:bg-slate-900 p-10 rounded-[48px] shadow-sm border border-slate-100 dark:border-slate-800 min-h-[500px] flex flex-col transition-colors duration-300">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h4 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+              <h4 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                 <BarChart3 size={24} className="text-emerald-500" />
                 {activeCategory ? `${t.dashboard.billsFrom} ${activeCategory}` : t.dashboard.spendingDistribution}
               </h4>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+              <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
                 {t.dashboard.periods[period]} • {activeCategory ? t.dashboard.individualItems : t.dashboard.comparative}
               </p>
             </div>
@@ -256,14 +256,14 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
         </div>
 
         {/* Pie Chart */}
-        <div className="bg-white p-10 rounded-[48px] shadow-sm border border-slate-100 min-h-[500px] flex flex-col">
+        <div className="bg-white dark:bg-slate-900 p-10 rounded-[48px] shadow-sm border border-slate-100 dark:border-slate-800 min-h-[500px] flex flex-col transition-colors duration-300">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h4 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+              <h4 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3">
                 <PieChartIcon size={24} className="text-blue-500" />
                 {t.dashboard.budgetWeight}
               </h4>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">{t.dashboard.budgetWeight} {t.dashboard.periods[period]}</p>
+              <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">{t.dashboard.budgetWeight} {t.dashboard.periods[period]}</p>
             </div>
           </div>
 
@@ -294,9 +294,9 @@ const DashboardCharts: React.FC<Props> = ({ transactions, currencySymbol, t, loc
 
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                   {chartData.slice(0, 8).map((entry, index) => (
-                    <div key={entry.name} className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full">
+                    <div key={entry.name} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">{entry.name}</span>
+                      <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-tighter">{entry.name}</span>
                     </div>
                   ))}
                 </div>

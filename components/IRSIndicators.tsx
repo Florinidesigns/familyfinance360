@@ -61,7 +61,7 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol, t, l
   const { totalBenefit, details } = calculateBenefits();
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 transition-colors duration-300">
       <div className="bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
@@ -87,20 +87,20 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol, t, l
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {details.map((item) => (
-          <div key={item.name} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative group transition-all hover:shadow-xl">
+          <div key={item.name} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm relative group transition-all hover:shadow-xl dark:hover:border-slate-700">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <div className={`p-4 rounded-2xl ${item.isOverLimit ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-600'}`}>{getCategoryIcon(item.name)}</div>
-                <div><h4 className="text-xl font-bold text-slate-800">{t.categories[item.name as keyof typeof t.categories] || item.name}</h4><p className="text-slate-400 text-xs font-medium">{item.description}</p></div>
+                <div className={`p-4 rounded-2xl ${item.isOverLimit ? 'bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400' : 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400'}`}>{getCategoryIcon(item.name)}</div>
+                <div><h4 className="text-xl font-bold text-slate-800 dark:text-slate-100">{t.categories[item.name as keyof typeof t.categories] || item.name}</h4><p className="text-slate-400 dark:text-slate-500 text-xs font-medium">{item.description}</p></div>
               </div>
-              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600' : 'text-slate-800'}`}>{item.benefit.toLocaleString(locale)}{currencySymbol}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.irs.realBenefit}</p></div>
+              <div className="text-right"><p className={`text-xl font-black ${item.isOverLimit ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-100'}`}>{item.benefit.toLocaleString(locale)}{currencySymbol}</p><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter">{t.irs.realBenefit}</p></div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-end">
-                <div className="flex items-center gap-2"><p className="text-xs font-bold text-slate-500 uppercase">{t.irs.ceilingProgress}</p>{item.isOverLimit && <span className="flex items-center gap-1 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"><AlertTriangle size={10} /> {t.irs.limitReached}</span>}</div>
-                <p className="text-sm font-black text-slate-800">{Math.round(item.percentageOfLimit)}%</p>
+                <div className="flex items-center gap-2"><p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">{t.irs.ceilingProgress}</p>{item.isOverLimit && <span className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse"><AlertTriangle size={10} /> {t.irs.limitReached}</span>}</div>
+                <p className="text-sm font-black text-slate-800 dark:text-slate-100">{Math.round(item.percentageOfLimit)}%</p>
               </div>
-              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden"><div className={`h-full transition-all duration-1000 rounded-full ${item.isOverLimit ? 'bg-orange-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(item.percentageOfLimit, 100)}%` }} /></div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden"><div className={`h-full transition-all duration-1000 rounded-full ${item.isOverLimit ? 'bg-orange-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(item.percentageOfLimit, 100)}%` }} /></div>
               100:               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
                 101:                 <div><p className="text-[10px] text-slate-400 uppercase font-bold">{t.irs.totalExpense}</p><p className="text-lg font-bold text-slate-800">{item.expense.toLocaleString(locale)}{currencySymbol}</p></div>
                 102:                 <div className="text-right"><p className="text-[10px] text-slate-400 uppercase font-bold">{t.irs.maxCeiling}</p><p className="text-lg font-bold text-slate-400">{item.maxBenefit.toLocaleString(locale)}{currencySymbol}</p></div>

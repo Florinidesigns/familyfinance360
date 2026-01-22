@@ -65,65 +65,65 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
   const totalDebts = state.debts.reduce((a, b) => a + b.remainingValue, 0);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 transition-colors duration-300">
       {/* Visual Header (Screen only) */}
-      <div className="bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden print:hidden">
+      <div className="bg-slate-900 dark:bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden print:hidden border border-slate-800">
         <div className="relative z-10">
           <h3 className="text-3xl font-black mb-2 flex items-center gap-3">
             <Download className="text-emerald-400" /> {t.reports.title}
           </h3>
-          <p className="opacity-60 max-w-md">{t.reports.subtitle}</p>
+          <p className="opacity-60 dark:opacity-50 max-w-md">{t.reports.subtitle}</p>
         </div>
         <TrendingUp size={180} className="absolute -right-10 -bottom-10 opacity-5 pointer-events-none" />
       </div>
 
       {/* Action Cards (Screen only) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 print:hidden">
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-emerald-200 transition-all flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm group hover:border-emerald-200 dark:hover:border-emerald-800 transition-all flex flex-col justify-between">
           <div>
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <FileSpreadsheet size={28} />
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.generalExtract}</h4>
-            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.generalExtractDesc}</p>
+            <h4 className="text-xl font-black text-slate-800 dark:text-white mb-3">{t.reports.generalExtract}</h4>
+            <p className="text-slate-400 dark:text-slate-500 mb-6 text-sm font-medium leading-relaxed">{t.reports.generalExtractDesc}</p>
           </div>
           <button
             onClick={() => exportToExcel('general')}
-            className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
+            className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 dark:hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             {t.reports.exportExcel} <Download size={14} />
           </button>
         </div>
 
         {language === 'Português' && (
-          <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-amber-200 transition-all flex flex-col justify-between ring-2 ring-amber-500/10">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm group hover:border-amber-200 dark:hover:border-amber-800 transition-all flex flex-col justify-between ring-2 ring-amber-500/10 dark:ring-amber-500/5">
             <div>
-              <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <FileCheck size={28} />
               </div>
-              <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.irsSupport}</h4>
-              <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.irsSupportDesc}</p>
+              <h4 className="text-xl font-black text-slate-800 dark:text-white mb-3">{t.reports.irsSupport}</h4>
+              <p className="text-slate-400 dark:text-slate-500 mb-6 text-sm font-medium leading-relaxed">{t.reports.irsSupportDesc}</p>
             </div>
             <button
               onClick={handlePrint}
-              className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+              className="w-full bg-slate-900 dark:bg-amber-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 dark:hover:bg-amber-700 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg dark:shadow-none"
             >
               {t.reports.generateIrsReport} <Printer size={14} />
             </button>
           </div>
         )}
 
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm group hover:border-blue-200 transition-all flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm group hover:border-blue-200 dark:hover:border-blue-800 transition-all flex flex-col justify-between">
           <div>
-            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <FileText size={28} />
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-3">{t.reports.monthlyReportPdf}</h4>
-            <p className="text-slate-400 mb-6 text-sm font-medium leading-relaxed">{t.reports.monthlyReportDesc}</p>
+            <h4 className="text-xl font-black text-slate-800 dark:text-white mb-3">{t.reports.monthlyReportPdf}</h4>
+            <p className="text-slate-400 dark:text-slate-500 mb-6 text-sm font-medium leading-relaxed">{t.reports.monthlyReportDesc}</p>
           </div>
           <button
             onClick={handlePrint}
-            className="w-full bg-slate-100 text-slate-800 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
+            className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             {t.reports.printPdf} <FileText size={14} />
           </button>
@@ -131,13 +131,13 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
       </div>
 
       {/* Info Box (Screen only) */}
-      <div className="bg-white p-8 rounded-[40px] border border-slate-100 flex items-start gap-6 print:hidden">
-        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl">
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 flex items-start gap-6 print:hidden transition-colors duration-300">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
           <ShieldCheck size={24} />
         </div>
         <div>
-          <h5 className="font-bold text-slate-800 mb-1 uppercase text-xs tracking-widest">{t.reports.certifiedReports}</h5>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <h5 className="font-bold text-slate-800 dark:text-slate-100 mb-1 uppercase text-xs tracking-widest">{t.reports.certifiedReports}</h5>
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
             {t.reports.certifiedReportsDesc}
           </p>
         </div>
