@@ -10,6 +10,7 @@ export const translations = {
             reports: 'Relatórios',
             irs: 'IRS',
             invoices: 'Faturas',
+            alerts: 'Alertas',
             logout: 'Sair'
         },
         landing: {
@@ -269,6 +270,10 @@ export const translations = {
             currency: 'Moeda Principal',
             language: 'Idioma',
             theme: 'Tema Visual',
+            alertSettings: 'Configuração de Alertas',
+            commitmentDays: 'Dias antecipação (Compromissos)',
+            goalThreshold: 'Progresso para alerta (Sonhos %)',
+            budgetThreshold: 'Limite de gastos (Orçamento %)',
             lightMode: 'Modo Claro',
             darkMode: 'Modo Escuro',
             readyToStart: 'Pronto para começar?',
@@ -408,6 +413,21 @@ export const translations = {
             'Ordenado': 'Ordenado',
             'Outro': 'Outro',
             'Presente': 'Presente'
+        },
+        alerts: {
+            title: 'Painel de Alertas',
+            noAlerts: 'Não existem alertas pendentes de momento.',
+            upcomingCommitment: 'Compromisso Próximo',
+            goalProgress: 'Progresso de Objetivo',
+            budgetWarning: 'Aviso de Orçamento',
+            dueIn: 'Vence em',
+            days: 'dias',
+            today: 'hoje',
+            tomorrow: 'amanhã',
+            reached: 'alcançou',
+            ofGoal: 'do objetivo',
+            spendingHigh: 'Os seus gastos este mês representam',
+            ofIncome: 'do seu rendimento.'
         }
     },
     en: {
@@ -421,6 +441,7 @@ export const translations = {
             reports: 'Reports',
             irs: 'IRS',
             invoices: 'Invoices',
+            alerts: 'Alerts',
             logout: 'Logout'
         },
         landing: {
@@ -680,6 +701,10 @@ export const translations = {
             currency: 'Main Currency',
             language: 'Language',
             theme: 'Visual Theme',
+            alertSettings: 'Alert Configuration',
+            commitmentDays: 'Anticipation Days (Commitments)',
+            goalThreshold: 'Alert Threshold (Goals %)',
+            budgetThreshold: 'Spending Limit (Budget %)',
             lightMode: 'Light Mode',
             darkMode: 'Dark Mode',
             readyToStart: 'Ready to start?',
@@ -819,6 +844,21 @@ export const translations = {
             'Ordenado': 'Salary',
             'Outro': 'Other',
             'Presente': 'Gift'
+        },
+        alerts: {
+            title: 'Alerts Dashboard',
+            noAlerts: 'There are no pending alerts at the moment.',
+            upcomingCommitment: 'Upcoming Commitment',
+            goalProgress: 'Goal Progress',
+            budgetWarning: 'Budget Warning',
+            dueIn: 'Due in',
+            days: 'days',
+            today: 'today',
+            tomorrow: 'tomorrow',
+            reached: 'reached',
+            ofGoal: 'of the goal',
+            spendingHigh: 'Your spending this month represents',
+            ofIncome: 'of your income.'
         }
     },
     es: {
@@ -832,6 +872,7 @@ export const translations = {
             reports: 'Informes',
             irs: 'IRS',
             invoices: 'Facturas',
+            alerts: 'Alertas',
             logout: 'Salir'
         },
         landing: {
@@ -1091,6 +1132,10 @@ export const translations = {
             currency: 'Moneda Principal',
             language: 'Idioma',
             theme: 'Tema Visual',
+            alertSettings: 'Configuración de Alertas',
+            commitmentDays: 'Días de anticipación (Compromisos)',
+            goalThreshold: 'Umbral de alerta (Sueños %)',
+            budgetThreshold: 'Límite de gastos (Presupuesto %)',
             lightMode: 'Modo Claro',
             darkMode: 'Modo Oscuro',
             readyToStart: '¿Listo para empezar?',
@@ -1230,6 +1275,21 @@ export const translations = {
             'Ordenado': 'Sueldo',
             'Outro': 'Otro',
             'Presente': 'Regalo'
+        },
+        alerts: {
+            title: 'Panel de Alertas',
+            noAlerts: 'No hay alertas pendientes en este momento.',
+            upcomingCommitment: 'Compromiso Próximo',
+            goalProgress: 'Progreso de Objetivo',
+            budgetWarning: 'Aviso de Presupuesto',
+            dueIn: 'Vence en',
+            days: 'días',
+            today: 'hoy',
+            tomorrow: 'mañana',
+            reached: 'alcanzó',
+            ofGoal: 'del objetivo',
+            spendingHigh: 'Sus gastos de este mes representan',
+            ofIncome: 'de sus ingresos.'
         }
     }
 };

@@ -90,8 +90,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm mb-10 space-y-6 transition-colors duration-300">
-      <div className="flex flex-wrap items-center gap-6">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-[32px] md:rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm mb-10 space-y-4 md:space-y-6 transition-colors duration-300">
+      <div className="flex flex-wrap items-center gap-4 md:gap-6">
         {/* Toggle Tipo */}
         <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700">
           <button
@@ -224,10 +224,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, currencySymbol, t }) => {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-wrap items-center gap-4 md:gap-6">
         <input type="text" placeholder={t.present.transactionDescription} className="flex-1 min-w-[200px] bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 font-medium text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-emerald-500/10 outline-none placeholder:text-[10px] dark:placeholder:text-slate-600" value={description} onChange={(e) => setDescription(e.target.value)} />
         {type === 'saida' && (
-          <div className="flex flex-wrap items-center gap-6 bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-slate-700">
+          <div className="flex flex-wrap items-center gap-4 md:gap-6 bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-3xl border border-slate-100 dark:border-slate-700">
             <label className="flex items-center gap-3 cursor-pointer group">
               <div className="relative">
                 <input type="checkbox" className="sr-only peer" checked={hasInvoice} onChange={(e) => { setHasInvoice(e.target.checked); if (!e.target.checked) { setInvoiceNumber(''); setIsNoNif(false); } }} />

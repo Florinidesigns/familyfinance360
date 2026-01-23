@@ -96,6 +96,12 @@ export interface AppSettings {
   theme: 'light' | 'dark';
 }
 
+export interface AlertSettings {
+  commitmentDays: number;
+  goalThreshold: number;
+  budgetThreshold: number;
+}
+
 export interface FinanceState {
   transactions: Transaction[];
   debts: LongTermDebt[];
@@ -105,4 +111,5 @@ export interface FinanceState {
   investments: Investment[];
   familyInfo?: FamilyInfo;
   appSettings?: AppSettings;
+  alertSettings?: AlertSettings;
 }

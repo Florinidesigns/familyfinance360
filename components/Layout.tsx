@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Target, History, TrendingUp, Sparkles, LogOut, Settings, FileText, Download, FileCheck, Sliders } from 'lucide-react';
+import { LayoutDashboard, Target, History, TrendingUp, Sparkles, LogOut, Settings, FileText, Download, FileCheck, Sliders, Bell } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { TranslationType } from '../translations';
 
@@ -15,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, language }) => {
   const navItems = [
     { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: t.nav.dashboard },
+    { id: 'alerts', icon: <Bell size={20} />, label: t.nav.alerts },
     { id: 'past', icon: <History size={20} />, label: t.nav.past },
     { id: 'present', icon: <Target size={20} />, label: t.nav.present },
     { id: 'future', icon: <TrendingUp size={20} />, label: t.nav.future },

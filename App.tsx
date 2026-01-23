@@ -13,6 +13,8 @@ import CheckoutPage from './components/CheckoutPage';
 import IRSIndicators from './components/IRSIndicators';
 import IRSConfirmationReport from './components/IRSConfirmationReport';
 import ReportsPage from './components/ReportsPage';
+import AlertsPage from './components/AlertsPage';
+import DashTel from './components/DashTel';
 import SectionCard from './components/ui/SectionCard';
 import { Input, Select, Button } from './components/ui/FormElements';
 import ItemRow from './components/ui/ItemRow';
@@ -21,7 +23,7 @@ import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpe
 import { translations, TranslationType } from './translations';
 import { getFinancialAdvice } from './services/geminiService';
 import { apiService } from './services/apiService';
-import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders } from 'lucide-react';
+import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders, Bell } from 'lucide-react';
 import { getCategoryIcon, CATEGORIES, INCOME_SOURCES, CURRENCY_SYMBOLS } from './constants';
 
 const DEFAULT_STATE: FinanceState = {
@@ -32,7 +34,8 @@ const DEFAULT_STATE: FinanceState = {
   recurringExpenses: [],
   investments: [],
   familyInfo: { familyName: '', members: [] },
-  appSettings: { currency: 'EUR', language: 'Português', theme: 'light' }
+  appSettings: { currency: 'EUR', language: 'Português', theme: 'light' },
+  alertSettings: { commitmentDays: 7, goalThreshold: 90, budgetThreshold: 80 }
 };
 
 
@@ -60,6 +63,14 @@ const App: React.FC = () => {
   const [removingGoalId, setRemovingGoalId] = useState<string | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [editContext, setEditContext] = useState<{ id: string, type: 'debt' | 'goal' | 'investment' | 'income' | 'expense' } | null>(null);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const {
     state,
@@ -284,6 +295,10 @@ const App: React.FC = () => {
             appSettings: {
               ...DEFAULT_STATE.appSettings,
               ...(savedData.appSettings || {})
+            },
+            alertSettings: {
+              ...DEFAULT_STATE.alertSettings,
+              ...(savedData.alertSettings || {})
             }
           };
           setState(validatedData);
@@ -542,6 +557,10 @@ const App: React.FC = () => {
   if (view === 'pricing') return <PricingPage onSelectPlan={(plan) => { setSelectedPlan(plan); setView('checkout'); }} onBack={() => setView('landing')} currencySymbol={currencySymbol} t={t} />;
   if (view === 'checkout') return <CheckoutPage plan={selectedPlan!} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} currencySymbol={currencySymbol} t={t} />;
   if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} t={t} />;
+
+  if (isMobile && view === 'dashboard') {
+    return <DashTel state={state} onNavigate={setActiveTab} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -851,6 +870,32 @@ const App: React.FC = () => {
               </SectionCard>
             </div>
 
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 px-4"><Bell className="text-emerald-600" size={28} /><h4 className="text-2xl font-black text-slate-800">4. {t.settings.alertSettings}</h4></div>
+              <SectionCard title={t.settings.alertSettings} icon={<Bell size={20} />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Input
+                    label={t.settings.commitmentDays}
+                    type="number"
+                    value={state.alertSettings?.commitmentDays || 7}
+                    onChange={e => updateGlobalState({ alertSettings: { ...state.alertSettings!, commitmentDays: Number(e.target.value) } })}
+                  />
+                  <Input
+                    label={t.settings.goalThreshold}
+                    type="number"
+                    value={state.alertSettings?.goalThreshold || 90}
+                    onChange={e => updateGlobalState({ alertSettings: { ...state.alertSettings!, goalThreshold: Number(e.target.value) } })}
+                  />
+                  <Input
+                    label={t.settings.budgetThreshold}
+                    type="number"
+                    value={state.alertSettings?.budgetThreshold || 80}
+                    onChange={e => updateGlobalState({ alertSettings: { ...state.alertSettings!, budgetThreshold: Number(e.target.value) } })}
+                  />
+                </div>
+              </SectionCard>
+            </div>
+
             <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row gap-8 items-center justify-between">
               <div className="flex items-center gap-6"><div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center shadow-sm"><ShieldCheck size={32} /></div><div><h5 className="font-black text-slate-800">{t.settings.readyToStart}</h5><p className="text-slate-400 text-sm">{t.settings.readySubtitle}</p></div></div>
               <div className="flex flex-col md:flex-row gap-4">
@@ -1009,6 +1054,7 @@ const App: React.FC = () => {
         if (state.appSettings?.language !== 'Português') return null;
         return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings?.language || 'Português'} locale={locale} />;
+      case 'alerts': return <AlertsPage state={state} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} t={t} locale={locale} />;
       default: return null;
     }
@@ -1025,6 +1071,7 @@ const App: React.FC = () => {
       case 'irs': return t.nav.irs;
       case 'reports': return t.nav.reports;
       case 'invoices': return t.nav.invoices;
+      case 'alerts': return t.nav.alerts;
       default: return tab.charAt(0).toUpperCase() + tab.slice(1);
     }
   };
