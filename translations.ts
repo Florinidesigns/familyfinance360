@@ -137,6 +137,7 @@ export const translations = {
             Outro: 'Outro',
             PPR: 'PPR'
         },
+
         editModal: {
             title: 'Editar Transação',
             subtitle: 'Ajuste os detalhes do seu registo.',
@@ -1178,6 +1179,15 @@ export const translations = {
                 crypto: 'Crypto',
                 ppr: 'PPR'
             },
+            categoryManagement: 'Configuración de Listados',
+            expenseCategories: 'Categorías de Gastos',
+            incomeSources: 'Fuentes de Ingresos',
+            addCustomCategory: 'Añadir Categoría',
+            addCustomIncome: 'Añadir Fuente',
+            customCategoryPlaceholder: 'Nueva categoría...',
+            customIncomePlaceholder: 'Nueva fuente...',
+            activeItems: 'Elementos Activos',
+            allCategories: 'Todas las Categorías',
             confirmClearAll: '¿Está seguro de que desea borrar todos los datos?'
         },
         common: {
