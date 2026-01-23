@@ -322,7 +322,8 @@ export const translations = {
             years: 'anos',
             year: 'ano',
             update: 'Atualizar',
-            month: 'Mês'
+            month: 'Mês',
+            dismiss: 'Dispensar'
         },
         reports: {
             title: 'Centro de Exportação',
@@ -762,7 +763,8 @@ export const translations = {
             years: 'years',
             year: 'year',
             update: 'Update',
-            month: 'Month'
+            month: 'Month',
+            dismiss: 'Dismiss'
         },
         reports: {
             title: 'Export Center',
@@ -1202,7 +1204,8 @@ export const translations = {
             years: 'años',
             year: 'año',
             update: 'Actualizar',
-            month: 'Mes'
+            month: 'Mes',
+            dismiss: 'Descartar'
         },
         reports: {
             title: 'Centro de Exportación',

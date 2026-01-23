@@ -4,16 +4,17 @@ import { FinanceState } from '../types';
 import { TranslationType } from '../translations';
 import SectionCard from './ui/SectionCard';
 import ItemRow from './ui/ItemRow';
-import { Bell, Calendar, Target, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Bell, Calendar, Target, AlertTriangle, CheckCircle2, X } from 'lucide-react';
 
 interface AlertsPageProps {
     state: FinanceState;
     currencySymbol: string;
     t: TranslationType;
     locale: string;
+    onDismissAlert: (alertId: string) => void;
 }
 
-const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, locale }) => {
+const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, locale, onDismissAlert }) => {
     const now = new Date();
     const currentDay = now.getDate();
     const currentMonth = now.getMonth() + 1;
@@ -22,6 +23,7 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
     const commitmentDaysThreshold = state.alertSettings?.commitmentDays || 7;
     const goalThresholdPct = state.alertSettings?.goalThreshold || 90;
     const budgetThresholdPct = state.alertSettings?.budgetThreshold || 80;
+    const dismissedAlerts = state.dismissedAlerts || [];
 
     const alerts: any[] = [];
 
@@ -100,6 +102,9 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
         }
     }
 
+    // Filter out dismissed alerts
+    const activeAlerts = alerts.filter(alert => !dismissedAlerts.includes(alert.id));
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <SectionCard
@@ -108,16 +113,25 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
                 icon={<Bell size={120} className="opacity-10" />}
             >
                 <div className="space-y-4">
-                    {alerts.length > 0 ? (
-                        alerts.map(alert => (
-                            <ItemRow
-                                key={alert.id}
-                                icon={alert.icon}
-                                title={alert.title}
-                                subtitle={alert.subtitle}
-                                value={alert.value}
-                                variant={alert.variant}
-                            />
+                    {activeAlerts.length > 0 ? (
+                        activeAlerts.map(alert => (
+                            <div key={alert.id} className="relative group">
+                                <ItemRow
+                                    icon={alert.icon}
+                                    title={alert.title}
+                                    subtitle={alert.subtitle}
+                                    value={alert.value}
+                                    variant={alert.variant}
+                                />
+                                <button
+                                    onClick={() => onDismissAlert(alert.id)}
+                                    className="absolute top-1/2 -translate-y-1/2 right-4 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-xl flex items-center gap-2 opacity-0 group-hover:opacity-100"
+                                    title={t.common.dismiss || 'Dispensar'}
+                                >
+                                    <X size={14} />
+                                    {t.common.dismiss || 'Dispensar'}
+                                </button>
+                            </div>
                         ))
                     ) : (
                         <div className="py-20 text-center text-slate-400">

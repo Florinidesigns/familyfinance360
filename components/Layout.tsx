@@ -10,9 +10,10 @@ interface LayoutProps {
   setActiveTab: (tab: string) => void;
   t: TranslationType;
   language: string;
+  alertCount?: number;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, language }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, language, alertCount = 0 }) => {
   const navItems = [
     { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: t.nav.dashboard },
     { id: 'alerts', icon: <Bell size={20} />, label: t.nav.alerts },
@@ -36,20 +37,34 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
         </div>
 
         <ul className="flex md:flex-col justify-around md:justify-start p-2 md:p-6 gap-3 flex-1 overflow-x-auto md:overflow-x-visible">
-          {navItems.map((item) => (
-            <li key={item.id} className="flex-shrink-0">
-              <button
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all ${activeTab === item.id
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none font-semibold'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-              >
-                {item.icon}
-                <span className="text-xs md:text-sm lg:text-base">{item.label}</span>
-              </button>
-            </li>
-          ))}
+          {navItems.map((item) => {
+            const isAlertsWithNotifications = item.id === 'alerts' && alertCount > 0;
+            const isActive = activeTab === item.id;
+
+            return (
+              <li key={item.id} className="flex-shrink-0">
+                <button
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all relative ${isActive
+                      ? isAlertsWithNotifications
+                        ? 'bg-rose-600 text-white shadow-lg shadow-rose-100 dark:shadow-none font-semibold'
+                        : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none font-semibold'
+                      : isAlertsWithNotifications
+                        ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-semibold'
+                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                >
+                  {item.icon}
+                  <span className="text-xs md:text-sm lg:text-base">{item.label}</span>
+                  {isAlertsWithNotifications && (
+                    <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
+                      {alertCount}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="hidden md:block p-6 border-t border-slate-100 dark:border-slate-800">

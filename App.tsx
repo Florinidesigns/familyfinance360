@@ -26,6 +26,7 @@ import { getFinancialAdvice } from './services/geminiService';
 import { apiService } from './services/apiService';
 import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders, Bell } from 'lucide-react';
 import { getCategoryIcon, CATEGORIES, INCOME_SOURCES, CURRENCY_SYMBOLS } from './constants';
+import { calculateAlertCount } from './utils/alertUtils';
 
 const DEFAULT_STATE: FinanceState = {
   transactions: [],
@@ -36,7 +37,8 @@ const DEFAULT_STATE: FinanceState = {
   investments: [],
   familyInfo: { familyName: '', members: [] },
   appSettings: { currency: 'EUR', language: 'Português', theme: 'light' },
-  alertSettings: { commitmentDays: 7, goalThreshold: 90, budgetThreshold: 80 }
+  alertSettings: { commitmentDays: 7, goalThreshold: 90, budgetThreshold: 80 },
+  dismissedAlerts: []
 };
 
 
@@ -506,6 +508,12 @@ const App: React.FC = () => {
       addInvestment(investment);
     }
     setTempInvName(''); setTempInvAmount(''); setTempInvDay('1'); setTempInvReinforcement(''); setEditingInvId(null);
+  };
+
+  const dismissAlert = (alertId: string) => {
+    updateGlobalState({
+      dismissedAlerts: [...(state.dismissedAlerts || []), alertId]
+    });
   };
 
   const handleGetAdvice = async () => {
@@ -1053,11 +1061,13 @@ const App: React.FC = () => {
         if (state.appSettings?.language !== 'Português') return null;
         return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings?.language || 'Português'} locale={locale} />;
-      case 'alerts': return <AlertsPage state={state} currencySymbol={currencySymbol} t={t} locale={locale} />;
+      case 'alerts': return <AlertsPage state={state} currencySymbol={currencySymbol} t={t} locale={locale} onDismissAlert={dismissAlert} />;
       case 'backoffice': return <Backoffice state={state} onUpdateState={updateGlobalState} initialSubTab={backofficeSubTab} initialEditId={editContext?.id} initialEditType={editContext?.type} onClearEdit={() => setEditContext(null)} currencySymbol={currencySymbol} t={t} locale={locale} />;
       default: return null;
     }
   };
+
+  const alertCount = calculateAlertCount(state);
 
   if (isMobile && view === 'dashboard') {
     let mobileContent;
@@ -1073,7 +1083,7 @@ const App: React.FC = () => {
     return (
       <div className="relative min-h-screen">
         {mobileContent}
-        <MobileMenu activeTab={activeTab} onNavigate={setActiveTab} t={t} />
+        <MobileMenu activeTab={activeTab} onNavigate={setActiveTab} t={t} alertCount={alertCount} />
       </div>
     );
   }
@@ -1095,7 +1105,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} t={t} language={state.appSettings.language}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} t={t} language={state.appSettings.language} alertCount={alertCount}>
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
         <div><div className="flex items-center gap-3 mb-2"><h2 className="text-4xl font-black text-slate-800 tracking-tight">{getPageTitle(activeTab)}</h2><div className="hidden sm:flex items-center gap-2">{isSyncing ? <span className="flex items-center gap-2 text-[10px] bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full font-black border border-amber-100"><Cloud size={12} className="animate-bounce" /> {t.dashboard.cloudSync}</span> : <span className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full font-black border border-emerald-100"><CloudCheck size={12} /> {t.dashboard.protected}</span>}</div></div></div>
         <div className="flex gap-4">

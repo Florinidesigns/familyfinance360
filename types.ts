@@ -120,4 +120,6 @@ export interface FinanceState {
   familyInfo?: FamilyInfo;
   appSettings?: AppSettings;
   alertSettings?: AlertSettings;
+  dismissedAlerts?: string[]; // Array of alert IDs that have been dismissed
 }
+
