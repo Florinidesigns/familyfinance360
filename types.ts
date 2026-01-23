@@ -90,10 +90,18 @@ export interface FamilyInfo {
   members: FamilyMember[];
 }
 
+export interface CategorySettings {
+  customCategories: string[];
+  activeCategories: string[];
+  customIncomeSources: string[];
+  activeIncomeSources: string[];
+}
+
 export interface AppSettings {
   currency: string;
   language: string;
   theme: 'light' | 'dark';
+  categorySettings?: CategorySettings;
 }
 
 export interface AlertSettings {

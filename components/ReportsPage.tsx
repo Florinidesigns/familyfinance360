@@ -224,17 +224,17 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {(state.transactions || []).map(t => (
-                <tr key={t.id} className="border-b border-slate-50">
-                  <td className="p-3 text-slate-500">{t.date}</td>
-                  <td className="p-3 font-bold">{t.category}</td>
+              {(state.transactions || []).map(tx => (
+                <tr key={tx.id} className="border-b border-slate-50">
+                  <td className="p-3 text-slate-500">{tx.date}</td>
+                  <td className="p-3 font-bold">{tx.category}</td>
                   <td className="p-3">
-                    <p className="font-bold">{t.description}</p>
-                    {t.establishment && <p className="text-emerald-600 font-black uppercase text-[8px]">@ {t.establishment}</p>}
+                    <p className="font-bold">{tx.description}</p>
+                    {tx.establishment && <p className="text-emerald-600 font-black uppercase text-[8px]">@ {tx.establishment}</p>}
                   </td>
-                  <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? t.reports.excel.noNif : t.reports.excel.pending)}</td>
-                  <td className={`p-3 text-right font-black ${t.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'entrada' ? '+' : '-'}{Number(t.amount).toLocaleString(locale)}{currencySymbol}
+                  <td className="p-3 text-slate-400">{tx.invoiceNumber || (tx.isNoNif ? t.reports.excel.noNif : t.reports.excel.pending)}</td>
+                  <td className={`p-3 text-right font-black ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
+                    {tx.type === 'entrada' ? '+' : '-'}{Number(tx.amount).toLocaleString(locale)}{currencySymbol}
                   </td>
                 </tr>
               ))}

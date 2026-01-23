@@ -298,6 +298,15 @@ export const translations = {
                 crypto: 'Crypto',
                 ppr: 'PPR'
             },
+            categoryManagement: 'Configuração de Listagens',
+            expenseCategories: 'Categorias de Despesas',
+            incomeSources: 'Fontes de Rendimento',
+            addCustomCategory: 'Adicionar Categoria',
+            addCustomIncome: 'Adicionar Fonte',
+            customCategoryPlaceholder: 'Nova categoria...',
+            customIncomePlaceholder: 'Nova fonte...',
+            activeItems: 'Itens Ativos',
+            allCategories: 'Todas as Categorias',
             confirmClearAll: 'Tem a certeza que deseja apagar todos os dados?'
         },
         common: {
@@ -729,6 +738,15 @@ export const translations = {
                 crypto: 'Crypto',
                 ppr: 'PPR'
             },
+            categoryManagement: 'Listing Configuration',
+            expenseCategories: 'Expense Categories',
+            incomeSources: 'Income Sources',
+            addCustomCategory: 'Add Category',
+            addCustomIncome: 'Add Source',
+            customCategoryPlaceholder: 'New category...',
+            customIncomePlaceholder: 'New source...',
+            activeItems: 'Active Items',
+            allCategories: 'All Categories',
             confirmClearAll: 'Are you sure you want to delete all data?'
         },
         common: {

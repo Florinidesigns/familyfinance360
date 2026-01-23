@@ -15,6 +15,7 @@ import IRSConfirmationReport from './components/IRSConfirmationReport';
 import ReportsPage from './components/ReportsPage';
 import AlertsPage from './components/AlertsPage';
 import DashTel from './components/DashTel';
+import MobileMenu from './components/MobileMenu';
 import SectionCard from './components/ui/SectionCard';
 import { Input, Select, Button } from './components/ui/FormElements';
 import ItemRow from './components/ui/ItemRow';
@@ -558,9 +559,7 @@ const App: React.FC = () => {
   if (view === 'checkout') return <CheckoutPage plan={selectedPlan!} onPaymentSuccess={() => setView('login')} onBack={() => setView('pricing')} currencySymbol={currencySymbol} t={t} />;
   if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} t={t} />;
 
-  if (isMobile && view === 'dashboard') {
-    return <DashTel state={state} onNavigate={setActiveTab} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
-  }
+
 
   const renderContent = () => {
     switch (activeTab) {
@@ -1059,6 +1058,25 @@ const App: React.FC = () => {
       default: return null;
     }
   };
+
+  if (isMobile && view === 'dashboard') {
+    let mobileContent;
+    if (activeTab === 'dashboard') {
+      mobileContent = <DashTel state={state} onNavigate={setActiveTab} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
+    } else {
+      mobileContent = (
+        <div className="p-4 pb-24 overflow-y-auto h-screen bg-slate-50 dark:bg-slate-950">
+          {renderContent()}
+        </div>
+      );
+    }
+    return (
+      <div className="relative min-h-screen">
+        {mobileContent}
+        <MobileMenu activeTab={activeTab} onNavigate={setActiveTab} t={t} />
+      </div>
+    );
+  }
 
   const getPageTitle = (tab: string) => {
     switch (tab) {
