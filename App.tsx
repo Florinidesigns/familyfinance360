@@ -265,18 +265,26 @@ const App: React.FC = () => {
         setView('dashboard');
         const savedData = await apiService.loadFinanceData();
         if (savedData) {
-          const validatedData = {
+          const validatedData: FinanceState = {
+            ...DEFAULT_STATE,
             ...savedData,
+            transactions: savedData.transactions || [],
             familyInfo: savedData.familyInfo || { familyName: '', members: [] },
             recurringIncomes: savedData.recurringIncomes || [],
             recurringExpenses: savedData.recurringExpenses || [],
+            investments: savedData.investments || [],
+            goals: savedData.goals || [],
             debts: (savedData.debts || []).map((d: any) => ({
               ...d,
               contractedValue: d.contractedValue || 0,
               monthlyPayment: d.monthlyPayment || 0,
               remainingValue: d.remainingValue || 0,
               totalValue: d.totalValue || 0
-            }))
+            })),
+            appSettings: {
+              ...DEFAULT_STATE.appSettings,
+              ...(savedData.appSettings || {})
+            }
           };
           setState(validatedData);
           processRecurring(validatedData);
@@ -581,14 +589,21 @@ const App: React.FC = () => {
             <TransactionForm onAdd={addTransaction} currencySymbol={currencySymbol} t={t} />
             <SectionCard title={t.present.detailedHistory}>
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50/50"><tr><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.description}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.present.category}</th><th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">{t.present.amount}</th></tr></thead>
-                  <tbody className="divide-y divide-slate-50">
+                <table className="w-full text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr>
+                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-l border-slate-100 dark:border-slate-700 rounded-l-2xl px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.date}</th>
+                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.description}</th>
+                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.category}</th>
+                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-r border-slate-100 dark:border-slate-700 rounded-r-2xl px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200 text-right">{t.present.amount}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                     {state.transactions.map(tx => (
-                      <tr key={tx.id} className="hover:bg-slate-50 transition-all group/row">
-                        <td className="px-8 py-6 text-sm text-slate-500">{tx.date}</td>
-                        <td className="px-8 py-6 text-sm font-bold text-slate-800 flex items-center gap-2">{tx.description}<button onClick={() => setEditingTransaction(tx)} className="opacity-0 group-hover/row:opacity-100 p-1.5 bg-blue-600 text-white rounded-lg"><Pencil size={12} /></button></td>
-                        <td className="px-8 py-6 text-sm"><span className="flex items-center gap-2 text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-bold text-[10px] uppercase">{getCategoryIcon(tx.category)} {tx.category}</span></td>
+                      <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group/row">
+                        <td className="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">{tx.date}</td>
+                        <td className="px-8 py-6 text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">{tx.description}<button onClick={() => setEditingTransaction(tx)} className="opacity-0 group-hover/row:opacity-100 p-1.5 bg-blue-600 text-white rounded-lg transition-opacity"><Pencil size={12} /></button></td>
+                        <td className="px-8 py-6 text-sm"><span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold text-[10px] uppercase">{getCategoryIcon(tx.category)} {tx.category}</span></td>
                         <td className={`px-8 py-6 text-base font-black text-right ${getTransactionColor(tx)}`}>{tx.type === 'entrada' ? '+' : '-'}{tx.amount.toLocaleString('pt-PT')}{currencySymbol}</td>
                       </tr>
                     ))}
@@ -625,17 +640,26 @@ const App: React.FC = () => {
                       <Input label={t.settings.birthDate} type="date" value={newMemberBirthDate} onChange={e => setNewMemberBirthDate(e.target.value)} />
                       <Input label={t.settings.nif} maxLength={9} value={newMemberNif} onChange={e => setNewMemberNif(e.target.value.replace(/\D/g, ''))} />
                     </div>
-                    <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100 space-y-4">
+                    <div className="p-8 bg-slate-50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800 space-y-6 transition-colors duration-300">
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Coins size={14} className="text-emerald-600" /> {t.settings.monthlyIncome}</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={t.present.description} value={newIncomeName} onChange={e => setNewIncomeName(e.target.value)} />
-                        <input type="number" className="bg-white border rounded-xl px-4 py-2 text-xs font-bold placeholder:text-[10px]" placeholder={`${t.present.amount} ${currencySymbol}`} value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
-                        <select className="bg-white border rounded-xl px-4 py-2 text-[10px] font-black uppercase" value={newIncomeSource} onChange={e => setNewIncomeSource(e.target.value as any)}>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <Input variant="white" placeholder={t.present.description} value={newIncomeName} onChange={e => setNewIncomeName(e.target.value)} />
+                        <Input variant="white" type="number" placeholder={`${t.present.amount} ${currencySymbol}`} value={newIncomeAmount} onChange={e => setNewIncomeAmount(e.target.value)} />
+                        <Select variant="slate" value={newIncomeSource} onChange={e => setNewIncomeSource(e.target.value as any)}>
                           {INCOME_SOURCES.map(s => <option key={s} value={s}>{t.incomeSources[s as keyof typeof t.incomeSources] || s}</option>)}
-                        </select>
+                        </Select>
                       </div>
                       <Button variant="ghost-emerald" fullWidth onClick={addIncomeToTempMember} icon={<Plus size={14} />}>{t.settings.addIncome}</Button>
-                      <div className="flex flex-wrap gap-2">{tempMemberIncomes.map((inc, i) => (<div key={i} className="bg-white px-3 py-1.5 rounded-lg border flex items-center gap-2 shadow-sm"><span className="text-[10px] font-black text-slate-700">{inc.name}: {Number(inc.amount).toLocaleString()}{currencySymbol}</span><button onClick={() => setTempMemberIncomes(tempMemberIncomes.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-rose-600"><X size={12} /></button></div>))}</div>
+                      <div className="flex flex-wrap gap-2">
+                        {tempMemberIncomes.map((inc, i) => (
+                          <div key={i} className="bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center gap-3 shadow-sm transition-colors">
+                            <span className="text-[10px] font-black text-slate-700 dark:text-slate-300">{inc.name}: {Number(inc.amount).toLocaleString()}{currencySymbol}</span>
+                            <button onClick={() => setTempMemberIncomes(tempMemberIncomes.filter((_, idx) => idx !== i))} className="text-slate-300 hover:text-rose-600 transition-colors">
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <Button fullWidth onClick={addMemberAction} icon={editingMemberId ? <Check size={18} /> : <ArrowRight size={18} />}>
                       {editingMemberId ? t.settings.updateMember : t.settings.registerHousehold}
@@ -662,9 +686,21 @@ const App: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center gap-3 px-4"><Rocket className="text-orange-600" size={28} /><h4 className="text-2xl font-black text-slate-800">2. {t.settings.strategy}</h4></div>
               <SectionCard title={t.settings.credits} icon={<CreditCard className="text-orange-600" size={20} />}>
-                <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 w-fit mb-6">
-                  <button onClick={() => setTempDebtCalcType('installments')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'installments' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>{t.past.installments}</button>
-                  <button onClick={() => setTempDebtCalcType('endDate')} className={`px-4 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'endDate' ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>{t.past.endDate}</button>
+                <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 w-fit mb-8 transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => setTempDebtCalcType('installments')}
+                    className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'installments' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                  >
+                    {t.past.installments}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTempDebtCalcType('endDate')}
+                    className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${tempDebtCalcType === 'endDate' ? 'bg-orange-600 text-white shadow-lg shadow-orange-100 dark:shadow-none' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                  >
+                    {t.past.endDate}
+                  </button>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-7 items-end gap-3">
                   <Input label={t.present.description} placeholder={t.present.description} value={tempDebtName} onChange={e => setTempDebtName(e.target.value)} />

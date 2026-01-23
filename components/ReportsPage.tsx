@@ -20,7 +20,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
     let sheetName = t.reports.excel.generalSheet;
 
     if (type === 'general') {
-      exportData = state.transactions.map(tData => ({
+      exportData = (state.transactions || []).map(tData => ({
         [t.present.date]: tData.date,
         [t.reports.excel.type]: tData.type === 'entrada' ? t.reports.excel.income : t.reports.excel.expense,
         [t.present.category]: t.categories[tData.category as keyof typeof t.categories] || tData.category,
@@ -32,7 +32,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
       sheetName = t.reports.excel.generalSheet;
     } else {
       const irsCategories = ['Saúde', 'Educação', 'Habitação', 'Lazer', 'Alimentação', 'Utilidades', 'Outros'];
-      exportData = state.transactions
+      exportData = (state.transactions || [])
         .filter(tData => tData.type === 'saida' && irsCategories.includes(tData.category))
         .map(tData => ({
           [t.reports.excel.fiscalCategory]: tData.category === 'Lazer' ? (language === 'Português' ? 'Restauração/IVA' : 'Restoration/VAT') : (['Alimentação', 'Utilidades', 'Outros'].includes(tData.category) ? (language === 'Português' ? 'Despesas Gerais' : 'General Expenses') : tData.category),
@@ -59,10 +59,10 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
     window.print();
   };
 
-  const totalIncome = state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + b.amount, 0);
-  const totalExpenses = state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + b.amount, 0);
-  const totalSavings = state.goals.reduce((a, b) => a + b.currentAmount, 0);
-  const totalDebts = state.debts.reduce((a, b) => a + b.remainingValue, 0);
+  const totalIncome = (state.transactions || []).filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0);
+  const totalExpenses = (state.transactions || []).filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0);
+  const totalSavings = (state.goals || []).reduce((a, b) => a + Number(b.currentAmount), 0);
+  const totalDebts = (state.debts || []).reduce((a, b) => a + Number(b.remainingValue), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 transition-colors duration-300">
@@ -187,9 +187,9 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
           </h3>
           <div className="grid grid-cols-2 gap-8">
             {Object.entries(IRS_CONFIG).map(([category, config]) => {
-              const amount = state.transactions
-                .filter(t => t.type === 'saida' && (t.category === category || (category === 'Outros' && ['Alimentação', 'Utilidades'].includes(t.category as string))))
-                .reduce((acc, t) => acc + t.amount, 0);
+              const amount = (state.transactions || [])
+                .filter(t => t.type === 'saida' && (t.category === category || (category === 'Outros' && ['Alimentação', 'Utilidades', 'Despesas'].includes(t.category as string))))
+                .reduce((acc, t) => acc + Number(t.amount), 0);
               const benefit = Math.min(amount * config.percentage, config.maxBenefit);
 
               return (
@@ -224,7 +224,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {state.transactions.map(t => (
+              {(state.transactions || []).map(t => (
                 <tr key={t.id} className="border-b border-slate-50">
                   <td className="p-3 text-slate-500">{t.date}</td>
                   <td className="p-3 font-bold">{t.category}</td>
@@ -234,7 +234,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
                   </td>
                   <td className="p-3 text-slate-400">{t.invoiceNumber || (t.isNoNif ? t.reports.excel.noNif : t.reports.excel.pending)}</td>
                   <td className={`p-3 text-right font-black ${t.type === 'entrada' ? 'text-emerald-600' : 'text-slate-800'}`}>
-                    {t.type === 'entrada' ? '+' : '-'}{t.amount.toLocaleString(locale)}{currencySymbol}
+                    {t.type === 'entrada' ? '+' : '-'}{Number(t.amount).toLocaleString(locale)}{currencySymbol}
                   </td>
                 </tr>
               ))}
