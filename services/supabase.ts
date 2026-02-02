@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Variáveis de ambiente do Supabase não encontradas. Verifica o teu ficheiro .env.local');
+    throw new Error('Erro: VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY devem estar definidos no ficheiro .env.local');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl as string, supabaseAnonKey as string);
