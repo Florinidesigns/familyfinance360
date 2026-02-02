@@ -46,12 +46,12 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
                 <button
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all relative ${isActive
-                      ? isAlertsWithNotifications
-                        ? 'bg-rose-600 text-white shadow-lg shadow-rose-100 dark:shadow-none font-semibold'
-                        : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none font-semibold'
-                      : isAlertsWithNotifications
-                        ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-semibold'
-                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    ? isAlertsWithNotifications
+                      ? 'bg-rose-600 text-white shadow-lg shadow-rose-100 dark:shadow-none font-semibold'
+                      : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 dark:shadow-none font-semibold'
+                    : isAlertsWithNotifications
+                      ? 'text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-semibold'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                 >
                   {item.icon}
