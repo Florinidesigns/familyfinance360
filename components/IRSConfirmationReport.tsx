@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileCheck, AlertCircle, CheckCircle2, Search, UserMinus, RotateCcw, Receipt } from 'lucide-react';
+import { FileCheck, AlertCircle, CheckCircle2, Search, UserMinus, RotateCcw, Receipt, Pencil, Trash2 } from 'lucide-react';
 import { FinanceState, Transaction } from '../types';
 import { getCategoryIcon } from '../constants';
 
@@ -9,12 +9,14 @@ import { TranslationType } from '../translations';
 interface Props {
   state: FinanceState;
   onUpdateTransaction?: (updated: Transaction) => void;
+  onEditTransaction?: (tx: Transaction) => void;
+  onDeleteTransaction?: (id: string) => void;
   currencySymbol: string;
   t: TranslationType;
   locale: string;
 }
 
-const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, currencySymbol, t, locale }) => {
+const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, onEditTransaction, onDeleteTransaction, currencySymbol, t, locale }) => {
   const expenses = state.transactions.filter(t => t.type === 'saida');
 
   const irsGroups = [
@@ -74,7 +76,7 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, cu
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-slate-50/50 dark:bg-slate-800/30"><tr><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.reports.entityDescription}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.irsReport.invoiceStatus}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">{t.present.amount}</th></tr></thead>
+                <thead className="bg-slate-50/50 dark:bg-slate-800/30"><tr><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.present.date}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.reports.entityDescription}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{t.irsReport.invoiceStatus}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">{t.present.amount}</th><th className="px-8 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">Ações</th></tr></thead>
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                   {groupTransactions.map(tx => (
                     <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all group/row">
@@ -82,6 +84,16 @@ const IRSConfirmationReport: React.FC<Props> = ({ state, onUpdateTransaction, cu
                       <td className="px-8 py-4"><p className="text-sm font-bold text-slate-800 dark:text-slate-200">{tx.description}</p>{tx.establishment && <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-tighter">@ {tx.establishment}</p>}</td>
                       <td className="px-8 py-4"><div className="flex items-center gap-3">{tx.invoiceNumber ? <div className="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1.5 rounded-full uppercase tracking-tighter">{tx.invoiceNumber}</div> : tx.isNoNif ? <div className="text-slate-400 dark:text-slate-500 font-bold text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.noNif}</div> : <div className="text-rose-500 dark:text-rose-400 font-bold text-[10px] bg-rose-50 dark:bg-rose-950/20 px-3 py-1.5 rounded-full uppercase tracking-tighter">{t.reports.excel.pending}</div>}</div></td>
                       <td className="px-8 py-4 text-sm font-black text-slate-800 dark:text-white text-right">{tx.amount.toLocaleString(locale)}{currencySymbol}</td>
+                      <td className="px-8 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => onEditTransaction && onEditTransaction(tx)} className="p-2 text-slate-300 hover:text-blue-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                            <Pencil size={16} />
+                          </button>
+                          <button onClick={() => { if (confirm('Deseja eliminar esta transação?')) onDeleteTransaction && onDeleteTransaction(tx.id); }} className="p-2 text-slate-300 hover:text-rose-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
