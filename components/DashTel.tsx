@@ -3,20 +3,20 @@ import React, { useState } from 'react';
 import SummaryCards from './SummaryCards';
 import TransactionForm from './TransactionForm';
 import { FinanceState, Transaction } from '../types';
-import { TranslationType } from '../translations';
 import { LogOut, Sparkles, History, Target, TrendingUp, Plus, Minus } from 'lucide-react';
-import { apiService } from '../services/apiService';
+import { TranslationType } from '../translations';
 
 interface DashTelProps {
     state: FinanceState;
     onNavigate: (tab: string) => void;
+    onLogout: () => void;
     onAddTransaction: (transaction: Transaction) => void;
     currencySymbol: string;
     t: TranslationType;
     locale: string;
 }
 
-const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onAddTransaction, currencySymbol, t, locale }) => {
+const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onLogout, onAddTransaction, currencySymbol, t, locale }) => {
     const [isFormVisible, setIsFormVisible] = useState(false);
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 pb-20 transition-colors duration-300">
@@ -25,7 +25,7 @@ const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onAddTransaction, 
                     <Sparkles className="fill-emerald-600" /> Finanças360
                 </h1>
                 <button
-                    onClick={() => apiService.logout()}
+                    onClick={onLogout}
                     className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
                 >
                     <LogOut size={20} />

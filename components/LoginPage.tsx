@@ -5,21 +5,27 @@ import { Sparkles, Mail, Lock, Loader2 } from 'lucide-react';
 import { TranslationType } from '../translations';
 
 interface Props {
-  onLogin: (email: string) => void;
+  onLogin: (email: string, password?: string) => Promise<void>;
   onBack: () => void;
   t: TranslationType;
 }
 
 const LoginPage: React.FC<Props> = ({ onLogin, onBack, t }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    setTimeout(() => {
-      onLogin(email);
-    }, 1000);
+    try {
+      await onLogin(email, password);
+    } catch (err) {
+      // O erro já é tratado no App.tsx com um alert
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,6 +64,8 @@ const LoginPage: React.FC<Props> = ({ onLogin, onBack, t }) => {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-700 outline-none transition-all placeholder:text-[10px] dark:text-white"
               />
             </div>

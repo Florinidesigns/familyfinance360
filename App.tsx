@@ -292,14 +292,17 @@ const App: React.FC = () => {
 
   // Removemos o timer de sync global pois agora tudo é persistido individualmente no useFinanceState
 
-  const handleLogin = async (email: string) => {
-    // Nota: Aqui poderiamos passar password se o LoginPage suportasse
-    await supabaseService.login(email);
-    setView('dashboard');
-    const savedData = await supabaseService.loadFinanceData();
-    if (savedData) {
-      setState(savedData);
-      processRecurring(savedData);
+  const handleLogin = async (email: string, password?: string) => {
+    try {
+      await supabaseService.login(email, password);
+      setView('dashboard');
+      const savedData = await supabaseService.loadFinanceData();
+      if (savedData) {
+        setState(savedData);
+        processRecurring(savedData);
+      }
+    } catch (error: any) {
+      alert(error.message || 'Erro ao fazer login. Verifica as tuas credenciais.');
     }
   };
 
@@ -1045,7 +1048,7 @@ const App: React.FC = () => {
   if (isMobile && view === 'dashboard') {
     let mobileContent;
     if (activeTab === 'dashboard') {
-      mobileContent = <DashTel state={state} onNavigate={setActiveTab} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
+      mobileContent = <DashTel state={state} onNavigate={setActiveTab} onLogout={handleLogout} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
     } else {
       mobileContent = (
         <div className="p-4 pb-24 overflow-y-auto h-screen bg-slate-50 dark:bg-slate-950">
