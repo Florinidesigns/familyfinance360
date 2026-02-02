@@ -6,7 +6,10 @@ import { FinanceState, Transaction, LongTermDebt, FutureGoal, RecurringIncome, R
 const toSnakeCase = (obj: any) => {
     const newObj: any = {};
     for (const key in obj) {
-        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        let snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        // Mapeamento específico para colunas de despesas recorrentes que têm nomes diferentes no SQL
+        if (snakeKey === 'month') snakeKey = 'last_processed_month';
+        if (snakeKey === 'year') snakeKey = 'last_processed_year';
         newObj[snakeKey] = obj[key];
     }
     return newObj;
@@ -17,7 +20,10 @@ const toCamelCase = (obj: any) => {
     if (!obj) return obj;
     const newObj: any = {};
     for (const key in obj) {
-        const camelKey = key.replace(/(_\w)/g, m => m[1].toUpperCase());
+        let camelKey = key.replace(/(_\w)/g, m => m[1].toUpperCase());
+        // Mapeamento inverso
+        if (camelKey === 'lastProcessedMonth') camelKey = 'month';
+        if (camelKey === 'lastProcessedYear') camelKey = 'year';
         newObj[camelKey] = obj[key];
     }
     return newObj;
