@@ -77,19 +77,19 @@ const IRSIndicators: React.FC<Props> = ({ state, onConfirm, currencySymbol, t, l
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-3 text-emerald-400 font-black uppercase text-xs tracking-[0.2em] mb-4">
-              <Calculator size={20} /> e-fatura simulator
+              <Calculator size={20} /> IRS / e-fatura
             </div>
             <h3 className="text-5xl font-black mb-4 tracking-tight leading-tight">
               {t.irs.accumulatedRefund}
             </h3>
             <p className="text-slate-400 max-w-lg text-lg leading-relaxed font-medium">
-              Esta é uma estimativa baseada nas tuas despesas registadas. O valor real depende da tua retenção na fonte.
+              Esta é uma estimativa baseada nas tuas despesas registadas.
             </p>
           </div>
 
           <div className="bg-white/5 backdrop-blur-3xl p-10 rounded-[48px] border border-white/10 flex flex-col items-center gap-6 min-w-[300px] shadow-inner">
             <div className="text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 opacity-80 mb-2">Total Simulável</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 opacity-80 mb-2">Possivel Reembolso</p>
               <p className="text-6xl font-black text-white flex items-start justify-center gap-1">
                 {totalBenefit.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 <span className="text-2xl mt-2">{currencySymbol}</span>
