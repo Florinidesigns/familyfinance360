@@ -158,7 +158,24 @@ CREATE POLICY "Users manage own future_goals" ON public.future_goals FOR ALL USI
 CREATE POLICY "Users manage own investments" ON public.investments FOR ALL USING (auth.uid() = user_id);
 ```
 
-### 6. Configurações e Alertas
+### 6. Contas Bancárias (Saldos Iniciais)
+```sql
+CREATE TABLE public.bank_accounts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    balance DECIMAL(15, 2) NOT NULL DEFAULT 0,
+    initial_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE public.bank_accounts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users manage own bank accounts" ON public.bank_accounts
+    FOR ALL USING (auth.uid() = user_id);
+```
+
+### 7. Configurações e Alertas
 ```sql
 -- App Settings & Alert Settings
 CREATE TABLE public.app_settings (

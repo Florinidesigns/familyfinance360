@@ -74,6 +74,13 @@ export interface Investment {
   monthlyReinforcement?: number;
 }
 
+export interface BankAccount {
+  id: string;
+  name: string;
+  balance: number;
+  initialDate: string;
+}
+
 export interface FamilyMember {
   id: string;
   name: string;
@@ -117,6 +124,7 @@ export interface FinanceState {
   recurringIncomes: RecurringIncome[];
   recurringExpenses: RecurringExpense[];
   investments: Investment[];
+  bankAccounts?: BankAccount[];
   familyInfo?: FamilyInfo;
   appSettings?: AppSettings;
   alertSettings?: AlertSettings;

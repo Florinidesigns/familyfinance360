@@ -17,6 +17,7 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol, t, l
   const monthlyInflow = (state.transactions || []).filter(t => t.type === 'entrada').reduce((acc, t) => acc + Number(t.amount), 0);
   const monthlyOutflow = (state.transactions || []).filter(t => t.type === 'saida').reduce((acc, t) => acc + Number(t.amount), 0);
   const totalSavings = (state.goals || []).reduce((acc, curr) => acc + Number(curr.currentAmount), 0);
+  const totalBankBalance = (state.bankAccounts || []).reduce((acc, curr) => acc + Number(curr.balance), 0);
 
   const totalFixedIn = (state.recurringIncomes || []).reduce((acc, curr) => acc + Number(curr.amount), 0);
   const totalFixedOut = (state.debts || []).reduce((acc, curr) => acc + Number(curr.monthlyPayment), 0) +
@@ -45,7 +46,7 @@ const SummaryCards: React.FC<Props> = ({ state, onNavigate, currencySymbol, t, l
       id: 'present',
       label: t.nav.present,
       title: t.dashboard.presentTitle,
-      value: monthlyInflow - monthlyOutflow,
+      value: totalBankBalance + monthlyInflow - monthlyOutflow,
       extra: {
         label: t.dashboard.effortRate,
         value: `${effortRate.toFixed(1)}%`,

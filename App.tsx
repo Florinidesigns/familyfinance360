@@ -20,11 +20,17 @@ import SectionCard from './components/ui/SectionCard';
 import { Input, Select, Button } from './components/ui/FormElements';
 import ItemRow from './components/ui/ItemRow';
 import { useFinanceState } from './hooks/useFinanceState';
-import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpense, LongTermDebt, FutureGoal, Investment, Category, InvestmentType, IncomeSource, Frequency } from './types';
+import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpense, LongTermDebt, FutureGoal, Investment, BankAccount, Category, InvestmentType, IncomeSource, Frequency } from './types';
 import { translations, TranslationType } from './translations';
 import { getFinancialAdvice } from './services/geminiService';
 import { supabaseService } from './services/supabaseService';
-import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders, Bell, LogOut } from 'lucide-react';
+import {
+  Plus, ArrowRight, Target, History, Sparkles, TrendingUp, Users, ArrowUpRight, ArrowDownLeft,
+  Trash2, CreditCard, Layers, PieChart, Sliders, Settings, Check, X, Pencil, Mail, Lock,
+  Calculator, Fingerprint, Coins, Rocket, Download, FileText, Printer, FileSpreadsheet, Eye,
+  Bell, BellRing, Wallet, Loader2, ShieldCheck, PlusCircle, PartyPopper, MinusCircle, Cloud,
+  CloudCheck, BrainCircuit
+} from 'lucide-react';
 import { getCategoryIcon, CATEGORIES, INCOME_SOURCES, CURRENCY_SYMBOLS } from './constants';
 import { calculateAlertCount } from './utils/alertUtils';
 
@@ -35,6 +41,7 @@ const DEFAULT_STATE: FinanceState = {
   recurringIncomes: [],
   recurringExpenses: [],
   investments: [],
+  bankAccounts: [],
   familyInfo: { familyName: '', members: [] },
   appSettings: { currency: 'EUR', language: 'Português', theme: 'light' },
   alertSettings: { commitmentDays: 7, goalThreshold: 90, budgetThreshold: 80 },
@@ -66,6 +73,11 @@ const App: React.FC = () => {
   const [removingGoalId, setRemovingGoalId] = useState<string | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [editContext, setEditContext] = useState<{ id: string, type: 'debt' | 'goal' | 'investment' | 'income' | 'expense' } | null>(null);
+
+  const [tempAccountName, setTempAccountName] = useState('');
+  const [tempAccountBalance, setTempAccountBalance] = useState('');
+  const [tempAccountDate, setTempAccountDate] = useState(new Date().toISOString().split('T')[0]);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -100,6 +112,9 @@ const App: React.FC = () => {
     addInvestment,
     updateInvestment,
     removeInvestment,
+    addBankAccount,
+    updateBankAccount,
+    removeBankAccount,
     transferToFuture,
     removeFromFuture,
   } = useFinanceState(DEFAULT_STATE);
@@ -502,6 +517,31 @@ const App: React.FC = () => {
     setShowAdvice(true);
   };
 
+  const addAccountAction = () => {
+    if (!tempAccountName || !tempAccountBalance) return;
+    const accountData: BankAccount = {
+      id: editingAccountId || crypto.randomUUID(),
+      name: tempAccountName,
+      balance: Number(tempAccountBalance),
+      initialDate: tempAccountDate
+    };
+    if (editingAccountId) {
+      updateBankAccount(accountData);
+    } else {
+      addBankAccount(accountData);
+    }
+    setTempAccountName('');
+    setTempAccountBalance('');
+    setEditingAccountId(null);
+  };
+
+  const handleEditAccount = (acc: BankAccount) => {
+    setEditingAccountId(acc.id);
+    setTempAccountName(acc.name);
+    setTempAccountBalance(acc.balance.toString());
+    setTempAccountDate(acc.initialDate);
+  };
+
   const getTransactionColor = (tx: Transaction) => {
     if (tx.type === 'entrada') return 'text-emerald-600';
     if (tx.description.startsWith('Reforço:') || tx.description.startsWith('Liquidação:')) return 'text-blue-600';
@@ -578,13 +618,73 @@ const App: React.FC = () => {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <SectionCard variant="emerald" title={t.present.familyEconomy} icon={<Target size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowUpRight size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.income}</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center shrink-0"><ArrowUpRight size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.income}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{(state.transactions.filter(t => t.type === 'entrada').reduce((a, b) => a + Number(b.amount), 0) as any).toLocaleString(locale)}{currencySymbol}</p>
+
+                    {state.transactions.filter(t => t.type === 'entrada').length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {Object.entries(
+                          state.transactions
+                            .filter(t => t.type === 'entrada')
+                            .reduce((acc, curr) => {
+                              acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
+                              return acc;
+                            }, {} as Record<string, number>)
+                        ).map(([cat, total]) => (
+                          <div key={cat} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{cat}</span>
+                            <span className="text-white">{(total as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center"><ArrowDownLeft size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.expenses}</p><p className="text-2xl md:text-3xl font-black text-white">{state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center shrink-0"><ArrowDownLeft size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.present.expenses}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{(state.transactions.filter(t => t.type === 'saida').reduce((a, b) => a + Number(b.amount), 0) as any).toLocaleString(locale)}{currencySymbol}</p>
+
+                    {state.transactions.filter(t => t.type === 'saida').length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {Object.entries(
+                          state.transactions
+                            .filter(t => t.type === 'saida')
+                            .reduce((acc, curr) => {
+                              acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
+                              return acc;
+                            }, {} as Record<string, number>)
+                        ).map(([cat, total]) => (
+                          <div key={cat} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{cat}</span>
+                            <span className="text-white">{(total as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-emerald-600 rounded-2xl flex items-center justify-center shrink-0"><Wallet size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.settings.bankAccounts}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{((state.bankAccounts || []).reduce((acc, curr) => acc + Number(curr.balance), 0) as any).toLocaleString(locale)}{currencySymbol}</p>
+
+                    {(state.bankAccounts || []).length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {state.bankAccounts?.map(acc => (
+                          <div key={acc.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{acc.name}</span>
+                            <span className="text-white">{(acc.balance as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </SectionCard>
@@ -697,7 +797,66 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-center gap-3 px-4"><Rocket className="text-orange-600" size={28} /><h4 className="text-2xl font-black text-slate-800">2. {t.settings.strategy}</h4></div>
+              <div className="flex items-center gap-3 px-4"><Wallet className="text-emerald-600" size={28} /><h4 className="text-2xl font-black text-slate-800">2. {t.settings.bankAccounts}</h4></div>
+              <SectionCard icon={<Wallet className="text-emerald-600" size={20} />}>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 items-end">
+                  <Input
+                    label={t.settings.accountName}
+                    placeholder="Ex: Conta BPI"
+                    value={tempAccountName}
+                    onChange={e => setTempAccountName(e.target.value)}
+                  />
+                  <Input
+                    label={t.settings.initialBalance}
+                    type="number"
+                    placeholder={`0.00 ${currencySymbol}`}
+                    value={tempAccountBalance}
+                    onChange={e => setTempAccountBalance(e.target.value)}
+                  />
+                  <Input
+                    label={t.settings.setupDate}
+                    type="date"
+                    value={tempAccountDate}
+                    onChange={e => setTempAccountDate(e.target.value)}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="emerald"
+                      onClick={addAccountAction}
+                      icon={editingAccountId ? <Check size={16} /> : <Plus size={16} />}
+                    >
+                      {editingAccountId ? t.common.update : t.present.add}
+                    </Button>
+                    {editingAccountId && (
+                      <Button variant="ghost-slate" onClick={() => { setEditingAccountId(null); setTempAccountName(''); setTempAccountBalance(''); }}>
+                        {t.common.cancel}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* List of Accounts */}
+                {(state.bankAccounts || []).length > 0 && (
+                  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-slate-50">
+                    {state.bankAccounts?.map(acc => (
+                      <ItemRow
+                        key={acc.id}
+                        variant="emerald"
+                        icon={<Wallet size={20} />}
+                        title={acc.name}
+                        subtitle={`${t.settings.setupDate}: ${acc.initialDate}`}
+                        value={`${acc.balance.toLocaleString(locale)}${currencySymbol}`}
+                        onEdit={() => handleEditAccount(acc)}
+                        onDelete={() => removeBankAccount(acc.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </SectionCard>
+            </div>
+
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 px-4"><Rocket className="text-orange-600" size={28} /><h4 className="text-2xl font-black text-slate-800">3. {t.settings.strategy}</h4></div>
               <SectionCard title={t.settings.credits} icon={<CreditCard className="text-orange-600" size={20} />}>
                 <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 w-fit mb-8 transition-colors">
                   <button
@@ -830,7 +989,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-center gap-3 px-4"><Settings className="text-slate-600" size={28} /><h4 className="text-2xl font-black text-slate-800">3. {t.settings.appSettings}</h4></div>
+              <div className="flex items-center gap-3 px-4"><Settings className="text-slate-600" size={28} /><h4 className="text-2xl font-black text-slate-800">4. {t.settings.appSettings}</h4></div>
               <SectionCard title={t.settings.sysPreferences} icon={<Sliders size={20} />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Select

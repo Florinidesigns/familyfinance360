@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { FinanceState, Transaction, LongTermDebt, FutureGoal, RecurringIncome, RecurringExpense, Investment, FamilyMember, IncomeSource, Category, InvestmentType, Frequency } from '../types';
+import { FinanceState, Transaction, LongTermDebt, FutureGoal, RecurringIncome, RecurringExpense, Investment, FamilyMember, IncomeSource, Category, InvestmentType, Frequency, BankAccount } from '../types';
 import { supabaseService } from '../services/supabaseService';
 
 export const useFinanceState = (initialState: FinanceState) => {
@@ -205,6 +205,26 @@ export const useFinanceState = (initialState: FinanceState) => {
     setState(prev => ({ ...prev, investments: (prev.investments || []).filter(inv => inv.id !== id) }));
   }, []);
 
+  const addBankAccount = useCallback(async (account: BankAccount) => {
+    const { id, ...data } = account;
+    const result = await supabaseService.addBankAccount(data);
+    if (result) {
+      setState(prev => ({ ...prev, bankAccounts: [...(prev.bankAccounts || []), result] }));
+    }
+  }, []);
+
+  const updateBankAccount = useCallback(async (account: BankAccount) => {
+    const result = await supabaseService.updateBankAccount(account);
+    if (result) {
+      setState(prev => ({ ...prev, bankAccounts: (prev.bankAccounts || []).map(a => a.id === account.id ? result : a) }));
+    }
+  }, []);
+
+  const removeBankAccount = useCallback(async (id: string) => {
+    await supabaseService.deleteBankAccount(id);
+    setState(prev => ({ ...prev, bankAccounts: (prev.bankAccounts || []).filter(a => a.id !== id) }));
+  }, []);
+
   const transferToFuture = useCallback(async (amount: number, goalId: string) => {
     const goal = state.goals.find(g => g.id === goalId);
     if (!goal || amount <= 0 || goal.isAchieved) return;
@@ -281,6 +301,9 @@ export const useFinanceState = (initialState: FinanceState) => {
     addInvestment,
     updateInvestment,
     removeInvestment,
+    addBankAccount,
+    updateBankAccount,
+    removeBankAccount,
     transferToFuture,
     removeFromFuture,
   };
