@@ -1,19 +1,19 @@
 
 import React from 'react';
 import { LayoutDashboard, Target, History, TrendingUp, Sparkles, LogOut, Settings, FileText, Download, FileCheck, Sliders, Bell } from 'lucide-react';
-import { apiService } from '../services/apiService';
 import { TranslationType } from '../translations';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onLogout: () => void;
   t: TranslationType;
   language: string;
   alertCount?: number;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, language, alertCount = 0 }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, onLogout, t, language, alertCount = 0 }) => {
   const navItems = [
     { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: t.nav.dashboard },
     { id: 'alerts', icon: <Bell size={20} />, label: t.nav.alerts },
@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, t, l
 
         <div className="hidden md:block p-6 border-t border-slate-100 dark:border-slate-800">
           <button
-            onClick={() => apiService.logout()}
+            onClick={onLogout}
             className="flex items-center gap-3 w-full p-4 rounded-2xl text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all font-medium"
           >
             <LogOut size={20} />

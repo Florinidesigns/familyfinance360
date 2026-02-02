@@ -23,8 +23,8 @@ import { useFinanceState } from './hooks/useFinanceState';
 import { Transaction, FinanceState, FamilyMember, RecurringIncome, RecurringExpense, LongTermDebt, FutureGoal, Investment, Category, InvestmentType, IncomeSource, Frequency } from './types';
 import { translations, TranslationType } from './translations';
 import { getFinancialAdvice } from './services/geminiService';
-import { apiService } from './services/apiService';
-import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders, Bell } from 'lucide-react';
+import { supabaseService } from './services/supabaseService';
+import { BrainCircuit, Loader2, ArrowRight, PlusCircle, MinusCircle, CloudCheck, Cloud, History, Target, TrendingUp, Wallet, ArrowUpRight, ArrowDownLeft, Sparkles, Pencil, Trash2, PartyPopper, Settings, ShieldCheck, Plus, Check, X, Users, Briefcase, Fingerprint, CreditCard, Home, PieChart, Rocket, CalendarRange, Hash, Coins, Layers, Sliders, Bell, LogOut } from 'lucide-react';
 import { getCategoryIcon, CATEGORIES, INCOME_SOURCES, CURRENCY_SYMBOLS } from './constants';
 import { calculateAlertCount } from './utils/alertUtils';
 
@@ -274,38 +274,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      const isAuthenticated = apiService.checkAuth();
+      const isAuthenticated = await supabaseService.checkAuth();
       if (isAuthenticated) {
         setView('dashboard');
-        const savedData = await apiService.loadFinanceData();
+        const savedData = await supabaseService.loadFinanceData();
         if (savedData) {
-          const validatedData: FinanceState = {
-            ...DEFAULT_STATE,
-            ...savedData,
-            transactions: savedData.transactions || [],
-            familyInfo: savedData.familyInfo || { familyName: '', members: [] },
-            recurringIncomes: savedData.recurringIncomes || [],
-            recurringExpenses: savedData.recurringExpenses || [],
-            investments: savedData.investments || [],
-            goals: savedData.goals || [],
-            debts: (savedData.debts || []).map((d: any) => ({
-              ...d,
-              contractedValue: d.contractedValue || 0,
-              monthlyPayment: d.monthlyPayment || 0,
-              remainingValue: d.remainingValue || 0,
-              totalValue: d.totalValue || 0
-            })),
-            appSettings: {
-              ...DEFAULT_STATE.appSettings,
-              ...(savedData.appSettings || {})
-            },
-            alertSettings: {
-              ...DEFAULT_STATE.alertSettings,
-              ...(savedData.alertSettings || {})
-            }
-          };
-          setState(validatedData);
-          processRecurring(validatedData);
+          setState(savedData);
+          processRecurring(savedData);
         } else {
           processRecurring(DEFAULT_STATE);
         }
@@ -315,25 +290,23 @@ const App: React.FC = () => {
     init();
   }, [processRecurring, setState]);
 
-  useEffect(() => {
-    if (isInitialLoading || view !== 'dashboard') return;
-    const syncData = async () => {
-      setIsSyncing(true);
-      await apiService.saveFinanceData(state);
-      setIsSyncing(false);
-    };
-    const timer = setTimeout(syncData, 500);
-    return () => clearTimeout(timer);
-  }, [state, isInitialLoading, view]);
+  // Removemos o timer de sync global pois agora tudo é persistido individualmente no useFinanceState
 
   const handleLogin = async (email: string) => {
-    await apiService.login(email);
+    // Nota: Aqui poderiamos passar password se o LoginPage suportasse
+    await supabaseService.login(email);
     setView('dashboard');
-    const savedData = await apiService.loadFinanceData();
+    const savedData = await supabaseService.loadFinanceData();
     if (savedData) {
       setState(savedData);
       processRecurring(savedData);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabaseService.logout();
+    setView('landing');
+    setState(DEFAULT_STATE);
   };
 
   const calculateAge = (birthDate: string) => {
@@ -906,7 +879,7 @@ const App: React.FC = () => {
             <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row gap-8 items-center justify-between">
               <div className="flex items-center gap-6"><div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center shadow-sm"><ShieldCheck size={32} /></div><div><h5 className="font-black text-slate-800">{t.settings.readyToStart}</h5><p className="text-slate-400 text-sm">{t.settings.readySubtitle}</p></div></div>
               <div className="flex flex-col md:flex-row gap-4">
-                <Button variant="ghost-slate" icon={<Trash2 size={16} />} onClick={() => { if (confirm(t.settings.confirmClearAll)) apiService.clearDatabase(); }}>{t.settings.clearAll}</Button>
+                <Button variant="ghost-slate" icon={<Trash2 size={16} />} onClick={() => { if (confirm(t.settings.confirmClearAll)) { /* TODO: Implementar reset no Supabase se necessário */ } }}>{t.settings.clearAll}</Button>
                 <Button onClick={() => { processRecurring(state); setActiveTab('dashboard'); }}>{t.settings.updateApp}</Button>
               </div>
             </div>
@@ -1105,7 +1078,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} t={t} language={state.appSettings.language} alertCount={alertCount}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} t={t} language={state.appSettings.language} alertCount={alertCount}>
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
         <div><div className="flex items-center gap-3 mb-2"><h2 className="text-4xl font-black text-slate-800 tracking-tight">{getPageTitle(activeTab)}</h2><div className="hidden sm:flex items-center gap-2">{isSyncing ? <span className="flex items-center gap-2 text-[10px] bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full font-black border border-amber-100"><Cloud size={12} className="animate-bounce" /> {t.dashboard.cloudSync}</span> : <span className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full font-black border border-emerald-100"><CloudCheck size={12} /> {t.dashboard.protected}</span>}</div></div></div>
         <div className="flex gap-4">

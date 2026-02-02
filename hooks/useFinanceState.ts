@@ -1,59 +1,100 @@
 
 import { useState, useCallback } from 'react';
 import { FinanceState, Transaction, LongTermDebt, FutureGoal, RecurringIncome, RecurringExpense, Investment, FamilyMember, IncomeSource, Category, InvestmentType, Frequency } from '../types';
+import { supabaseService } from '../services/supabaseService';
 
 export const useFinanceState = (initialState: FinanceState) => {
   const [state, setState] = useState<FinanceState>(initialState);
 
-  const updateGlobalState = useCallback((newState: Partial<FinanceState>) => {
+  const updateGlobalState = useCallback(async (newState: Partial<FinanceState>) => {
     setState(prev => ({ ...prev, ...newState }));
+
+    // Persistência no Supabase
+    if (newState.appSettings) await supabaseService.updateAppSettings(newState.appSettings);
+    if (newState.alertSettings) await supabaseService.updateAlertSettings(newState.alertSettings);
+    if (newState.familyInfo?.familyName !== undefined) await supabaseService.updateProfile(newState.familyInfo.familyName);
   }, []);
 
-  const addTransaction = useCallback((t: Transaction) => {
-    setState(prev => ({ ...prev, transactions: [t, ...prev.transactions] }));
+  const addTransaction = useCallback(async (t: Transaction) => {
+    const { id, ...txData } = t;
+    const result = await supabaseService.addTransaction(txData);
+    if (result) {
+      setState(prev => ({ ...prev, transactions: [result, ...prev.transactions] }));
+    }
   }, []);
 
-  const updateTransaction = useCallback((updated: Transaction) => {
-    setState(prev => ({
-      ...prev,
-      transactions: prev.transactions.map(t => t.id === updated.id ? updated : t)
-    }));
+  const updateTransaction = useCallback(async (updated: Transaction) => {
+    const result = await supabaseService.updateTransaction(updated);
+    if (result) {
+      setState(prev => ({
+        ...prev,
+        transactions: prev.transactions.map(t => t.id === updated.id ? result : t)
+      }));
+    }
   }, []);
 
-  const deleteTransaction = useCallback((id: string) => {
+  const deleteTransaction = useCallback(async (id: string) => {
+    await supabaseService.deleteTransaction(id);
     setState(prev => ({
       ...prev,
       transactions: prev.transactions.filter(t => t.id !== id)
     }));
   }, []);
 
-  const addMember = useCallback((member: FamilyMember, recurringIncomes: RecurringIncome[]) => {
-    setState(prev => ({
-      ...prev,
-      familyInfo: {
-        ...prev.familyInfo!,
-        members: [...prev.familyInfo!.members, member]
-      },
-      recurringIncomes: [...prev.recurringIncomes, ...recurringIncomes]
-    }));
-  }, []);
+  const addMember = useCallback(async (member: FamilyMember, recurringIncomes: RecurringIncome[]) => {
+    const { id, ...memberData } = member;
+    const newMember = await supabaseService.addMember(memberData);
 
-  const updateMember = useCallback((member: FamilyMember, recurringIncomes: RecurringIncome[]) => {
-    setState(prev => {
-      const otherMembers = prev.familyInfo!.members.filter(m => m.id !== member.id);
-      const otherIncomes = prev.recurringIncomes.filter(inc => inc.memberId !== member.id);
-      return {
+    if (newMember) {
+      // Adicionar rendimentos recorrentes se existirem
+      const savedIncomes: RecurringIncome[] = [];
+      for (const inc of recurringIncomes) {
+        const { id: _, ...incData } = inc;
+        const savedInc = await supabaseService.addRecurringIncome({ ...incData, memberId: newMember.id });
+        if (savedInc) savedIncomes.push(savedInc);
+      }
+
+      setState(prev => ({
         ...prev,
         familyInfo: {
           ...prev.familyInfo!,
-          members: [...otherMembers, member]
+          members: [...prev.familyInfo!.members, newMember]
         },
-        recurringIncomes: [...otherIncomes, ...recurringIncomes]
-      };
-    });
+        recurringIncomes: [...prev.recurringIncomes, ...savedIncomes]
+      }));
+    }
   }, []);
 
-  const removeMember = useCallback((id: string) => {
+  const updateMember = useCallback(async (member: FamilyMember, recurringIncomes: RecurringIncome[]) => {
+    const result = await supabaseService.updateMember(member);
+    if (result) {
+      // Para rendimentos, simplificamos: removemos os antigos e adicionamos os novos
+      // Ou poderíamos ter uma lógica de update, mas aqui seguimos o padrão da UI
+      await supabaseService.deleteRecurringIncomeByMember(member.id);
+      const savedIncomes: RecurringIncome[] = [];
+      for (const inc of recurringIncomes) {
+        const { id: _, ...incData } = inc;
+        const savedInc = await supabaseService.addRecurringIncome({ ...incData, memberId: member.id });
+        if (savedInc) savedIncomes.push(savedInc);
+      }
+
+      setState(prev => {
+        const otherMembers = prev.familyInfo!.members.filter(m => m.id !== member.id);
+        const otherIncomes = prev.recurringIncomes.filter(inc => inc.memberId !== member.id);
+        return {
+          ...prev,
+          familyInfo: {
+            ...prev.familyInfo!,
+            members: [...otherMembers, result]
+          },
+          recurringIncomes: [...otherIncomes, ...savedIncomes]
+        };
+      });
+    }
+  }, []);
+
+  const removeMember = useCallback(async (id: string) => {
+    await supabaseService.deleteMember(id);
     setState(prev => ({
       ...prev,
       familyInfo: {
@@ -64,113 +105,156 @@ export const useFinanceState = (initialState: FinanceState) => {
     }));
   }, []);
 
-  const addDebt = useCallback((debt: LongTermDebt) => {
-    setState(prev => ({ ...prev, debts: [...prev.debts, debt] }));
+  const addDebt = useCallback(async (debt: LongTermDebt) => {
+    const { id, ...debtData } = debt;
+    const result = await supabaseService.addDebt(debtData);
+    if (result) {
+      setState(prev => ({ ...prev, debts: [...prev.debts, result] }));
+    }
   }, []);
 
-  const updateDebt = useCallback((debt: LongTermDebt) => {
-    setState(prev => ({ ...prev, debts: prev.debts.map(d => d.id === debt.id ? debt : d) }));
+  const updateDebt = useCallback(async (debt: LongTermDebt) => {
+    const result = await supabaseService.updateDebt(debt);
+    if (result) {
+      setState(prev => ({ ...prev, debts: prev.debts.map(d => d.id === debt.id ? result : d) }));
+    }
   }, []);
 
-  const removeDebt = useCallback((id: string) => {
+  const removeDebt = useCallback(async (id: string) => {
+    await supabaseService.deleteDebt(id);
     setState(prev => ({ ...prev, debts: prev.debts.filter(d => d.id !== id) }));
   }, []);
 
-  const addRecurringExpense = useCallback((expense: RecurringExpense) => {
-    setState(prev => ({ ...prev, recurringExpenses: [...prev.recurringExpenses, expense] }));
+  const addRecurringExpense = useCallback(async (expense: RecurringExpense) => {
+    const { id, ...data } = expense;
+    const result = await supabaseService.addRecurringExpense(data);
+    if (result) {
+      setState(prev => ({ ...prev, recurringExpenses: [...prev.recurringExpenses, result] }));
+    }
   }, []);
 
-  const updateRecurringExpense = useCallback((expense: RecurringExpense) => {
-    setState(prev => ({ ...prev, recurringExpenses: prev.recurringExpenses.map(e => e.id === expense.id ? expense : e) }));
+  const updateRecurringExpense = useCallback(async (expense: RecurringExpense) => {
+    const result = await supabaseService.updateRecurringExpense(expense);
+    if (result) {
+      setState(prev => ({ ...prev, recurringExpenses: prev.recurringExpenses.map(e => e.id === expense.id ? result : e) }));
+    }
   }, []);
 
-  const removeRecurringExpense = useCallback((id: string) => {
+  const removeRecurringExpense = useCallback(async (id: string) => {
+    await supabaseService.deleteRecurringExpense(id);
     setState(prev => ({ ...prev, recurringExpenses: prev.recurringExpenses.filter(e => e.id !== id) }));
   }, []);
 
-  const addRecurringIncome = useCallback((income: RecurringIncome) => {
-    setState(prev => ({ ...prev, recurringIncomes: [...(prev.recurringIncomes || []), income] }));
+  const addRecurringIncome = useCallback(async (income: RecurringIncome) => {
+    const { id, ...data } = income;
+    const result = await supabaseService.addRecurringIncome(data);
+    if (result) {
+      setState(prev => ({ ...prev, recurringIncomes: [...(prev.recurringIncomes || []), result] }));
+    }
   }, []);
 
-  const updateRecurringIncome = useCallback((income: RecurringIncome) => {
-    setState(prev => ({ ...prev, recurringIncomes: (prev.recurringIncomes || []).map(i => i.id === income.id ? income : i) }));
+  const updateRecurringIncome = useCallback(async (income: RecurringIncome) => {
+    const result = await supabaseService.updateRecurringIncome(income);
+    if (result) {
+      setState(prev => ({ ...prev, recurringIncomes: (prev.recurringIncomes || []).map(i => i.id === income.id ? result : i) }));
+    }
   }, []);
 
-  const removeRecurringIncome = useCallback((id: string) => {
+  const removeRecurringIncome = useCallback(async (id: string) => {
+    await supabaseService.deleteRecurringIncome(id);
     setState(prev => ({ ...prev, recurringIncomes: (prev.recurringIncomes || []).filter(i => i.id !== id) }));
   }, []);
 
-  const addGoal = useCallback((goal: FutureGoal) => {
-    setState(prev => ({ ...prev, goals: [...prev.goals, goal] }));
+  const addGoal = useCallback(async (goal: FutureGoal) => {
+    const { id, ...data } = goal;
+    const result = await supabaseService.addGoal(data);
+    if (result) {
+      setState(prev => ({ ...prev, goals: [...prev.goals, result] }));
+    }
   }, []);
 
-  const updateGoal = useCallback((goal: FutureGoal) => {
-    setState(prev => ({ ...prev, goals: prev.goals.map(g => g.id === goal.id ? goal : g) }));
+  const updateGoal = useCallback(async (goal: FutureGoal) => {
+    const result = await supabaseService.updateGoal(goal);
+    if (result) {
+      setState(prev => ({ ...prev, goals: prev.goals.map(g => g.id === goal.id ? result : g) }));
+    }
   }, []);
 
-  const removeGoal = useCallback((id: string) => {
+  const removeGoal = useCallback(async (id: string) => {
+    await supabaseService.deleteGoal(id);
     setState(prev => ({ ...prev, goals: prev.goals.filter(g => g.id !== id) }));
   }, []);
 
-  const addInvestment = useCallback((investment: Investment) => {
-    setState(prev => ({ ...prev, investments: [...(prev.investments || []), investment] }));
+  const addInvestment = useCallback(async (investment: Investment) => {
+    const { id, ...data } = investment;
+    const result = await supabaseService.addInvestment(data);
+    if (result) {
+      setState(prev => ({ ...prev, investments: [...(prev.investments || []), result] }));
+    }
   }, []);
 
-  const updateInvestment = useCallback((investment: Investment) => {
-    setState(prev => ({ ...prev, investments: (prev.investments || []).map(i => i.id === investment.id ? investment : i) }));
+  const updateInvestment = useCallback(async (investment: Investment) => {
+    const result = await supabaseService.updateInvestment(investment);
+    if (result) {
+      setState(prev => ({ ...prev, investments: (prev.investments || []).map(i => i.id === investment.id ? result : i) }));
+    }
   }, []);
 
-  const removeInvestment = useCallback((id: string) => {
+  const removeInvestment = useCallback(async (id: string) => {
+    await supabaseService.deleteInvestment(id);
     setState(prev => ({ ...prev, investments: (prev.investments || []).filter(inv => inv.id !== id) }));
   }, []);
 
-  const transferToFuture = useCallback((amount: number, goalId: string) => {
-    setState(prev => {
-      const goal = prev.goals.find(g => g.id === goalId);
-      if (!goal || amount <= 0 || goal.isAchieved) return prev;
+  const transferToFuture = useCallback(async (amount: number, goalId: string) => {
+    const goal = state.goals.find(g => g.id === goalId);
+    if (!goal || amount <= 0 || goal.isAchieved) return;
 
-      const transferTx: Transaction = {
-        id: Math.random().toString(36).substr(2, 9),
-        type: 'saida',
-        amount,
-        category: goal.category,
-        description: `Reforço: ${goal.name}`,
-        date: new Date().toISOString().split('T')[0]
-      };
+    const transferTx: Omit<Transaction, 'id'> = {
+      type: 'saida',
+      amount,
+      category: goal.category,
+      description: `Reforço: ${goal.name}`,
+      date: new Date().toISOString().split('T')[0]
+    };
 
-      const updatedGoals = prev.goals.map(g => {
-        if (g.id === goalId) {
-          const newCurrent = Number(g.currentAmount) + amount;
-          return { ...g, currentAmount: newCurrent, isAchieved: newCurrent >= Number(g.targetAmount) };
-        }
-        return g;
-      });
+    const savedTx = await supabaseService.addTransaction(transferTx);
+    const newCurrent = Number(goal.currentAmount) + amount;
+    const updatedGoal = { ...goal, currentAmount: newCurrent, isAchieved: newCurrent >= Number(goal.targetAmount) };
+    const savedGoal = await supabaseService.updateGoal(updatedGoal);
 
-      return { ...prev, transactions: [transferTx, ...prev.transactions], goals: updatedGoals };
-    });
-  }, []);
-
-  const removeFromFuture = useCallback((amount: number, goalId: string) => {
-    setState(prev => {
-      const goal = prev.goals.find(g => g.id === goalId);
-      if (!goal || amount <= 0) return prev;
-
-      const refundTx: Transaction = {
-        id: Math.random().toString(36).substr(2, 9),
-        type: 'entrada',
-        amount,
-        category: goal.category,
-        description: `Retirada: ${goal.name}`,
-        date: new Date().toISOString().split('T')[0]
-      };
-
-      return {
+    if (savedTx && savedGoal) {
+      setState(prev => ({
         ...prev,
-        transactions: [refundTx, ...prev.transactions],
-        goals: prev.goals.map(g => g.id === goalId ? { ...g, currentAmount: Math.max(0, Number(g.currentAmount) - amount) } : g)
-      };
-    });
-  }, []);
+        transactions: [savedTx, ...prev.transactions],
+        goals: prev.goals.map(g => g.id === goalId ? savedGoal : g)
+      }));
+    }
+  }, [state.goals]);
+
+  const removeFromFuture = useCallback(async (amount: number, goalId: string) => {
+    const goal = state.goals.find(g => g.id === goalId);
+    if (!goal || amount <= 0) return;
+
+    const refundTx: Omit<Transaction, 'id'> = {
+      type: 'entrada',
+      amount,
+      category: goal.category,
+      description: `Retirada: ${goal.name}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    const savedTx = await supabaseService.addTransaction(refundTx);
+    const updatedGoal = { ...goal, currentAmount: Math.max(0, Number(goal.currentAmount) - amount) };
+    const savedGoal = await supabaseService.updateGoal(updatedGoal);
+
+    if (savedTx && savedGoal) {
+      setState(prev => ({
+        ...prev,
+        transactions: [savedTx, ...prev.transactions],
+        goals: prev.goals.map(g => g.id === goalId ? savedGoal : g)
+      }));
+    }
+  }, [state.goals]);
 
   return {
     state,
