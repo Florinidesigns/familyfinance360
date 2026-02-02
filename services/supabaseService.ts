@@ -2,6 +2,27 @@
 import { supabase } from './supabase';
 import { FinanceState, Transaction, LongTermDebt, FutureGoal, RecurringIncome, RecurringExpense, Investment, AppSettings, AlertSettings, FamilyMember } from '../types';
 
+// Helper to convert camelCase to snake_case
+const toSnakeCase = (obj: any) => {
+    const newObj: any = {};
+    for (const key in obj) {
+        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+        newObj[snakeKey] = obj[key];
+    }
+    return newObj;
+};
+
+// Helper to convert snake_case to camelCase
+const toCamelCase = (obj: any) => {
+    if (!obj) return obj;
+    const newObj: any = {};
+    for (const key in obj) {
+        const camelKey = key.replace(/(_\w)/g, m => m[1].toUpperCase());
+        newObj[camelKey] = obj[key];
+    }
+    return newObj;
+};
+
 export const supabaseService = {
     // --- AUTH ---
     async login(email: string, password?: string) {
@@ -44,7 +65,6 @@ export const supabaseService = {
             investments,
             profile,
             settings,
-            alertSettings,
             dismissedAlerts
         ] = await Promise.all([
             supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
@@ -55,25 +75,47 @@ export const supabaseService = {
             supabase.from('investments').select('*').eq('user_id', user.id),
             supabase.from('profiles').select('*').eq('id', user.id).single(),
             supabase.from('app_settings').select('*').eq('user_id', user.id).maybeSingle(),
-            supabase.from('alert_settings').select('*').eq('user_id', user.id).maybeSingle(),
             supabase.from('dismissed_alerts').select('alert_identifier').eq('user_id', user.id)
         ]);
 
         const familyMembers = await supabase.from('family_members').select('*').eq('user_id', user.id);
 
+        // Map results from snake_case to camelCase
+        const mappedTransactions = (transactions.data || []).map(toCamelCase);
+        const mappedDebts = (debts.data || []).map(toCamelCase);
+        const mappedGoals = (goals.data || []).map(toCamelCase);
+        const mappedIncomes = (recurringIncomes.data || []).map(toCamelCase);
+        const mappedExpenses = (recurringExpenses.data || []).map(toCamelCase);
+        const mappedInvestments = (investments.data || []).map(toCamelCase);
+        const mappedMembers = (familyMembers.data || []).map(toCamelCase);
+        const mappedSettings = toCamelCase(settings.data);
+
+        // Extract alert settings from app_settings
+        const alertSettings: AlertSettings = {
+            commitmentDays: mappedSettings?.commitmentDays || 5,
+            goalThreshold: Number(mappedSettings?.goalThreshold) || 90,
+            budgetThreshold: Number(mappedSettings?.budgetThreshold) || 80
+        };
+
+        const appSettings: AppSettings = {
+            currency: mappedSettings?.currency || 'EUR',
+            language: mappedSettings?.language || 'Português',
+            theme: mappedSettings?.theme || 'light'
+        };
+
         return {
-            transactions: transactions.data || [],
-            debts: debts.data || [],
-            goals: goals.data || [],
-            recurringIncomes: recurringIncomes.data || [],
-            recurringExpenses: recurringExpenses.data || [],
-            investments: investments.data || [],
+            transactions: mappedTransactions,
+            debts: mappedDebts,
+            goals: mappedGoals,
+            recurringIncomes: mappedIncomes,
+            recurringExpenses: mappedExpenses,
+            investments: mappedInvestments,
             familyInfo: {
                 familyName: profile.data?.family_name || '',
-                members: familyMembers.data || []
+                members: mappedMembers
             },
-            appSettings: (settings.data as any) || { currency: 'EUR', language: 'Português', theme: 'light' },
-            alertSettings: (alertSettings.data as any) || { commitmentDays: 7, goalThreshold: 90, budgetThreshold: 80 },
+            appSettings,
+            alertSettings,
             dismissedAlerts: dismissedAlerts.data?.map(d => d.alert_identifier) || []
         };
     },
@@ -82,14 +124,16 @@ export const supabaseService = {
     async addTransaction(transaction: Omit<Transaction, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('transactions').insert([{ ...transaction, user_id: user.id }]).select().single();
+        const snakeTx = toSnakeCase(transaction);
+        const { data, error } = await supabase.from('transactions').insert([{ ...snakeTx, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateTransaction(transaction: Transaction) {
-        const { data, error } = await supabase.from('transactions').update(transaction).eq('id', transaction.id).select().single();
+        const snakeTx = toSnakeCase(transaction);
+        const { data, error } = await supabase.from('transactions').update(snakeTx).eq('id', transaction.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteTransaction(id: string) {
         const { error } = await supabase.from('transactions').delete().eq('id', id);
@@ -100,14 +144,16 @@ export const supabaseService = {
     async addMember(member: Omit<FamilyMember, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('family_members').insert([{ ...member, user_id: user.id }]).select().single();
+        const snakeMember = toSnakeCase(member);
+        const { data, error } = await supabase.from('family_members').insert([{ ...snakeMember, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateMember(member: FamilyMember) {
-        const { data, error } = await supabase.from('family_members').update(member).eq('id', member.id).select().single();
+        const snakeMember = toSnakeCase(member);
+        const { data, error } = await supabase.from('family_members').update(snakeMember).eq('id', member.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteMember(id: string) {
         const { error } = await supabase.from('family_members').delete().eq('id', id);
@@ -118,14 +164,16 @@ export const supabaseService = {
     async addRecurringIncome(income: Omit<RecurringIncome, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('recurring_incomes').insert([{ ...income, user_id: user.id }]).select().single();
+        const snakeIncome = toSnakeCase(income);
+        const { data, error } = await supabase.from('recurring_incomes').insert([{ ...snakeIncome, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateRecurringIncome(income: RecurringIncome) {
-        const { data, error } = await supabase.from('recurring_incomes').update(income).eq('id', income.id).select().single();
+        const snakeIncome = toSnakeCase(income);
+        const { data, error } = await supabase.from('recurring_incomes').update(snakeIncome).eq('id', income.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteRecurringIncome(id: string) {
         const { error } = await supabase.from('recurring_incomes').delete().eq('id', id);
@@ -140,14 +188,16 @@ export const supabaseService = {
     async addRecurringExpense(expense: Omit<RecurringExpense, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('recurring_expenses').insert([{ ...expense, user_id: user.id }]).select().single();
+        const snakeExpense = toSnakeCase(expense);
+        const { data, error } = await supabase.from('recurring_expenses').insert([{ ...snakeExpense, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateRecurringExpense(expense: RecurringExpense) {
-        const { data, error } = await supabase.from('recurring_expenses').update(expense).eq('id', expense.id).select().single();
+        const snakeExpense = toSnakeCase(expense);
+        const { data, error } = await supabase.from('recurring_expenses').update(snakeExpense).eq('id', expense.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteRecurringExpense(id: string) {
         const { error } = await supabase.from('recurring_expenses').delete().eq('id', id);
@@ -158,14 +208,16 @@ export const supabaseService = {
     async addDebt(debt: Omit<LongTermDebt, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('long_term_debts').insert([{ ...debt, user_id: user.id }]).select().single();
+        const snakeDebt = toSnakeCase(debt);
+        const { data, error } = await supabase.from('long_term_debts').insert([{ ...snakeDebt, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateDebt(debt: LongTermDebt) {
-        const { data, error } = await supabase.from('long_term_debts').update(debt).eq('id', debt.id).select().single();
+        const snakeDebt = toSnakeCase(debt);
+        const { data, error } = await supabase.from('long_term_debts').update(snakeDebt).eq('id', debt.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteDebt(id: string) {
         const { error } = await supabase.from('long_term_debts').delete().eq('id', id);
@@ -176,14 +228,16 @@ export const supabaseService = {
     async addGoal(goal: Omit<FutureGoal, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('future_goals').insert([{ ...goal, user_id: user.id }]).select().single();
+        const snakeGoal = toSnakeCase(goal);
+        const { data, error } = await supabase.from('future_goals').insert([{ ...snakeGoal, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateGoal(goal: FutureGoal) {
-        const { data, error } = await supabase.from('future_goals').update(goal).eq('id', goal.id).select().single();
+        const snakeGoal = toSnakeCase(goal);
+        const { data, error } = await supabase.from('future_goals').update(snakeGoal).eq('id', goal.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteGoal(id: string) {
         const { error } = await supabase.from('future_goals').delete().eq('id', id);
@@ -194,14 +248,16 @@ export const supabaseService = {
     async addInvestment(inv: Omit<Investment, 'id'>) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { data, error } = await supabase.from('investments').insert([{ ...inv, user_id: user.id }]).select().single();
+        const snakeInv = toSnakeCase(inv);
+        const { data, error } = await supabase.from('investments').insert([{ ...snakeInv, user_id: user.id }]).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async updateInvestment(inv: Investment) {
-        const { data, error } = await supabase.from('investments').update(inv).eq('id', inv.id).select().single();
+        const snakeInv = toSnakeCase(inv);
+        const { data, error } = await supabase.from('investments').update(snakeInv).eq('id', inv.id).select().single();
         if (error) throw error;
-        return data;
+        return toCamelCase(data);
     },
     async deleteInvestment(id: string) {
         const { error } = await supabase.from('investments').delete().eq('id', id);
@@ -212,13 +268,15 @@ export const supabaseService = {
     async updateAppSettings(settings: AppSettings) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { error } = await supabase.from('app_settings').upsert({ ...settings, user_id: user.id });
+        const snakeSettings = toSnakeCase(settings);
+        const { error } = await supabase.from('app_settings').upsert({ ...snakeSettings, user_id: user.id });
         if (error) throw error;
     },
     async updateAlertSettings(settings: AlertSettings) {
         const user = await this.getCurrentUser();
         if (!user) return;
-        const { error } = await supabase.from('alert_settings').upsert({ ...settings, user_id: user.id });
+        const snakeSettings = toSnakeCase(settings);
+        const { error } = await supabase.from('app_settings').upsert({ ...snakeSettings, user_id: user.id });
         if (error) throw error;
     },
     async updateProfile(familyName: string) {
