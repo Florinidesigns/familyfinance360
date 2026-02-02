@@ -282,12 +282,12 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800 overflow-hidden divide-y divide-slate-50 dark:divide-slate-800 transition-colors duration-300">
+            <div className="mt-12 flex flex-col gap-4">
               {(state.recurringIncomes || []).map(inc => (
                 <ItemRow key={inc.id} variant="emerald" icon={<Coins size={24} />} title={inc.name} subtitle={`${t.incomeSources[inc.source as keyof typeof t.incomeSources] || inc.source} • ${t.future.monthDay} ${inc.dayOfMonth}`} value={`${(inc.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editIncome(inc)} onDelete={() => removeIncome(inc.id)} />
               ))}
               {(state.recurringIncomes || []).length === 0 && (
-                <div className="p-12 text-center text-slate-300">
+                <div className="p-12 text-center text-slate-300 bg-slate-50/50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800">
                   <Briefcase size={40} className="mx-auto mb-4 opacity-20" />
                   <p className="font-black text-xs uppercase tracking-widest">{t.backoffice.noIncomes}</p>
                 </div>
@@ -336,7 +336,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
                         <Layers size={14} className="text-orange-500" /> {t.dashboard.periods[freq.toLowerCase() as keyof typeof t.dashboard.periods] || freq}
                       </h5>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    <div className="flex flex-col gap-4 p-4">
                       {expenses.map(exp => (
                         <ItemRow key={exp.id} variant="orange" icon={getCategoryIcon(exp.category)} title={exp.name} subtitle={`${t.dashboard.periods[exp.frequency.toLowerCase() as keyof typeof t.dashboard.periods] || exp.frequency} • ${t.present.next}: ${calculateNextLiquidation(exp)}`} value={`${(exp.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editExp(exp)} onDelete={() => removeExp(exp.id)} />
                       ))}
@@ -373,7 +373,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-white/5 dark:bg-slate-800/30 rounded-[32px] border border-white/10 dark:border-slate-800 overflow-hidden divide-y divide-white/5 dark:divide-slate-800 transition-colors duration-300">
+            <div className="mt-12 flex flex-col gap-4">
               {state.debts.map(d => (
                 <ItemRow key={d.id} variant="orange" icon={d.type === 'Carro' ? <Car size={24} /> : <Home size={24} />} title={d.name} subtitle={`${t.debtTypes[d.type as keyof typeof t.debtTypes] || d.type} • ${t.future.monthDay} ${d.dayOfMonth || '-'} • Capital: ${(d.contractedValue || 0).toLocaleString(locale)}${currencySymbol}`} value={`${(d.monthlyPayment || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editDebt(d)} onDelete={() => removeDebt(d.id)} />
               ))}
@@ -400,7 +400,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-[32px] border border-slate-100 dark:border-slate-800 overflow-hidden divide-y divide-slate-50 dark:divide-slate-800 transition-colors duration-300">
+            <div className="mt-12 flex flex-col gap-4">
               {state.goals.map(g => (
                 <ItemRow key={g.id} variant="blue" icon={<TrendingUp size={24} />} title={g.name} subtitle={`${(g.targetAmount || 0).toLocaleString(locale)}${currencySymbol} ${t.backoffice.target}`} onEdit={() => editGoal(g)} onDelete={() => removeGoal(g.id)} />
               ))}
@@ -433,7 +433,7 @@ const Backoffice: React.FC<Props> = ({ state, onUpdateState, initialSubTab = 'pr
             </div>
 
             {/* Integrated List */}
-            <div className="mt-12 bg-white/5 dark:bg-slate-800/30 rounded-[32px] border border-white/10 dark:border-slate-800 overflow-hidden divide-y divide-white/5 dark:divide-slate-800 transition-colors duration-300">
+            <div className="mt-12 flex flex-col gap-4">
               {(state.investments || []).map(inv => (
                 <ItemRow key={inv.id} variant="blue" icon={<Wallet size={24} />} title={inv.name} subtitle={inv.type === 'PPR' ? `${inv.type} • ${t.future.monthlyReinforcement}: ${inv.monthlyReinforcement.toLocaleString(locale)}${currencySymbol} (${t.future.monthDay} ${inv.dayOfMonth})` : (t.invTypes[inv.type as keyof typeof t.invTypes] || inv.type)} value={`${(inv.amount || 0).toLocaleString(locale)}${currencySymbol}`} onEdit={() => editInv(inv)} onDelete={() => removeInv(inv.id)} />
               ))}

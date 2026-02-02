@@ -39,8 +39,8 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
                 title: exp.name,
                 subtitle: `${t.alerts.dueIn} ${daysUntil === 0 ? t.alerts.today : daysUntil === 1 ? t.alerts.tomorrow : `${daysUntil} ${t.alerts.days}`}`,
                 value: `${exp.amount.toLocaleString(locale)}${currencySymbol}`,
-                icon: <Calendar className="text-orange-500" />,
-                variant: 'orange'
+                icon: <Bell className="text-rose-500" />,
+                variant: 'rose'
             });
         }
     });
@@ -55,8 +55,8 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
                     title: debt.name,
                     subtitle: `${t.alerts.dueIn} ${daysUntil === 0 ? t.alerts.today : daysUntil === 1 ? t.alerts.tomorrow : `${daysUntil} ${t.alerts.days}`}`,
                     value: `${debt.monthlyPayment.toLocaleString(locale)}${currencySymbol}`,
-                    icon: <Calendar className="text-orange-500" />,
-                    variant: 'orange'
+                    icon: <Bell className="text-rose-500" />,
+                    variant: 'rose'
                 });
             }
         }
@@ -72,8 +72,8 @@ const AlertsPage: React.FC<AlertsPageProps> = ({ state, currencySymbol, t, local
                 title: goal.name,
                 subtitle: `${t.alerts.reached} ${progress.toFixed(0)}% ${t.alerts.ofGoal}`,
                 value: `${(Number(goal.targetAmount) - Number(goal.currentAmount)).toLocaleString(locale)}${currencySymbol} ${t.future.remaining.toLowerCase()}`,
-                icon: <Target className="text-blue-500" />,
-                variant: 'blue'
+                icon: <Bell className="text-rose-500" />,
+                variant: 'rose'
             });
         }
     });

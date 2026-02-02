@@ -12,7 +12,7 @@ interface Props {
     valueInside?: boolean;
     onDelete?: () => void;
     onEdit?: () => void;
-    variant?: 'slate' | 'orange' | 'emerald' | 'blue';
+    variant?: 'slate' | 'orange' | 'emerald' | 'blue' | 'rose';
     t?: TranslationType;
 }
 
@@ -31,14 +31,16 @@ const ItemRow: React.FC<Props> = ({
         slate: 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/80',
         orange: 'bg-orange-50 dark:bg-orange-950/20 border-orange-100 dark:border-orange-900/30 hover:bg-orange-100/50 dark:hover:bg-orange-900/40',
         emerald: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/40',
-        blue: 'bg-blue-50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30 hover:bg-blue-100/50 dark:hover:bg-blue-900/40'
+        blue: 'bg-blue-50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30 hover:bg-blue-100/50 dark:hover:bg-blue-900/40',
+        rose: 'bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30 hover:bg-rose-100/50 dark:hover:bg-rose-900/40'
     };
 
     const iconStyles = {
         slate: 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-100 dark:border-slate-700',
         orange: 'bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-slate-700',
         emerald: 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-slate-700',
-        blue: 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-slate-700'
+        blue: 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-slate-700',
+        rose: 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-slate-700'
     };
 
     return (

@@ -1063,13 +1063,45 @@ const App: React.FC = () => {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <SectionCard variant="orange" title={t.past.pastCommitments} icon={<History size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><CreditCard size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.totalDebt}</p><p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center shrink-0"><CreditCard size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.totalDebt}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{state.debts.reduce((a, b) => a + Number(b.remainingValue), 0).toLocaleString(locale)}{currencySymbol}</p>
+                    {state.debts.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {state.debts.map(debt => (
+                          <div key={debt.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{debt.name}</span>
+                            <span className="text-white">{(debt.remainingValue as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center"><Layers size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.monthlyBurden}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-orange-600 rounded-2xl flex items-center justify-center shrink-0"><Layers size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.past.monthlyBurden}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{(state.debts.reduce((a, b) => a + Number(b.monthlyPayment), 0) + state.recurringExpenses.reduce((a, b) => a + Number(b.amount), 0)).toLocaleString(locale)}{currencySymbol}</p>
+                    {(state.debts.length > 0 || state.recurringExpenses.length > 0) && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {state.debts.map(debt => (
+                          <div key={debt.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{debt.name}</span>
+                            <span className="text-white">{(debt.monthlyPayment as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                        {state.recurringExpenses.map(exp => (
+                          <div key={exp.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{exp.name}</span>
+                            <span className="text-white">{(exp.amount as any).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </SectionCard>
@@ -1108,17 +1140,62 @@ const App: React.FC = () => {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <SectionCard variant="blue" title={t.future.buildTomorrow} icon={<TrendingUp size={150} />}>
               <div className="mt-8 flex flex-wrap gap-4 md:gap-8">
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Wallet size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.totalAccumulated}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center shrink-0"><Wallet size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.totalAccumulated}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{(state.goals.reduce((a, b) => a + Number(b.currentAmount), 0) + (state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0)).toLocaleString(locale)}{currencySymbol}</p>
+                    {(state.goals.length > 0 || (state.investments || []).length > 0) && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {state.goals.map(goal => (
+                          <div key={goal.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{goal.name}</span>
+                            <span className="text-white">{Number(goal.currentAmount).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                        {(state.investments || []).map(inv => (
+                          <div key={inv.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{inv.name}</span>
+                            <span className="text-white">{Number(inv.amount).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><Sparkles size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.dreams}</p><p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center shrink-0"><Sparkles size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.dreams}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{state.goals.reduce((a, b) => a + Number(b.currentAmount), 0).toLocaleString(locale)}{currencySymbol}</p>
+                    {state.goals.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {state.goals.map(goal => (
+                          <div key={goal.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{goal.name}</span>
+                            <span className="text-white">{Number(goal.currentAmount).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[200px]">
-                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center"><PieChart size={24} /></div>
-                  <div><p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.investments}</p><p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString('pt-PT')}{currencySymbol}</p></div>
+                <div className="bg-white/10 p-4 rounded-[24px] backdrop-blur-md flex items-center gap-4 flex-1 min-w-[240px]">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-2xl flex items-center justify-center shrink-0"><PieChart size={24} /></div>
+                  <div className="flex-1">
+                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-60 text-white">{t.future.investments}</p>
+                    <p className="text-2xl md:text-3xl font-black text-white">{(state.investments?.reduce((a, b) => a + Number(b.amount), 0) || 0).toLocaleString(locale)}{currencySymbol}</p>
+                    {(state.investments || []).length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/10 space-y-1">
+                        {(state.investments || []).map(inv => (
+                          <div key={inv.id} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white/60 uppercase tracking-tighter">{inv.name}</span>
+                            <span className="text-white">{Number(inv.amount).toLocaleString(locale)}{currencySymbol}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </SectionCard>
