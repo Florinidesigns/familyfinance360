@@ -148,7 +148,7 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
         {/* Print Header */}
         <div className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-10">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{t.reports.financialHealthReport}</h1>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{t.reports.financialHealthReport}</h1>
             <div className="flex gap-4 mt-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
               <span className="flex items-center gap-1"><Calendar size={14} /> {new Date().toLocaleDateString(locale)}</span>
               <span className="flex items-center gap-1"><ShieldCheck size={14} /> {t.reports.verifiedDocument}</span>

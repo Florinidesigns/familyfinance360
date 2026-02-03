@@ -349,7 +349,7 @@ export const translations = {
             income: 'Rendimentos',
             expenses: 'Despesas',
             futureSavings: 'Poupanças',
-            pastDebt: 'Dívidas e Compromissos',
+            pastDebt: 'Compromissos',
             irsAuditDetail: 'Detalhe para Conferência IRS (e-fatura)',
             recoverable: 'Recuperável',
             detailedExtract: 'Extrato Detalhado de Operações',
