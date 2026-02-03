@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, History, Target, TrendingUp, Bell } from 'lucide-react';
+import { Home, History, Target, TrendingUp, Bell, FileText } from 'lucide-react';
 import { TranslationType } from '../translations';
 
 interface Props {
@@ -8,20 +8,25 @@ interface Props {
     onNavigate: (tab: string) => void;
     t: TranslationType;
     alertCount?: number;
+    language: string;
 }
 
-const MobileMenu: React.FC<Props> = ({ activeTab, onNavigate, t, alertCount = 0 }) => {
+const MobileMenu: React.FC<Props> = ({ activeTab, onNavigate, t, alertCount = 0, language }) => {
     const items = [
         { id: 'dashboard', icon: <Home size={24} />, label: 'Home' },
         { id: 'alerts', icon: <Bell size={24} />, label: t.nav.alerts },
+        { id: 'irs', icon: <FileText size={24} />, label: t.nav.irs },
         { id: 'past', icon: <History size={24} />, label: t.nav.past },
         { id: 'present', icon: <Target size={24} />, label: t.nav.present },
         { id: 'future', icon: <TrendingUp size={24} />, label: t.nav.future },
-    ];
+    ].filter(item =>
+        item.id !== 'irs' ||
+        (language && (language.toLowerCase().startsWith('portugu') || language === 'pt'))
+    );
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-2 pb-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50">
-            <div className="flex justify-around items-center">
+            <div className="flex justify-around items-center overflow-x-auto no-scrollbar">
                 {items.map((item) => {
                     const isActive = activeTab === item.id;
                     const isAlertsWithNotifications = item.id === 'alerts' && alertCount > 0;

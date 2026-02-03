@@ -1278,10 +1278,8 @@ const App: React.FC = () => {
           </div>
         );
       case 'irs':
-        if (state.appSettings?.language !== 'Português') return null;
         return <IRSIndicators state={state} onConfirm={() => setActiveTab('irs-confirmation')} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'irs-confirmation':
-        if (state.appSettings?.language !== 'Português') return null;
         return <IRSConfirmationReport state={state} onUpdateTransaction={updateTransaction} onEditTransaction={setEditingTransaction} onDeleteTransaction={deleteTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
       case 'reports': return <ReportsPage state={state} currencySymbol={currencySymbol} t={t} language={state.appSettings?.language || 'Português'} locale={locale} />;
       case 'alerts': return <AlertsPage state={state} currencySymbol={currencySymbol} t={t} locale={locale} onDismissAlert={dismissAlert} />;
@@ -1295,7 +1293,7 @@ const App: React.FC = () => {
   if (isMobile && view === 'dashboard') {
     let mobileContent;
     if (activeTab === 'dashboard') {
-      mobileContent = <DashTel state={state} onNavigate={setActiveTab} onLogout={handleLogout} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} />;
+      mobileContent = <DashTel state={state} onNavigate={setActiveTab} onLogout={handleLogout} onAddTransaction={addTransaction} currencySymbol={currencySymbol} t={t} locale={locale} language={state.appSettings?.language || 'Português'} />;
     } else {
       mobileContent = (
         <div className="p-4 pb-24 overflow-y-auto h-screen bg-slate-50 dark:bg-slate-950">
@@ -1306,7 +1304,7 @@ const App: React.FC = () => {
     return (
       <div className="relative min-h-screen">
         {mobileContent}
-        <MobileMenu activeTab={activeTab} onNavigate={setActiveTab} t={t} alertCount={alertCount} />
+        <MobileMenu activeTab={activeTab} onNavigate={setActiveTab} t={t} alertCount={alertCount} language={state.appSettings?.language || 'Português'} />
       </div>
     );
   }
@@ -1328,7 +1326,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} t={t} language={state.appSettings.language} alertCount={alertCount}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} t={t} language={state.appSettings?.language || 'Português'} alertCount={alertCount}>
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
         <div><div className="flex items-center gap-3 mb-2"><h2 className="text-4xl font-black text-slate-800 tracking-tight">{getPageTitle(activeTab)}</h2><div className="hidden sm:flex items-center gap-2">{isSyncing ? <span className="flex items-center gap-2 text-[10px] bg-amber-50 text-amber-600 px-4 py-1.5 rounded-full font-black border border-amber-100"><Cloud size={12} className="animate-bounce" /> {t.dashboard.cloudSync}</span> : <span className="flex items-center gap-2 text-[10px] bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full font-black border border-emerald-100"><CloudCheck size={12} /> {t.dashboard.protected}</span>}</div></div></div>
         <div className="flex gap-4">

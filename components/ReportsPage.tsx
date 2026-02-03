@@ -180,34 +180,6 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
           </div>
         </div>
 
-        {/* IRS Audit Section (The "Apoio ao IRS" part of the PDF) */}
-        <div className="mb-10 page-break-inside-avoid">
-          <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
-            <FileCheck className="text-amber-500" size={20} /> {t.reports.irsAuditDetail}
-          </h3>
-          <div className="grid grid-cols-2 gap-8">
-            {Object.entries(IRS_CONFIG).map(([category, config]) => {
-              const amount = (state.transactions || [])
-                .filter(t => t.type === 'saida' && (t.category === category || (category === 'Outros' && ['Alimentação', 'Utilidades', 'Despesas'].includes(t.category as string))))
-                .reduce((acc, t) => acc + Number(t.amount), 0);
-              const benefit = Math.min(amount * config.percentage, config.maxBenefit);
-
-              return (
-                <div key={category} className="flex justify-between items-center p-4 border-b border-slate-100">
-                  <div>
-                    <p className="font-bold text-slate-800 text-sm">{category}</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-black">{config.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-slate-800">{amount.toLocaleString(locale)}{currencySymbol}</p>
-                    <p className="text-[10px] font-black text-emerald-600 uppercase">{t.reports.recoverable}: {benefit.toFixed(2)}{currencySymbol}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Transactions Table */}
         <div className="mb-10">
           <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
@@ -240,6 +212,34 @@ const ReportsPage: React.FC<Props> = ({ state, currencySymbol, t, language, loca
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* IRS Audit Section (The "Apoio ao IRS" part of the PDF) */}
+        <div className="mb-10 page-break-inside-avoid">
+          <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
+            <FileCheck className="text-amber-500" size={20} /> {t.reports.irsAuditDetail}
+          </h3>
+          <div className="grid grid-cols-2 gap-8">
+            {Object.entries(IRS_CONFIG).map(([category, config]) => {
+              const amount = (state.transactions || [])
+                .filter(t => t.type === 'saida' && (t.category === category || (category === 'Outros' && ['Alimentação', 'Utilidades', 'Despesas'].includes(t.category as string))))
+                .reduce((acc, t) => acc + Number(t.amount), 0);
+              const benefit = Math.min(amount * config.percentage, config.maxBenefit);
+
+              return (
+                <div key={category} className="flex justify-between items-center p-4 border-b border-slate-100">
+                  <div>
+                    <p className="font-bold text-slate-800 text-sm">{category}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-black">{config.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-slate-800">{amount.toLocaleString(locale)}{currencySymbol}</p>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase">{t.reports.recoverable}: {benefit.toFixed(2)}{currencySymbol}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Print Footer */}

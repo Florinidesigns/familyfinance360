@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import SummaryCards from './SummaryCards';
 import TransactionForm from './TransactionForm';
 import { FinanceState, Transaction } from '../types';
-import { LogOut, Sparkles, History, Target, TrendingUp, Plus, Minus } from 'lucide-react';
+import { LogOut, Sparkles, History, Target, TrendingUp, Plus, Minus, FileText } from 'lucide-react';
 import { TranslationType } from '../translations';
 
 interface DashTelProps {
@@ -14,9 +14,10 @@ interface DashTelProps {
     currencySymbol: string;
     t: TranslationType;
     locale: string;
+    language: string;
 }
 
-const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onLogout, onAddTransaction, currencySymbol, t, locale }) => {
+const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onLogout, onAddTransaction, currencySymbol, t, locale, language }) => {
     const [isFormVisible, setIsFormVisible] = useState(false);
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 pb-20 transition-colors duration-300">
@@ -111,6 +112,28 @@ const DashTel: React.FC<DashTelProps> = ({ state, onNavigate, onLogout, onAddTra
                                 </p>
                             </div>
                         </div>
+
+                        {/* IRS Banner (Only for Portuguese) */}
+                        {language && (language.toLowerCase().startsWith('portugu') || language === 'pt') && (
+                            <div
+                                onClick={() => onNavigate('irs')}
+                                className="bg-slate-800 rounded-[28px] p-4 shadow-lg shadow-slate-200 dark:shadow-none border border-slate-700 flex items-center justify-between group overflow-hidden relative min-h-[90px] cursor-pointer"
+                            >
+                                <div className="absolute -right-5 -bottom-5 opacity-20 text-white">
+                                    <FileText size={100} />
+                                </div>
+                                <div className="relative z-10 w-full">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <p className="text-[10px] font-black text-white/90 uppercase tracking-widest flex items-center gap-2">
+                                            <FileText size={14} /> {t.nav.irs}
+                                        </p>
+                                    </div>
+                                    <p className="text-xl font-black text-white uppercase tracking-tight">
+                                        {t.nav.irs} Indicators
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
