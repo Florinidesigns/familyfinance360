@@ -44,22 +44,22 @@ const ItemRow: React.FC<Props> = ({
     };
 
     return (
-        <div className={`p-6 rounded-[32px] border flex items-center justify-between group transition-all ${variantStyles[variant]}`}>
-            <div className="flex items-center gap-6">
+        <div className={`p-4 md:p-6 rounded-[32px] border flex items-center justify-between group transition-all ${variantStyles[variant]}`}>
+            <div className="flex items-center gap-4 md:gap-6">
                 {icon && (
-                    <div className={`p-4 rounded-2xl border shadow-sm ${iconStyles[variant]}`}>
+                    <div className={`p-3 md:p-4 rounded-2xl border shadow-sm ${iconStyles[variant]}`}>
                         {icon}
                     </div>
                 )}
                 <div>
-                    <p className="font-black text-lg text-slate-800 dark:text-slate-100 leading-tight">{title}</p>
-                    {subtitle && <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{subtitle}</p>}
-                    {valueInside && value && <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1">{t?.common.incomeLabel || 'Rendimento'}: {value}</p>}
+                    <p className="font-black text-sm md:text-base text-slate-800 dark:text-slate-100 leading-tight">{title}</p>
+                    {subtitle && <p className="text-[9px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{subtitle}</p>}
+                    {valueInside && value && <p className="text-[9px] md:text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1">{t?.common.incomeLabel || 'Rendimento'}: {value}</p>}
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
-                {!valueInside && value && <p className="text-xl font-black text-slate-800 dark:text-slate-100">{value}</p>}
+            <div className="flex items-center gap-4 md:gap-6">
+                {!valueInside && value && <p className="text-base md:text-lg font-black text-slate-800 dark:text-slate-100 whitespace-nowrap">{value}</p>}
                 <div className="flex items-center gap-2">
                     {onEdit && (
                         <button

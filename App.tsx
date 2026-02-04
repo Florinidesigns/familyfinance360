@@ -690,39 +690,70 @@ const App: React.FC = () => {
             </SectionCard>
             <TransactionForm onAdd={addTransaction} currencySymbol={currencySymbol} t={t} />
             <SectionCard title={t.present.detailedHistory}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-separate border-spacing-y-2">
-                  <thead>
-                    <tr>
-                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-l border-slate-100 dark:border-slate-700 rounded-l-2xl px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.date}</th>
-                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.description}</th>
-                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.category}</th>
-                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200 text-right">{t.present.amount}</th>
-                      <th className="bg-slate-50 dark:bg-slate-800 border-y border-r border-slate-100 dark:border-slate-700 rounded-r-2xl px-8 py-5 text-sm font-medium text-slate-700 dark:text-slate-200 text-right">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {state.transactions.map(tx => (
-                      <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group/row">
-                        <td className="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">{tx.date}</td>
-                        <td className="px-8 py-6 text-sm font-bold text-slate-800 dark:text-white">{tx.description}</td>
-                        <td className="px-8 py-6 text-sm"><span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold text-[10px] uppercase">{getCategoryIcon(tx.category)} {tx.category}</span></td>
-                        <td className={`px-8 py-6 text-base font-black text-right ${getTransactionColor(tx)}`}>{tx.type === 'entrada' ? '+' : '-'}{tx.amount.toLocaleString('pt-PT')}{currencySymbol}</td>
-                        <td className="px-8 py-6 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button onClick={() => setEditingTransaction(tx)} className="p-2 text-slate-300 hover:text-blue-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
-                              <Pencil size={18} />
-                            </button>
-                            <button onClick={() => { if (confirm('Deseja eliminar esta transação?')) deleteTransaction(tx.id); }} className="p-2 text-slate-300 hover:text-rose-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </td>
+              {isMobile ? (
+                <div className="space-y-4">
+                  {state.transactions.map(tx => (
+                    <ItemRow
+                      key={tx.id}
+                      icon={getCategoryIcon(tx.category)}
+                      title={tx.description}
+                      subtitle={`${tx.date} • ${tx.category}`}
+                      value={`${tx.type === 'entrada' ? '+' : '-'}${tx.amount.toLocaleString(locale)}${currencySymbol}`}
+                      onEdit={() => setEditingTransaction(tx)}
+                      onDelete={() => { if (confirm('Deseja eliminar esta transação?')) deleteTransaction(tx.id); }}
+                      variant={tx.type === 'entrada' ? 'emerald' : 'slate'}
+                    />
+                  ))}
+                  {state.transactions.length === 0 && (
+                    <div className="py-10 text-center text-slate-400">
+                      <History size={32} className="mx-auto mb-2 opacity-20" />
+                      <p className="text-xs font-bold uppercase tracking-widest">{t.dashboard.noTransactions}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-separate border-spacing-y-2">
+                    <thead>
+                      <tr>
+                        <th className="bg-slate-50 dark:bg-slate-800 border-y border-l border-slate-100 dark:border-slate-700 rounded-l-2xl px-4 md:px-8 py-4 md:py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.date}</th>
+                        <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-4 md:px-8 py-4 md:py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.description}</th>
+                        <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-4 md:px-8 py-4 md:py-5 text-sm font-medium text-slate-700 dark:text-slate-200">{t.present.category}</th>
+                        <th className="bg-slate-50 dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 px-4 md:px-8 py-4 md:py-5 text-sm font-medium text-slate-700 dark:text-slate-200 text-right">{t.present.amount}</th>
+                        <th className="bg-slate-50 dark:bg-slate-800 border-y border-r border-slate-100 dark:border-slate-700 rounded-r-2xl px-4 md:px-8 py-4 md:py-5 text-sm font-medium text-slate-700 dark:text-slate-200 text-right">Ações</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                      {state.transactions.map(tx => (
+                        <tr key={tx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group/row">
+                          <td className="px-4 md:px-8 py-4 md:py-6 text-sm text-slate-500 dark:text-slate-400">{tx.date}</td>
+                          <td className="px-4 md:px-8 py-4 md:py-6 text-sm font-bold text-slate-800 dark:text-white">{tx.description}</td>
+                          <td className="px-4 md:px-8 py-4 md:py-6 text-sm"><span className="flex items-center gap-2 text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold text-[10px] uppercase">{getCategoryIcon(tx.category)} {tx.category}</span></td>
+                          <td className={`px-4 md:px-8 py-4 md:py-6 text-base font-black text-right ${getTransactionColor(tx)}`}>{tx.type === 'entrada' ? '+' : '-'}{tx.amount.toLocaleString('pt-PT')}{currencySymbol}</td>
+                          <td className="px-4 md:px-8 py-4 md:py-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => setEditingTransaction(tx)} className="p-2 text-slate-300 hover:text-blue-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                                <Pencil size={18} />
+                              </button>
+                              <button onClick={() => { if (confirm('Deseja eliminar esta transação?')) deleteTransaction(tx.id); }} className="p-2 text-slate-300 hover:text-rose-600 rounded-lg transition-all hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {state.transactions.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="py-20 text-center text-slate-400">
+                            <History size={48} className="mx-auto mb-4 opacity-20" />
+                            <p className="font-bold uppercase tracking-widest">{t.dashboard.noTransactions}</p>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </SectionCard>
           </div>
         );
